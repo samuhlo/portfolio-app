@@ -1,19 +1,19 @@
 <template>
-  <section class="h-screen w-full flex flex-col pb-12 pt-32 px-6 md:px-12 mx-auto">
-    <div class="grow flex flex-col justify-center w-full">
-      <h1
-        ref="heroTitle"
-        class="text-7xl md:text-[8rem] lg:text-[13em] leading-[0.85] font-black uppercase text-right tracking-tighter w-full opacity-0 translate-y-8"
-      >
-        Samuel Lopez
-      </h1>
-      <h2
-        ref="heroSubtitle"
-        class="text-base md:text-4xl mt-80 font-bold text-left tracking-tight opacity-0 translate-y-8"
-      >
-        Front-end Developer
-      </h2>
-    </div>
+  <section
+    class="h-screen w-full relative flex flex-col justify-center px-6 md:px-12 mx-auto overflow-hidden"
+  >
+    <h1
+      ref="heroTitle"
+      class="text-[clamp(2rem,12vw,13rem)] leading-[0.85] font-black uppercase text-right tracking-tighter w-full opacity-0 translate-y-8 whitespace-nowrap"
+    >
+      Samuel Lopez
+    </h1>
+    <h2
+      ref="heroSubtitle"
+      class="absolute bottom-32 left-6 md:bottom-48 md:left-12 text-[clamp(2rem,3vw,3.5rem)] font-bold text-left tracking-tight opacity-0 translate-y-8"
+    >
+      Front-end Developer
+    </h2>
   </section>
 </template>
 

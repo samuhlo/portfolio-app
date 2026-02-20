@@ -1,10 +1,10 @@
 <template>
   <section
-    class="bg-foreground text-background pt-24 mt-24 flex flex-col justify-end w-full overflow-hidden"
+    class="min-h-[80vh] bg-foreground text-background pt-24 flex flex-col justify-end w-full overflow-hidden"
   >
     <!-- Links -->
     <div
-      class="grid grid-cols-3 px-6 md:px-12 mb-12 w-full text-[10px] md:text-sm font-bold uppercase tracking-widest items-center"
+      class="grid grid-cols-3 px-6 md:px-12 mb-12 w-full text-[1rem] md:text-[1.75rem] font-bold tracking-widest items-center"
     >
       <div class="text-left">
         <a href="mailto:hola@samuhlo.dev" class="hover:text-accent transition-colors"
