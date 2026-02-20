@@ -1,1 +1,14 @@
 @import 'tailwindcss';
+
+@theme {
+  --color-background: #faf3f0;
+  --color-foreground: #0c0011;
+  --color-accent: #ffca40;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    @apply selection:bg-accent selection:text-foreground;
+  }
+}

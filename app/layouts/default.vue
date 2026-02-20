@@ -1,10 +1,10 @@
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen">
-    <main>
-      <AppNav />
+  <div class="flex flex-col min-h-screen font-sans">
+    <AppNav />
+    <main class="grow w-full">
       <slot />
-      <AppFooter />
     </main>
+    <AppFooter />
   </div>
 </template>
 
