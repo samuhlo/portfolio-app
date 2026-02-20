@@ -1,0 +1,31 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+.agents
+# Node dependencies
+node_modules
+
+#Prettier
+.prettierrc
+.prettierignore
+
+#ESLint
+eslint.config.mjs
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
