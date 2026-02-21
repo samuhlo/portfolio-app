@@ -4,10 +4,10 @@
   >
     <div class="flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
       <NuxtLink to="/" class="hover:text-accent transition-opacity">Home</NuxtLink>
-      <NuxtLink to="/blog" class="hover:text-accent transition-opacity">Blog</NuxtLink>
+      <NuxtLink to="/" class="hover:text-accent transition-opacity">Logs</NuxtLink>
     </div>
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
-      <NuxtLink to="/contact" class="hover:text-accent transition-opacity">Contact</NuxtLink>
+      <NuxtLink to="/" class="hover:text-accent transition-opacity">Contact</NuxtLink>
     </div>
   </nav>
 </template>

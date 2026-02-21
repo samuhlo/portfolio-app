@@ -10,7 +10,7 @@
     </h1>
     <h2
       ref="heroSubtitle"
-      class="absolute bottom-32 left-6 md:bottom-48 md:left-12 text-[clamp(2rem,3vw,3.5rem)] font-bold text-left tracking-tight opacity-0 translate-y-8"
+      class="absolute bottom-32 left-0 right-0 md:bottom-48 md:left-12 text-[clamp(2rem,3vw,3.5rem)] font-bold text-center md:text-left tracking-tight opacity-0 translate-y-8"
     >
       Front-end Developer
     </h2>
