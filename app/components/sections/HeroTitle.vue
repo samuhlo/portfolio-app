@@ -24,7 +24,7 @@
     <span class="font-black">S</span>
     <span class="font-black">A</span>
     <span class="font-black">M</span>
-    <span ref="letraU" class="font-black">U</span>
+    <span class="font-black">U</span>
 
     <!-- Cae 1 -->
     <span ref="letraE1" class="font-black inline-block shrink-0 origin-bottom">E</span>
@@ -39,37 +39,19 @@
       class="relative inline-block h-0 pointer-events-none"
       style="width: 0; z-index: 10; overflow: visible"
     >
-      <svg
-        ref="hSvgRef"
-        viewBox="0 0 283 309"
+      <DoodleH
+        ref="doodleHRef"
         class="absolute"
         style="
           opacity: 0;
           pointer-events: none;
-          overflow: visible;
           width: 1.22em;
           height: 1.35em;
           top: -1.3em;
           left: 50%;
           transform: translateX(-56%);
         "
-        preserveAspectRatio="xMidYMid meet"
-        aria-hidden="true"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <g transform="matrix(1,0,0,1,-1592.318648,-729.828613)">
-          <path
-            ref="hPathRef"
-            d="M1610.819,982.62C1659.384,946.61 1669.392,941.37 1704.585,910C1723.756,892.913 1794.526,818.542 1789.224,764.617C1786.439,736.29 1759.267,738.627 1714.275,822.739C1684.521,878.364 1622.776,1018.05 1679.444,1020.219C1700.227,1021.014 1798.139,881.45 1813.827,893.53C1829.418,905.536 1759.602,1023.83 1806.973,1015.531C1818.625,1013.49 1822.113,1009.34 1856.315,987.878"
-            fill="none"
-            stroke="var(--color-accent, #ffca40)"
-            stroke-width="37"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-      </svg>
+      />
     </span>
 
     <!-- Fijas -->
@@ -93,8 +75,10 @@
  */
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
+import { useDoodleDraw } from '~/composables/useDoodleDraw';
 
-const { gsap, ScrollTrigger, initGSAP } = useGSAP();
+const { gsap, initGSAP } = useGSAP();
+const { preparePaths } = useDoodleDraw();
 
 // =========================================================================
 // CONFIGURACIÓN VISUAL Y DE ANIMACIÓN
@@ -126,11 +110,12 @@ const ANIMATION_CONFIG = {
 const containerRef = ref<HTMLElement | null>(null);
 const dotRef = ref<HTMLElement | null>(null);
 
-// Fijos mid
-const letraU = ref<HTMLElement | null>(null);
+// Ref al componente DoodleH (expone { svg: Ref<SVGSVGElement> })
+interface DoodleExposed {
+  svg: SVGSVGElement | null;
+}
+const doodleHRef = ref<DoodleExposed | null>(null);
 const hWrapRef = ref<HTMLElement | null>(null);
-const hSvgRef = ref<SVGSVGElement | null>(null);
-const hPathRef = ref<SVGPathElement | null>(null);
 
 // Caen
 const letraE1 = ref<HTMLElement | null>(null);
@@ -139,21 +124,6 @@ const espacioRef = ref<HTMLElement | null>(null);
 const letraP = ref<HTMLElement | null>(null);
 const letraE2 = ref<HTMLElement | null>(null);
 const letraZ = ref<HTMLElement | null>(null);
-
-/**
- * Prepara el stroke de la "h": calcula strokeDasharray/Offset para la
- * animación de dibujo. El tamaño y posición se gestionan por CSS em en el template.
- */
-const prepareSvgStroke = (): void => {
-  if (hPathRef.value) {
-    // +10px de margen para cubrir la redondez final sin cortar el trazo
-    const length = hPathRef.value.getTotalLength() + 10;
-    gsap.set(hPathRef.value, {
-      strokeDasharray: length,
-      strokeDashoffset: length,
-    });
-  }
-};
 
 const buildTimeline = (): gsap.core.Timeline => {
   const fallingEls = [
@@ -212,11 +182,17 @@ const buildTimeline = (): gsap.core.Timeline => {
   );
 
   // 4. BOLÍGRAFO MÁGICO (DIBUJA LA H) Y EL PUNTO
-  tl.to(hSvgRef.value, { opacity: 1, duration: 0.01 }, '-=0.1');
+  const hSvg = doodleHRef.value?.svg ?? null;
+  const hPaths = preparePaths(hSvg);
 
-  if (hPathRef.value) {
-    tl.to(hPathRef.value, {
+  if (hSvg) {
+    tl.to(hSvg, { opacity: 1, duration: 0.01 }, '-=0.1');
+  }
+
+  if (hPaths.length) {
+    tl.to(hPaths, {
       strokeDashoffset: 0,
+      visibility: 'visible',
       duration: ANIMATION_CONFIG.durations.draw,
       ease: 'power2.inOut',
     });
@@ -240,7 +216,6 @@ let titleTimeline: gsap.core.Timeline | null = null;
 
 onMounted(() => {
   initGSAP(() => {
-    prepareSvgStroke();
     titleTimeline = buildTimeline();
 
     // Animación de entrada: el título aparece al cargar la página
