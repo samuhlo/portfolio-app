@@ -3,6 +3,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: NOISE BACKGROUND
+ * =====================================================================
+ * DESC:   Capa overlay interactiva para generar ruido/grano de celuloide.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 import { computed } from 'vue';
 
 interface NoiseBackgroundProps {

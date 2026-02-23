@@ -38,6 +38,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * █ [FEATURE] :: CONTACT SECTION
+ * =====================================================================
+ * DESC:   Sección de contacto interactiva. Despliega simulación 2D con Matter.js.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
 

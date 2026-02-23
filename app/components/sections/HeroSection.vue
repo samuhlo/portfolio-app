@@ -20,6 +20,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * █ [LAYOUT] :: HERO SECTION
+ * =====================================================================
+ * DESC:   Primera vista de portada con el HeroTitle.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 import { ref, onMounted } from 'vue';
 import gsap from 'gsap';
 

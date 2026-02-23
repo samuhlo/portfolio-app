@@ -8,4 +8,12 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: DEFAULT LAYOUT
+ * =====================================================================
+ * DESC:   Estructura base de la aplicación (Nav + Main slot + Footer).
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>

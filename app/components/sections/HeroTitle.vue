@@ -75,6 +75,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * █ [FEATURE] :: HERO TITLE
+ * =====================================================================
+ * DESC:   Título animado principal. Manipula nodos DOM con GSAP ScrollTrigger.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 import { ref, onMounted, onUnmounted } from 'vue';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';

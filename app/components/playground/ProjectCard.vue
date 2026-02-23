@@ -5,6 +5,13 @@
 </template>
 
 <script setup lang="ts">
-import type { Project } from '~/types/project'
-defineProps<{ project: Project }>()
+/**
+ * █ [UI_MOLECULE] :: PROJECT CARD
+ * =====================================================================
+ * DESC:   Tarjeta de visualización individual de un proyecto en el grid.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import type { Project } from '~/types/project';
+defineProps<{ project: Project }>();
 </script>

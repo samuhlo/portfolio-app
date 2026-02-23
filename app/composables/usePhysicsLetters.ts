@@ -1,11 +1,19 @@
-import { Engine, Runner, Bodies, World, Body } from 'matter-js';
-
+/**
+ * █ [COMPOSABLE] :: PHYSICS LETTERS
+ * =====================================================================
+ * DESC:   Motor de físicas 2D (Matter.js) para letras interactivas (v.g. Contacto).
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { Engine, Runner, Bodies, World, Body } from 'matter-js'; // =============================================================================
+// █ CONSTANTS: FÍSICA Y RENDER
+// =============================================================================
 const FONT_WEIGHT = 900;
-const LETTER_RESTITUTION = 0.25;
+const LETTER_RESTITUTION = 0.25; // -> Rebote de las letras
 const LETTER_FRICTION = 0.9;
 const LETTER_FRICTION_AIR = 0.015;
-const WALL_THICKNESS = 200;
-const GROUND_BUFFER = 20;
+const WALL_THICKNESS = 200; // -> Grosor de los límites invisibles
+const GROUND_BUFFER = 20; // -> Margen inferior para repeler el suelo
 
 interface LetterMeasure {
   char: string;
@@ -37,7 +45,16 @@ export const usePhysicsLetters = () => {
   let letterBodies: LetterBody[] = [];
   let isRunning = false;
 
-  // — Mide una fila de caracteres y devuelve sus dimensiones
+  // =============================================================================
+  // █ LÓGICA CORE: SPAWN Y RENDERING
+  // =============================================================================
+
+  /**
+   * ◼️ MEASURE ROW
+   * ---------------------------------------------------------
+   * Mide el bounding box de cada caracter en el canvas usando el contexto actual.
+   * -> Genera las dimensiones exactas para Matter.js Rectangle Bodies.
+   */
   const measureRow = (
     ctx: CanvasRenderingContext2D,
     chars: string[],
@@ -52,7 +69,13 @@ export const usePhysicsLetters = () => {
     }));
   };
 
-  // — Spawn una fila centrada en el canvas en la Y indicada con stagger
+  /**
+   * ◼️ SPAWN ROW
+   * ---------------------------------------------------------
+   * Genera los cuerpos físicos de una fila de letras.
+   * Centra el texto calculando el totalWidth y lo distribuye.
+   * -> Aplica velocidades iniciales aleatorias (rotación y traslación en X).
+   */
   const spawnRow = (
     letters: LetterMeasure[],
     canvasW: number,

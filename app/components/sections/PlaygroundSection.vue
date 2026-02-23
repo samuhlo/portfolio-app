@@ -44,4 +44,12 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: PLAYGROUND SECTION
+ * =====================================================================
+ * DESC:   Grilla de proyectos experimentales y estáticos.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>

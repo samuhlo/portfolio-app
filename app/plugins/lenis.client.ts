@@ -2,6 +2,13 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+/**
+ * █ [PLUGIN] :: LENIS SCROLL
+ * =====================================================================
+ * DESC:   Inicializa smooth scrolling y sincroniza su tick con GSAP.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 export default defineNuxtPlugin((nuxtApp) => {
   // Inicializamos Lenis con configuraciones recomendadas
   const lenis = new Lenis({

@@ -19,4 +19,12 @@
   </section>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: BIO SECTION
+ * =====================================================================
+ * DESC:   Sección estática de biografía y manifiesto de diseño.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>

@@ -1,4 +1,11 @@
 <script setup lang="ts">
+/**
+ * █ [FEATURE] :: CONSOLE MESSAGE
+ * =====================================================================
+ * DESC:   Inyecta Easter Egg (ASCII Art + Info) en la terminal de Chrome.
+ * STATUS: STABLE
+ * =====================================================================
+ */
 import { onMounted } from 'vue';
 import figlet from 'figlet';
 import standard from 'figlet/importable-fonts/Doom.js';

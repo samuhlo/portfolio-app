@@ -5,6 +5,13 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ isOpen: boolean }>()
-defineEmits<{ close: [] }>()
+/**
+ * █ [UI_MOLECULE] :: PROJECT MODAL
+ * =====================================================================
+ * DESC:   Modal superpuesto para mostrar detalles expandidos de un proyecto.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+defineProps<{ isOpen: boolean }>();
+defineEmits<{ close: [] }>();
 </script>

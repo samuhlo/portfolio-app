@@ -5,5 +5,12 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{ to: string }>()
+/**
+ * █ [UI_ATOM] :: APP_LINK
+ * =====================================================================
+ * DESC:   Wrapper sobre NuxtLink para navegación.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+defineProps<{ to: string }>();
 </script>

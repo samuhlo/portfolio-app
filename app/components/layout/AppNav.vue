@@ -12,4 +12,12 @@
   </nav>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: APP NAV
+ * =====================================================================
+ * DESC:   Navegación principal superior (Sticky).
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>
