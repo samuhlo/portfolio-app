@@ -43,7 +43,16 @@
         ref="hSvgRef"
         viewBox="0 0 283 309"
         class="absolute"
-        style="opacity: 0; pointer-events: none; overflow: visible"
+        style="
+          opacity: 0;
+          pointer-events: none;
+          overflow: visible;
+          width: 1.22em;
+          height: 1.35em;
+          top: -1.3em;
+          left: 50%;
+          transform: translateX(-56%);
+        "
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
         stroke-linecap="round"
@@ -82,11 +91,10 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted, onUnmounted } from 'vue';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { ref, onMounted } from 'vue';
+import { useGSAP } from '~/composables/useGSAP';
 
-gsap.registerPlugin(ScrollTrigger);
+const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 
 // =========================================================================
 // CONFIGURACIÓN VISUAL Y DE ANIMACIÓN
@@ -94,20 +102,10 @@ gsap.registerPlugin(ScrollTrigger);
 // el hueco que se crea y los tiempos de la animación sin tocar la lógica.
 // =========================================================================
 const ANIMATION_CONFIG = {
-  // --- TAMAÑO Y POSICIONAMIENTO DE LA "h" ---
-  // Escala de la "h" relativa al tamaño de la fuente.
-  // (El usuario ajustó a 1.35)
-  hScale: 1.35,
+  // [NOTE] El tamaño y posición de la "h" se definen en CSS em en el template.
+  // Solo conservamos el ancho del hueco (gapWidth) y los tiempos.
 
-  // Offset vertical de la "h" respecto a su base.
-  // Valores mayores suben más la letra. (El usuario ajustó a 0.67)
-  hTopOffset: 0.67,
-
-  // Offset horizontal de la "h".
-  // -50 la centra perfectamente. Menos de -50 la tira hacia la izquierda.
-  hLeftOffsetPercent: -56,
-
-  // Tamaño del hueco al empujar las letras L y O. (El usuario ajustó a 0.9)
+  // Tamaño del hueco al empujar las letras L y O. (El usuario ajustó a 0.85)
   gapWidth: 0.85,
 
   // --- ANIMACIONES ---
@@ -142,37 +140,13 @@ const letraP = ref<HTMLElement | null>(null);
 const letraE2 = ref<HTMLElement | null>(null);
 const letraZ = ref<HTMLElement | null>(null);
 
-let scrollTriggerInstance: ScrollTrigger | null = null;
-let calculatedFontSize = 0;
-
 /**
- * Prepara el SVG "h": calcula el tamaño alineado a la fuente base
- * y usa los valores de ANIMATION_CONFIG para su posicionamiento.
+ * Prepara el stroke de la "h": calcula strokeDasharray/Offset para la
+ * animación de dibujo. El tamaño y posición se gestionan por CSS em en el template.
  */
 const prepareSvgStroke = (): void => {
-  const u = letraU.value;
-  const svg = hSvgRef.value;
-  if (!u || !svg) return;
-
-  calculatedFontSize = parseFloat(getComputedStyle(u).fontSize);
-
-  // Reducimos o escalamos la 'h' dependiendo del config
-  const svgH = calculatedFontSize * ANIMATION_CONFIG.hScale;
-  const svgW = svgH * (280 / 311);
-  const capH = calculatedFontSize * 0.72;
-
-  gsap.set(svg, {
-    width: svgW,
-    height: svgH,
-    left: '50%', // Centrado geométrico inicial
-    xPercent: ANIMATION_CONFIG.hLeftOffsetPercent, // Offset a la izquierda controlable
-    // Usamos capH de la "U" para alinear bases + desplazamiento extra hacia arriba
-    top: -(svgH - capH) - calculatedFontSize * ANIMATION_CONFIG.hTopOffset,
-  });
-
   if (hPathRef.value) {
-    // Sumamos 10px de margen (dash) extra para asegurar que cubre
-    // y pinta todo el trazo sin cortar la redondez final por errores de subpíxel.
+    // +10px de margen para cubrir la redondez final sin cortar el trazo
     const length = hPathRef.value.getTotalLength() + 10;
     gsap.set(hPathRef.value, {
       strokeDasharray: length,
@@ -181,7 +155,7 @@ const prepareSvgStroke = (): void => {
   }
 };
 
-const buildTimeline = (): void => {
+const buildTimeline = (): gsap.core.Timeline => {
   const fallingEls = [
     letraE1.value,
     letraL1.value,
@@ -216,8 +190,6 @@ const buildTimeline = (): void => {
   );
 
   // 3. EMPUJAR BLOQUES PARA HACER SITIO
-  // Las letras caídas colapsan su anchura a 0, haciendo "vacío".
-  // A la vez, hWrapRef crece un ancho igual al gap configurado.
   tl.to(
     fallingEls,
     {
@@ -230,7 +202,9 @@ const buildTimeline = (): void => {
   ).to(
     hWrapRef.value,
     {
-      width: calculatedFontSize * ANIMATION_CONFIG.gapWidth,
+      // [NOTE] Usamos 'em' (en lugar de píxeles) para que el hueco escale
+      // automáticamente con el font-size al redimensionar la ventana.
+      width: `${ANIMATION_CONFIG.gapWidth}em`,
       duration: ANIMATION_CONFIG.durations.push,
       ease: 'back.out(1)',
     },
@@ -238,10 +212,8 @@ const buildTimeline = (): void => {
   );
 
   // 4. BOLÍGRAFO MÁGICO (DIBUJA LA H) Y EL PUNTO
-  // Revelamos la opacidad de golpe para empezar a dibujar
   tl.to(hSvgRef.value, { opacity: 1, duration: 0.01 }, '-=0.1');
 
-  // Animamos el trazo perfecto midiendo la longitud del SVG
   if (hPathRef.value) {
     tl.to(hPathRef.value, {
       strokeDashoffset: 0,
@@ -250,7 +222,6 @@ const buildTimeline = (): void => {
     });
   }
 
-  // Aparece el punto
   tl.to(
     dotRef.value,
     {
@@ -261,41 +232,31 @@ const buildTimeline = (): void => {
     '-=0.5',
   );
 
-  // Obtenemos la sección padre para fijarla entera
-  const parentSection = containerRef.value?.closest('section') || containerRef.value;
-
-  let isCompleted = false;
-
-  scrollTriggerInstance = ScrollTrigger.create({
-    trigger: parentSection,
-    start: 'top top',
-    end: '+=1500', // 1500px de scroll hasta completar la animación
-    pin: true, // Fija la pantalla en el sitio
-    // Quitamos la unión directa para evitar que rebobine cuando vuelve arriba
-    onUpdate: (self) => {
-      if (isCompleted) return; // Ya terminó, se queda fijo en su final
-
-      gsap.to(tl, {
-        progress: self.progress,
-        duration: 0.5,
-        ease: 'power3.out',
-        overwrite: 'auto',
-      });
-
-      if (self.progress >= 1) {
-        isCompleted = true;
-      }
-    },
-  });
+  return tl;
 };
 
+// El timeline se almacena y expone para que HeroSection pueda controlarlo
+let titleTimeline: gsap.core.Timeline | null = null;
+
 onMounted(() => {
-  prepareSvgStroke();
-  buildTimeline();
+  initGSAP(() => {
+    prepareSvgStroke();
+    titleTimeline = buildTimeline();
+
+    // Animación de entrada: el título aparece al cargar la página
+    // El scroll timeline arranca desde este estado final
+    gsap.from(containerRef.value, {
+      opacity: 0,
+      y: 40,
+      duration: 1,
+      ease: 'power3.out',
+    });
+  });
 });
 
-onUnmounted(() => {
-  scrollTriggerInstance?.kill();
+// HeroSection accede al timeline para controlarlo con un único ScrollTrigger
+defineExpose({
+  getTimeline: () => titleTimeline,
 });
 </script>
 

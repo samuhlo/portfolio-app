@@ -5,12 +5,15 @@
  * STATUS: STABLE
  * =====================================================================
  */
+import { useNuxtApp } from '#app';
+import type Lenis from 'lenis';
 
 /**
  * ◼️ USE LENIS
  * ---------------------------------------------------------
- * Controla el arranque, pause, y requestAnimationFrame del scroll.
+ * Retorna la instancia global de Lenis inicializada por el plugin de Nuxt.
  */
 export const useLenis = () => {
-  return {};
+  const nuxtApp = useNuxtApp();
+  return nuxtApp.$lenis as Lenis | undefined;
 };
