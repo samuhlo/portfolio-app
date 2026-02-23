@@ -1,3 +1,19 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE_H
+ * =====================================================================
+ * DESC:   SVG de la letra "h" cursiva dibujada a mano.
+ *         Solo markup — la animación la gestiona el padre.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+
+const svgRef = ref<SVGSVGElement | null>(null);
+
+defineExpose({ svg: svgRef });
+</script>
+
 <template>
   <svg
     ref="svgRef"
@@ -19,22 +35,6 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-/**
- * █ [UI_ATOM] :: DOODLE_H
- * =====================================================================
- * DESC:   SVG de la letra "h" cursiva dibujada a mano.
- *         Solo markup — la animación la gestiona el padre.
- * STATUS: STABLE
- * =====================================================================
- */
-import { ref } from 'vue';
-
-const svgRef = ref<SVGSVGElement | null>(null);
-
-defineExpose({ svg: svgRef });
-</script>
 
 <style scoped>
 svg {

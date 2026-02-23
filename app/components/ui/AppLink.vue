@@ -1,9 +1,3 @@
-<template>
-  <NuxtLink :to="to">
-    <slot />
-  </NuxtLink>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: APP_LINK
@@ -14,3 +8,9 @@
  */
 defineProps<{ to: string }>();
 </script>
+
+<template>
+  <NuxtLink :to="to">
+    <slot />
+  </NuxtLink>
+</template>

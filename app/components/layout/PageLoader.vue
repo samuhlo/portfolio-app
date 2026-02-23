@@ -1,7 +1,3 @@
-<template>
-  <div>Loading...</div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: PAGE LOADER
@@ -11,3 +7,7 @@
  * =====================================================================
  */
 </script>
+
+<template>
+  <div>Loading...</div>
+</template>

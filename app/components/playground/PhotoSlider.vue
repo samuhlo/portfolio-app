@@ -1,9 +1,3 @@
-<template>
-  <div>
-    <!-- Slider -->
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_MOLECULE] :: PHOTO SLIDER
@@ -14,3 +8,9 @@
  */
 defineProps<{ photos: string[] }>();
 </script>
+
+<template>
+  <div>
+    <!-- Slider -->
+  </div>
+</template>

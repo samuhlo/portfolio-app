@@ -1,26 +1,3 @@
-<template>
-  <!--
-    [NOTE] hero-pin-wrapper es lo que se "pinea" (fija) con GSAP ScrollTrigger.
-    Es necesario que el elemento pineado sea un wrapper externo a la sección
-    para que el pin-spacer de GSAP funcione correctamente y no rompa el layout.
-  -->
-  <div ref="pinWrapperRef" class="hero-pin-wrapper">
-    <section
-      class="hero-section h-screen w-full relative flex flex-col justify-center items-center md:items-end px-6 md:px-12 mx-auto overflow-visible"
-    >
-      <HeroTitle
-        ref="heroTitleRef"
-        class="text-[clamp(2rem,12vw,15rem)] font-black uppercase tracking-tighter whitespace-nowrap"
-      />
-
-      <HeroSubtitle
-        ref="heroSubtitleRef"
-        class="mt-20 md:mt-0 md:absolute md:bottom-64 md:left-12 lg:left-24"
-      />
-    </section>
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [LAYOUT] :: HERO SECTION
@@ -92,3 +69,26 @@ onMounted(() => {
   });
 });
 </script>
+
+<template>
+  <!--
+    [NOTE] hero-pin-wrapper es lo que se "pinea" (fija) con GSAP ScrollTrigger.
+    Es necesario que el elemento pineado sea un wrapper externo a la sección
+    para que el pin-spacer de GSAP funcione correctamente y no rompa el layout.
+  -->
+  <div ref="pinWrapperRef" class="hero-pin-wrapper">
+    <section
+      class="hero-section h-screen w-full relative flex flex-col justify-center items-center md:items-end px-6 md:px-12 mx-auto overflow-visible"
+    >
+      <HeroTitle
+        ref="heroTitleRef"
+        class="text-[clamp(2rem,12vw,15rem)] font-black uppercase tracking-tighter whitespace-nowrap"
+      />
+
+      <HeroSubtitle
+        ref="heroSubtitleRef"
+        class="mt-20 md:mt-0 md:absolute md:bottom-64 md:left-12 lg:left-24"
+      />
+    </section>
+  </div>
+</template>

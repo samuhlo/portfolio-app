@@ -1,3 +1,13 @@
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: PLAYGROUND SECTION
+ * =====================================================================
+ * DESC:   Grilla de proyectos experimentales y estáticos.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>
+
 <template>
   <section
     class="min-h-screen flex flex-col justify-center px-6 md:px-12 w-full mx-auto py-32 xl:py-48"
@@ -43,13 +53,3 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-/**
- * █ [LAYOUT] :: PLAYGROUND SECTION
- * =====================================================================
- * DESC:   Grilla de proyectos experimentales y estáticos.
- * STATUS: STABLE
- * =====================================================================
- */
-</script>

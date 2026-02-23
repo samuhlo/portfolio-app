@@ -1,9 +1,3 @@
-<template>
-  <div>
-    <!-- Project Card -->
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_MOLECULE] :: PROJECT CARD
@@ -15,3 +9,9 @@
 import type { Project } from '~/types/project';
 defineProps<{ project: Project }>();
 </script>
+
+<template>
+  <div>
+    <!-- Project Card -->
+  </div>
+</template>

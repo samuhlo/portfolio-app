@@ -1,70 +1,3 @@
-<template>
-  <!--
-    [NOTE] Arquitectura:
-    - Estado inicial: . (oculto) S A M U E(cae) L(cae) _(cae) L O P(cae) E(cae) Z(cae)
-    - Al caer las letras, reducimos su width a 0 (el flex colapsa "haciendo sitio").
-    - Se anima el anchor (hWrap) aumentando ligeramente su width.
-    - Se dibuja la "h" con un clipPath que crece de L->R
-  -->
-  <div
-    ref="containerRef"
-    class="relative inline-flex items-baseline leading-none select-none"
-    style="overflow: visible; gap: 0"
-  >
-    <!-- Punto oculto (revelado después) -->
-    <span
-      ref="dotRef"
-      class="font-black"
-      style="color: var(--color-foreground, #0f0a0a); opacity: 0"
-      aria-hidden="true"
-      >.</span
-    >
-
-    <!-- Fijas -->
-    <span class="font-black">S</span>
-    <span class="font-black">A</span>
-    <span class="font-black">M</span>
-    <span class="font-black">U</span>
-
-    <!-- Cae 1 -->
-    <span ref="letraE1" class="font-black inline-block shrink-0 origin-bottom">E</span>
-    <span ref="letraL1" class="font-black inline-block shrink-0 origin-bottom">L</span>
-    <span ref="espacioRef" class="inline-block shrink-0" style="min-width: 0.2em" aria-hidden="true"
-      >&nbsp;</span
-    >
-
-    <!-- Wrapper para la "h" entre U y L. Crece cuando empujamos los bloques -->
-    <span
-      ref="hWrapRef"
-      class="relative inline-block h-0 pointer-events-none"
-      style="width: 0; z-index: 10; overflow: visible"
-    >
-      <DoodleH
-        ref="doodleHRef"
-        class="absolute"
-        style="
-          opacity: 0;
-          pointer-events: none;
-          width: 1.22em;
-          height: 1.35em;
-          top: -1.3em;
-          left: 50%;
-          transform: translateX(-56%);
-        "
-      />
-    </span>
-
-    <!-- Fijas -->
-    <span class="font-black">L</span>
-    <span class="font-black">O</span>
-
-    <!-- Cae 2 -->
-    <span ref="letraP" class="font-black inline-block shrink-0 origin-bottom">P</span>
-    <span ref="letraE2" class="font-black inline-block shrink-0 origin-bottom">E</span>
-    <span ref="letraZ" class="font-black inline-block shrink-0 origin-bottom">Z</span>
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [FEATURE] :: HERO TITLE
@@ -234,6 +167,73 @@ defineExpose({
   getTimeline: () => titleTimeline,
 });
 </script>
+
+<template>
+  <!--
+    [NOTE] Arquitectura:
+    - Estado inicial: . (oculto) S A M U E(cae) L(cae) _(cae) L O P(cae) E(cae) Z(cae)
+    - Al caer las letras, reducimos su width a 0 (el flex colapsa "haciendo sitio").
+    - Se anima el anchor (hWrap) aumentando ligeramente su width.
+    - Se dibuja la "h" con un clipPath que crece de L->R
+  -->
+  <div
+    ref="containerRef"
+    class="relative inline-flex items-baseline leading-none select-none"
+    style="overflow: visible; gap: 0"
+  >
+    <!-- Punto oculto (revelado después) -->
+    <span
+      ref="dotRef"
+      class="font-black"
+      style="color: var(--color-foreground, #0f0a0a); opacity: 0"
+      aria-hidden="true"
+      >.</span
+    >
+
+    <!-- Fijas -->
+    <span class="font-black">S</span>
+    <span class="font-black">A</span>
+    <span class="font-black">M</span>
+    <span class="font-black">U</span>
+
+    <!-- Cae 1 -->
+    <span ref="letraE1" class="font-black inline-block shrink-0 origin-bottom">E</span>
+    <span ref="letraL1" class="font-black inline-block shrink-0 origin-bottom">L</span>
+    <span ref="espacioRef" class="inline-block shrink-0" style="min-width: 0.2em" aria-hidden="true"
+      >&nbsp;</span
+    >
+
+    <!-- Wrapper para la "h" entre U y L. Crece cuando empujamos los bloques -->
+    <span
+      ref="hWrapRef"
+      class="relative inline-block h-0 pointer-events-none"
+      style="width: 0; z-index: 10; overflow: visible"
+    >
+      <DoodleH
+        ref="doodleHRef"
+        class="absolute"
+        style="
+          opacity: 0;
+          pointer-events: none;
+          width: 1.22em;
+          height: 1.35em;
+          top: -1.3em;
+          left: 50%;
+          transform: translateX(-56%);
+        "
+      />
+    </span>
+
+    <!-- Fijas -->
+    <span class="font-black">L</span>
+    <span class="font-black">O</span>
+
+    <!-- Cae 2 -->
+    <span ref="letraP" class="font-black inline-block shrink-0 origin-bottom">P</span>
+    <span ref="letraE2" class="font-black inline-block shrink-0 origin-bottom">E</span>
+    <span ref="letraZ" class="font-black inline-block shrink-0 origin-bottom">Z</span>
+  </div>
+</template>
 
 <style scoped>
 div {

@@ -1,7 +1,3 @@
-<template>
-  <div class="noise-overlay" aria-hidden="true" />
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: NOISE BACKGROUND
@@ -43,6 +39,10 @@ const noiseUrl = computed(() => {
   return `url("data:image/svg+xml;base64,${btoa(svg)}")`;
 });
 </script>
+
+<template>
+  <div class="noise-overlay" aria-hidden="true" />
+</template>
 
 <style scoped>
 .noise-overlay {

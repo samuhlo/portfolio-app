@@ -1,3 +1,16 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE CROSSLINE
+ * =====================================================================
+ * DESC:   SVG del tachón (línea gruesa sobre "Front-end Developer").
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svg: svgRef });
+</script>
+
 <template>
   <svg ref="svgRef" viewBox="0 0 273 32" fill="none">
     <g transform="matrix(1,0,0,1,-1488.53583,-474.540691)">
@@ -11,12 +24,6 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-const svgRef = ref<SVGSVGElement | null>(null);
-defineExpose({ svg: svgRef });
-</script>
 
 <style scoped>
 svg {

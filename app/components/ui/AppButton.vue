@@ -1,9 +1,3 @@
-<template>
-  <button>
-    <slot />
-  </button>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: APP_BUTTON
@@ -15,3 +9,9 @@
 defineProps<{ variant?: string }>();
 defineEmits<{ click: [] }>();
 </script>
+
+<template>
+  <button>
+    <slot />
+  </button>
+</template>

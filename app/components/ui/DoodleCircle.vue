@@ -1,9 +1,3 @@
-<template>
-  <div class="relative">
-    <slot />
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: DOODLE_CIRCLE
@@ -13,3 +7,9 @@
  * =====================================================================
  */
 </script>
+
+<template>
+  <div class="relative">
+    <slot />
+  </div>
+</template>

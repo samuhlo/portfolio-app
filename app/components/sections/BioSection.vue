@@ -1,3 +1,13 @@
+<script setup lang="ts">
+/**
+ * █ [LAYOUT] :: BIO SECTION
+ * =====================================================================
+ * DESC:   Sección estática de biografía y manifiesto de diseño.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+</script>
+
 <template>
   <section
     class="min-h-screen w-full flex justify-center items-center"
@@ -18,13 +28,3 @@
     </div>
   </section>
 </template>
-
-<script setup lang="ts">
-/**
- * █ [LAYOUT] :: BIO SECTION
- * =====================================================================
- * DESC:   Sección estática de biografía y manifiesto de diseño.
- * STATUS: STABLE
- * =====================================================================
- */
-</script>

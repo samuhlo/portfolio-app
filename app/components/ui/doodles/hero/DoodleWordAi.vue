@@ -1,3 +1,16 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE WORD AI
+ * =====================================================================
+ * DESC:   SVG de la letra "Ai" para animación de dibujo.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svg: svgRef });
+</script>
+
 <template>
   <svg ref="svgRef" viewBox="0 0 40 57">
     <g
@@ -17,12 +30,6 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-const svgRef = ref<SVGSVGElement | null>(null);
-defineExpose({ svg: svgRef });
-</script>
 
 <style scoped>
 svg {

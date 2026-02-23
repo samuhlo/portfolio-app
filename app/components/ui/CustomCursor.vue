@@ -1,7 +1,3 @@
-<template>
-  <div class="custom-cursor"></div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_ATOM] :: CUSTOM_CURSOR
@@ -11,3 +7,7 @@
  * =====================================================================
  */
 </script>
+
+<template>
+  <div class="custom-cursor"></div>
+</template>

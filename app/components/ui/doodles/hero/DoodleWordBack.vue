@@ -1,3 +1,16 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE WORD BACK
+ * =====================================================================
+ * DESC:   SVG de la palabra "Back" para animación de dibujo.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svg: svgRef });
+</script>
+
 <template>
   <svg ref="svgRef" viewBox="0 0 119 51">
     <g
@@ -25,12 +38,6 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-const svgRef = ref<SVGSVGElement | null>(null);
-defineExpose({ svg: svgRef });
-</script>
 
 <style scoped>
 svg {

@@ -1,9 +1,3 @@
-<template>
-  <div>
-    <!-- Modal -->
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [UI_MOLECULE] :: PROJECT MODAL
@@ -15,3 +9,9 @@
 defineProps<{ isOpen: boolean }>();
 defineEmits<{ close: [] }>();
 </script>
+
+<template>
+  <div>
+    <!-- Modal -->
+  </div>
+</template>

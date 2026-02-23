@@ -1,54 +1,3 @@
-<template>
-  <div
-    class="relative inline-flex flex-col items-center select-none text-[clamp(1.25rem,3vw,3.5rem)]"
-    ref="containerRef"
-  >
-    <!-- Texto base -->
-    <h2 ref="textRef" class="font-bold text-center md:text-left tracking-tight relative">
-      Front-end Developer
-
-      <!-- Crossline -->
-      <DoodleCrossline
-        ref="crosslineRef"
-        class="absolute -translate-y-1/2 pointer-events-none opacity-0"
-        :style="LAYOUT.crossline"
-      />
-    </h2>
-
-    <!-- Palabras dibujadas alrededor del texto -->
-    <DoodleWordFront
-      ref="frontRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.front"
-    />
-    <DoodleWordBack
-      ref="backRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.back"
-    />
-    <DoodleWordDesign
-      ref="designRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.design"
-    />
-    <DoodleWordUxui
-      ref="uxuiRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.uxui"
-    />
-    <DoodleWordAi
-      ref="aiRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.ai"
-    />
-    <DoodleWordBrand
-      ref="brandRef"
-      class="absolute h-auto pointer-events-none opacity-0"
-      :style="LAYOUT.brand"
-    />
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [FEATURE] :: HERO SUBTITLE
@@ -181,6 +130,57 @@ defineExpose({
   getTimeline: () => subtitleTimeline,
 });
 </script>
+
+<template>
+  <div
+    class="relative inline-flex flex-col items-center select-none text-[clamp(1.25rem,3vw,3.5rem)]"
+    ref="containerRef"
+  >
+    <!-- Texto base -->
+    <h2 ref="textRef" class="font-bold text-center md:text-left tracking-tight relative">
+      Front-end Developer
+
+      <!-- Crossline -->
+      <DoodleCrossline
+        ref="crosslineRef"
+        class="absolute -translate-y-1/2 pointer-events-none opacity-0"
+        :style="LAYOUT.crossline"
+      />
+    </h2>
+
+    <!-- Palabras dibujadas alrededor del texto -->
+    <DoodleWordFront
+      ref="frontRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.front"
+    />
+    <DoodleWordBack
+      ref="backRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.back"
+    />
+    <DoodleWordDesign
+      ref="designRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.design"
+    />
+    <DoodleWordUxui
+      ref="uxuiRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.uxui"
+    />
+    <DoodleWordAi
+      ref="aiRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.ai"
+    />
+    <DoodleWordBrand
+      ref="brandRef"
+      class="absolute h-auto pointer-events-none opacity-0"
+      :style="LAYOUT.brand"
+    />
+  </div>
+</template>
 
 <style scoped>
 svg {

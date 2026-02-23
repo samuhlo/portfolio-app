@@ -1,9 +1,3 @@
-<template>
-  <footer>
-    <ContactSection />
-  </footer>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [LAYOUT] :: APP FOOTER
@@ -13,3 +7,9 @@
  * =====================================================================
  */
 </script>
+
+<template>
+  <footer>
+    <ContactSection />
+  </footer>
+</template>

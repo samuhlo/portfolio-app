@@ -1,11 +1,3 @@
-<template>
-  <div>
-    <HeroSection />
-    <BioSection />
-    <PlaygroundSection />
-  </div>
-</template>
-
 <script setup lang="ts">
 /**
  * █ [PAGE] :: INDEX
@@ -16,3 +8,11 @@
  * =====================================================================
  */
 </script>
+
+<template>
+  <div>
+    <HeroSection />
+    <BioSection />
+    <PlaygroundSection />
+  </div>
+</template>

@@ -1,3 +1,16 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE WORD DESIGN
+ * =====================================================================
+ * DESC:   SVG de la palabra "Design" para animación de dibujo.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svg: svgRef });
+</script>
+
 <template>
   <svg ref="svgRef" viewBox="0 0 148 66">
     <g
@@ -31,12 +44,6 @@
     </g>
   </svg>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-const svgRef = ref<SVGSVGElement | null>(null);
-defineExpose({ svg: svgRef });
-</script>
 
 <style scoped>
 svg {
