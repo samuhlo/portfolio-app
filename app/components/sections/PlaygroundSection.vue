@@ -3,6 +3,7 @@
  * █ [LAYOUT] :: PLAYGROUND SECTION
  * =====================================================================
  * DESC:   Grilla de proyectos experimentales y estáticos.
+ *         El título se gestiona en PlaygroundTitle.vue.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -12,11 +13,7 @@
   <section
     class="min-h-screen flex flex-col justify-center px-6 md:px-12 w-full mx-auto py-32 xl:py-48"
   >
-    <h2
-      class="text-[clamp(3.5rem,8vw,10rem)] leading-none font-black uppercase tracking-tighter mb-16 md:mb-32"
-    >
-      Playground
-    </h2>
+    <PlaygroundTitle />
 
     <!-- Contenedor Grid Asimétrico (Fluido, sin max-width) -->
     <div class="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-32 gap-x-4 md:gap-x-8 w-full">

@@ -86,18 +86,14 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] Al completar la animación, matamos el trigger para eliminar el pin-spacer.
-        // Pausamos Lenis para evitar que su interpolación de smooth scroll interfiera
-        // con la corrección de posición (problema visible con scroll rápido).
+        // [NOTE] Matamos el trigger para eliminar el pin-spacer y compensamos con Lenis.
+        // Sin stop()/start(): ceder el control al scroll nativo causa el tilt.
+        // Un único rAF es suficiente para que el DOM se estabilice antes del refresh.
         const pinSpacerHeight = self.end - self.start;
         const targetScroll = self.scroll() - pinSpacerHeight;
-        lenis?.stop();
         self.kill();
         lenis?.scrollTo(targetScroll, { immediate: true });
-        requestAnimationFrame(() => {
-          lenis?.start();
-          ScrollTrigger.refresh();
-        });
+        requestAnimationFrame(() => ScrollTrigger.refresh());
       },
     });
   };
