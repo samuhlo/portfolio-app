@@ -155,9 +155,9 @@ onMounted(() => {
     // El scroll timeline arranca desde este estado final
     gsap.from(containerRef.value, {
       opacity: 0,
-      y: 40,
-      duration: 1,
-      ease: 'power3.out',
+      y: 80,
+      duration: 1.2,
+      ease: 'power3.inOut',
     });
   });
 });

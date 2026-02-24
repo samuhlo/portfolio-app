@@ -119,8 +119,8 @@ onMounted(() => {
     // Animación de entrada: el subtítulo aparece justo después del título
     gsap.fromTo(
       containerRef.value,
-      { opacity: 0, y: 32 },
-      { opacity: 1, y: 0, duration: 0.8, delay: 0.4, ease: 'power3.out' },
+      { opacity: 0, y: 45 },
+      { opacity: 1, y: 0, duration: 0.8, delay: 0.45, ease: 'power3.inOut' },
     );
   });
 });
