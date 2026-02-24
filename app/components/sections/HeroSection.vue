@@ -50,7 +50,7 @@ onMounted(() => {
     Es necesario que el elemento pineado sea un wrapper externo a la sección
     para que el pin-spacer de GSAP funcione correctamente y no rompa el layout.
   -->
-  <div ref="pinWrapperRef" class="hero-pin-wrapper">
+  <div ref="pinWrapperRef" class="hero-pin-wrapper" style="overflow-x: clip">
     <section
       class="hero-section h-screen w-full relative flex flex-col justify-center items-center md:items-end px-6 md:px-12 mx-auto overflow-visible"
     >

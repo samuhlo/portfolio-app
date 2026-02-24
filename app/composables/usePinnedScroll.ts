@@ -2,8 +2,10 @@
  * █ [COMPOSABLE] :: PINNED SCROLL
  * =====================================================================
  * DESC:   Crea una animación pineada vinculada al scroll con fases
- *         secuenciales de timeline. Al completarse, mata el pin-spacer y
- *         compensa el scroll con Lenis para evitar saltos.
+ *         secuenciales de timeline. Cada fase solo avanza, nunca retrocede.
+ *         Al salir del viewport, mata el trigger y compensa el scroll
+ *         con Lenis — el tilt es invisible porque la sección ya no está
+ *         en pantalla.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -41,7 +43,8 @@ interface PinnedScrollOptions {
  * ---------------------------------------------------------
  * Crea un ScrollTrigger con pin que controla N timelines pausados
  * mediante fases de progreso. Cada fase solo avanza, nunca retrocede.
- * Al salir del pin, mata el trigger y compensa el scroll con Lenis.
+ * Al salir del viewport (onLeave), mata el trigger y compensa scroll
+ * con Lenis — el tilt es invisible porque la sección ya no está en pantalla.
  *
  * Patrón extraído de HeroSection y BioSection.
  */
@@ -86,9 +89,9 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] Matamos el trigger para eliminar el pin-spacer y compensamos con Lenis.
-        // Sin stop()/start(): ceder el control al scroll nativo causa el tilt.
-        // Un único rAF es suficiente para que el DOM se estabilice antes del refresh.
+        // [NOTE] Al salir del viewport (scrolling down), la sección queda FUERA
+        // de pantalla. Matamos el trigger aquí para que el tilt sea invisible.
+        // Compensamos el scroll con Lenis y refrescamos los demás triggers.
         const pinSpacerHeight = self.end - self.start;
         const targetScroll = self.scroll() - pinSpacerHeight;
         self.kill();
