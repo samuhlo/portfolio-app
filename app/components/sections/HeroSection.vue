@@ -12,6 +12,7 @@ import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
+const lenis = useLenis();
 
 // Referencias al wrapper y a los hijos
 const pinWrapperRef = ref<HTMLElement | null>(null);
@@ -64,6 +65,14 @@ onMounted(() => {
           });
           if (subtitleProgress >= 1) subtitleCompleted = true;
         }
+      },
+      onLeave: (self) => {
+        // [NOTE] Al completar ambas animaciones, matamos el trigger para eliminar
+        // el pin-spacer de 2500px. Compensamos con Lenis (immediate) para evitar salto.
+        const pinSpacerHeight = self.end - self.start;
+        const targetScroll = self.scroll() - pinSpacerHeight;
+        self.kill();
+        lenis?.scrollTo(targetScroll, { immediate: true });
       },
     });
   });
