@@ -10,15 +10,16 @@
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import { usePinnedScroll } from '~/composables/usePinnedScroll';
 import { SplitText } from 'gsap/SplitText';
 
 interface DoodleExposed {
   svg: SVGSVGElement | null;
 }
 
-const { gsap, ScrollTrigger, initGSAP } = useGSAP();
+const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
-const lenis = useLenis();
+const { createPinnedScroll } = usePinnedScroll();
 
 const sectionRef = ref<HTMLElement | null>(null);
 
@@ -40,26 +41,31 @@ const LAYOUT = {
   quotesClose: { bottom: '-0.2em', left: '110%', width: '2em', transform: 'rotate(10deg)' },
 };
 
+const TEXT_ENDS_AT = 0.3;
 const textContainerRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
   initGSAP(() => {
     const getPaths = (refItem: typeof quotesOpenRef) => preparePaths(refItem.value?.svg ?? null);
 
-    // ── TIMELINE 1: Texto apareciendo línea por línea ──
+    // ── TEXTO: Se anima al entrar la sección en el viewport (antes del pin) ──
     const paragraphs = textContainerRef.value?.querySelectorAll('p') as NodeListOf<HTMLElement>;
     const split = new SplitText(paragraphs, { type: 'lines' });
 
-    const textTl = gsap.timeline({ paused: true });
-    textTl.from(split.lines, {
+    gsap.from(split.lines, {
       y: 40,
       opacity: 0,
       duration: 0.8,
       stagger: 0.08,
       ease: 'power3.out',
+      scrollTrigger: {
+        trigger: textContainerRef.value,
+        start: 'top 85%',
+        once: true,
+      },
     });
 
-    // ── TIMELINE 2: Doodles dibujándose secuencialmente ──
+    // ── DOODLES: Timeline pausado para el pinned scroll ──
     const doodleTl = gsap.timeline({ paused: true });
 
     if (quotesOpenRef.value?.svg) {
@@ -120,53 +126,14 @@ onMounted(() => {
       });
     }
 
-    // ── SCROLL TRIGGER: Pin + control manual de progreso (patrón HeroSection) ──
-    const TEXT_ENDS_AT = 0.3; // El texto usa el primer 30% del scroll
-    let textCompleted = false;
-    let doodlesCompleted = false;
+    // ── PINNED SCROLL: Solo doodles ──
+    if (!sectionRef.value) return;
 
-    ScrollTrigger.create({
+    createPinnedScroll({
       trigger: sectionRef.value,
-      start: 'top 20%',
+      start: 'top top',
       end: '+=2000',
-      pin: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-
-        // — Texto: primer 30% del scroll
-        if (!textCompleted) {
-          const textProgress = Math.min(progress / TEXT_ENDS_AT, 1);
-          gsap.to(textTl, {
-            progress: textProgress,
-            duration: 0.5,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          });
-          if (textProgress >= 1) textCompleted = true;
-        }
-
-        // — Doodles: último 70% del scroll
-        if (!doodlesCompleted) {
-          const doodleRaw = (progress - TEXT_ENDS_AT) / (1 - TEXT_ENDS_AT);
-          const doodleProgress = Math.max(0, Math.min(doodleRaw, 1));
-          gsap.to(doodleTl, {
-            progress: doodleProgress,
-            duration: 0.5,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          });
-          if (doodleProgress >= 1) doodlesCompleted = true;
-        }
-      },
-      onLeave: (self) => {
-        // [NOTE] Al completar la animación, matamos el trigger para eliminar
-        // el pin-spacer de 2000px y dejar la bio en su altura natural.
-        // Usamos Lenis con immediate: true para compensar el scroll (window.scrollTo no funciona con Lenis).
-        const pinSpacerHeight = self.end - self.start;
-        const targetScroll = self.scroll() - pinSpacerHeight;
-        self.kill();
-        lenis?.scrollTo(targetScroll, { immediate: true });
-      },
+      phases: [{ timeline: doodleTl, start: 0, end: 1 }],
     });
   });
 });
@@ -176,7 +143,7 @@ onMounted(() => {
   <section
     ref="sectionRef"
     class="min-h-screen w-full flex justify-center items-center"
-    style="padding: 8vh 12.5% 13vh 8.33%"
+    style="padding: 10vh 12.5% 10vh 8.33%"
   >
     <div
       ref="textContainerRef"

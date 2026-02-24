@@ -10,9 +10,10 @@
  */
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
+import { usePinnedScroll } from '~/composables/usePinnedScroll';
 
-const { gsap, ScrollTrigger, initGSAP } = useGSAP();
-const lenis = useLenis();
+const { gsap, initGSAP } = useGSAP();
+const { createPinnedScroll } = usePinnedScroll();
 
 // Referencias al wrapper y a los hijos
 const pinWrapperRef = ref<HTMLElement | null>(null);
@@ -30,50 +31,14 @@ onMounted(() => {
 
     if (!titleTl || !subtitleTl || !pinWrapperRef.value) return;
 
-    let titleCompleted = false;
-    let subtitleCompleted = false;
-
-    ScrollTrigger.create({
+    createPinnedScroll({
       trigger: pinWrapperRef.value,
       start: 'top top',
-      end: '+=2500', // 2500px de scroll total para ambas animaciones
-      pin: true,
-      onUpdate: (self) => {
-        const progress = self.progress;
-
-        // — Título: ocupa el primer 60% del scroll (0 → TITLE_ENDS_AT)
-        if (!titleCompleted) {
-          const titleProgress = Math.min(progress / TITLE_ENDS_AT, 1);
-          gsap.to(titleTl, {
-            progress: titleProgress,
-            duration: 0.5,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          });
-          if (titleProgress >= 1) titleCompleted = true;
-        }
-
-        // — Subtítulo: ocupa el último 40% del scroll (TITLE_ENDS_AT → 1)
-        if (!subtitleCompleted) {
-          const subtitleRaw = (progress - TITLE_ENDS_AT) / (1 - TITLE_ENDS_AT);
-          const subtitleProgress = Math.max(0, Math.min(subtitleRaw, 1));
-          gsap.to(subtitleTl, {
-            progress: subtitleProgress,
-            duration: 0.5,
-            ease: 'power3.out',
-            overwrite: 'auto',
-          });
-          if (subtitleProgress >= 1) subtitleCompleted = true;
-        }
-      },
-      onLeave: (self) => {
-        // [NOTE] Al completar ambas animaciones, matamos el trigger para eliminar
-        // el pin-spacer de 2500px. Compensamos con Lenis (immediate) para evitar salto.
-        const pinSpacerHeight = self.end - self.start;
-        const targetScroll = self.scroll() - pinSpacerHeight;
-        self.kill();
-        lenis?.scrollTo(targetScroll, { immediate: true });
-      },
+      end: '+=2500',
+      phases: [
+        { timeline: titleTl, start: 0, end: TITLE_ENDS_AT },
+        { timeline: subtitleTl, start: TITLE_ENDS_AT, end: 1 },
+      ],
     });
   });
 });
