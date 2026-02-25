@@ -17,7 +17,7 @@ const sectionRef = ref<HTMLElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const circleDoodleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
 
-const { initPhysics, destroy } = usePhysicsLetters();
+const { initPhysics, slam, destroy } = usePhysicsLetters();
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
 
@@ -40,14 +40,39 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
   for (const entry of entries) {
     if (entry.isIntersecting && !triggered && canvasRef.value) {
       triggered = true;
-      syncCanvasSize();
-      initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
 
-      if (circleAnimation) {
-        circleAnimation.play();
-      }
+      // [NOTE] Doble rAF para asegurar que el layout CSS está completamente calculado
+      // antes de medir el canvas y lanzar la física.
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          syncCanvasSize();
+
+          if (canvasRef.value) {
+            initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
+          }
+
+          if (circleAnimation) {
+            circleAnimation.play();
+          }
+        });
+      });
     }
   }
+};
+
+// [NOTE] Debounce para el resize: destruye y re-inicia la simulación
+// con las nuevas dimensiones para que las letras no queden deformadas
+let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+const RESIZE_DEBOUNCE_MS = 300;
+
+const handleResize = (): void => {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (!triggered || !canvasRef.value) return;
+    destroy();
+    syncCanvasSize();
+    initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
+  }, RESIZE_DEBOUNCE_MS);
 };
 
 onMounted(() => {
@@ -74,15 +99,20 @@ onMounted(() => {
   if (sectionRef.value) {
     observer.observe(sectionRef.value);
   }
+
+  window.addEventListener('resize', handleResize);
 });
 
 onUnmounted(() => {
   observer?.disconnect();
   observer = null;
+  window.removeEventListener('resize', handleResize);
+  if (resizeTimer) clearTimeout(resizeTimer);
   destroy();
 });
 
 const openMail = (): void => {
+  slam();
   window.location.href = 'mailto:hola@samuhlo.dev';
 };
 </script>

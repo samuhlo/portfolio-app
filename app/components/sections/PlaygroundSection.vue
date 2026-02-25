@@ -24,7 +24,9 @@ const { parallaxRef: card1Parallax } = useParallax({ speed: 10 });
     <PlaygroundTitle />
 
     <!-- Contenedor Grid Asimétrico (Fluido, sin max-width) -->
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-32 gap-x-4 md:gap-x-8 w-full">
+    <div
+      class="grid grid-cols-1 md:grid-cols-12 gap-y-24 md:gap-y-32 gap-x-4 md:gap-x-8 w-full overflow-x-clip"
+    >
       <!-- Proyecto Tinyshow -->
       <div ref="card1Parallax" class="md:col-start-5 md:col-span-8">
         <ProjectCard
@@ -36,5 +38,8 @@ const { parallaxRef: card1Parallax } = useParallax({ speed: 10 });
         />
       </div>
     </div>
+
+    <!-- Project Modal Overlay -->
+    <ProjectModal />
   </section>
 </template>

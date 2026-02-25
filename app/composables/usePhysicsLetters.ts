@@ -13,7 +13,7 @@ const LETTER_RESTITUTION = 0.25; // -> Rebote de las letras
 const LETTER_FRICTION = 0.9;
 const LETTER_FRICTION_AIR = 0.015;
 const WALL_THICKNESS = 200; // -> Grosor de los límites invisibles
-const GROUND_BUFFER = 20; // -> Margen inferior para repeler el suelo
+const GROUND_BUFFER = 5; // -> Margen mínimo inferior para que las letras toquen el fondo visual
 
 interface LetterMeasure {
   char: string;
@@ -189,6 +189,25 @@ export const usePhysicsLetters = () => {
     rafId = requestAnimationFrame(draw);
   };
 
+  /**
+   * ◼️ SLAM
+   * ---------------------------------------------------------
+   * Aplica un impulso "manotazo" a todas las letras.
+   * -> Saltan hacia arriba con rotación y desplazamiento aleatorio.
+   */
+  const slam = (): void => {
+    if (!isRunning) return;
+
+    for (const { body } of letterBodies) {
+      const upForce = -(15 + Math.random() * 10);
+      Body.setVelocity(body, {
+        x: (Math.random() - 0.5) * 8,
+        y: upForce,
+      });
+      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.3);
+    }
+  };
+
   const destroy = (): void => {
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
@@ -207,5 +226,5 @@ export const usePhysicsLetters = () => {
     isRunning = false;
   };
 
-  return { initPhysics, destroy };
+  return { initPhysics, slam, destroy };
 };

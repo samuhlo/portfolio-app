@@ -20,10 +20,10 @@ interface NoiseBackgroundProps {
 }
 
 const props = withDefaults(defineProps<NoiseBackgroundProps>(), {
-  opacity: 0.25,
+  opacity: 0.15,
   baseFrequency: 0.65,
   blendMode: 'screen',
-  speed: 0.35,
+  speed: 0.4,
 });
 
 // [NOTE] Generamos el noise como SVG inline en base64. Es equivalente a tener un noise.png

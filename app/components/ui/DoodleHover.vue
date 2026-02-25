@@ -7,6 +7,7 @@
  * STATUS: STABLE
  * =====================================================================
  */
+import type { ComponentPublicInstance } from 'vue';
 import { ref, onMounted } from 'vue';
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
@@ -21,8 +22,8 @@ const { preparePaths, addDrawAnimation } = useDoodleDraw();
 
 const doodleRefs = ref<(DoodleExposed | null)[]>([]);
 
-const setDoodleRef = (index: number) => (el: DoodleExposed | null) => {
-  doodleRefs.value[index] = el;
+const setDoodleRef = (index: number) => (el: Element | ComponentPublicInstance | null) => {
+  doodleRefs.value[index] = el as DoodleExposed | null;
 };
 
 /** Paths preparados por cada doodle, indexados igual que doodleRefs */
@@ -101,7 +102,11 @@ const erase = () => {
 </script>
 
 <template>
-  <span class="relative inline-block w-fit cursor-pointer" @mouseenter="draw" @mouseleave="erase">
+  <span
+    class="relative inline-block w-fit cursor-pointer z-50"
+    @mouseenter="draw"
+    @mouseleave="erase"
+  >
     <slot />
     <!-- Contenedor absoluto para los doodles, posicionado justo debajo del texto -->
     <span

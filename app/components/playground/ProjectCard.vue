@@ -66,6 +66,11 @@ function handleMouseLeave() {
   onMouseLeave();
   onMagneticLeave();
 }
+
+const router = useRouter();
+function openProject() {
+  router.push({ query: { project: props.name.toLowerCase() } });
+}
 </script>
 
 <template>
@@ -77,6 +82,7 @@ function handleMouseLeave() {
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
       @mousemove="handleMouseMove"
+      @click="openProject"
     >
       <NuxtImg :src="image" :alt="name" class="w-full h-auto block" />
 
