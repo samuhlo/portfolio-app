@@ -8,16 +8,22 @@
  */
 import { ref, onMounted, onUnmounted } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
+import { useGSAP } from '~/composables/useGSAP';
+import { useDoodleDraw } from '~/composables/useDoodleDraw';
 
 const TEXT = 'Contact';
 
 const sectionRef = ref<HTMLElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+const circleDoodleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
 
 const { initPhysics, destroy } = usePhysicsLetters();
+const { gsap, initGSAP } = useGSAP();
+const { preparePaths, addDrawAnimation } = useDoodleDraw();
 
 let observer: IntersectionObserver | null = null;
 let triggered = false;
+let circleAnimation: gsap.core.Timeline | null = null;
 
 const syncCanvasSize = (): void => {
   const section = sectionRef.value;
@@ -36,12 +42,30 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
       triggered = true;
       syncCanvasSize();
       initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
+
+      if (circleAnimation) {
+        circleAnimation.play();
+      }
     }
   }
 };
 
 onMounted(() => {
   syncCanvasSize();
+
+  initGSAP(() => {
+    if (circleDoodleRef.value?.svg) {
+      const paths = preparePaths(circleDoodleRef.value.svg);
+      // [NOTE] Animación pausada, se reproduce con 1.5s de delay tras IntersectionObserver
+      circleAnimation = gsap.timeline({ paused: true, delay: 0.6 });
+      addDrawAnimation(circleAnimation, {
+        svg: circleDoodleRef.value.svg,
+        paths,
+        duration: 0.8,
+        ease: 'power2.out',
+      });
+    }
+  });
 
   observer = new IntersectionObserver(handleIntersection, {
     threshold: 0.2,
@@ -57,6 +81,10 @@ onUnmounted(() => {
   observer = null;
   destroy();
 });
+
+const openMail = (): void => {
+  window.location.href = 'mailto:hola@samuhlo.dev';
+};
 </script>
 
 <template>
@@ -67,33 +95,31 @@ onUnmounted(() => {
     <!-- Canvas que ocupa toda la sección — letras caen desde el tope -->
     <canvas
       ref="canvasRef"
-      class="absolute inset-0 w-full h-full"
+      class="absolute inset-0 w-full h-full cursor-pointer"
       style="color: var(--color-background, #f5f0e8)"
+      @click="openMail"
     />
 
     <!-- Links: en móvil se apilan a la derecha; en desktop grid de 3 columnas -->
     <div
-      class="relative z-10 w-full py-10 px-6 md:px-12 font-bold tracking-widest md:mt-20 flex flex-col items-end gap-2 text-sm md:grid md:grid-cols-3 md:gap-0 md:text-[1.75rem] md:items-end md:h-full"
+      class="relative z-10 w-full py-10 px-6 md:px-12 font-bold tracking-widest md:mt-20 flex flex-col items-end gap-4 text-sm md:grid md:grid-cols-3 md:gap-0 md:text-[1.75rem] md:items-end md:h-full"
     >
-      <!-- móvil: los 3 links apilados a la derecha -->
-      <a
-        href="mailto:hola@samuhlo.dev"
-        class="hover:text-accent transition-colors md:text-left md:col-start-1 md:row-start-1"
-      >
-        hola@samuhlo.dev
+      <a href="mailto:hola@samuhlo.dev" class="md:text-left md:col-start-1 md:row-start-1">
+        <span class="relative inline-block w-fit">
+          hola@samuhlo.dev
+          <DoodleCircleGeneral
+            ref="circleDoodleRef"
+            class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0"
+          />
+        </span>
       </a>
-      <a
-        href="#"
-        class="hover:text-accent transition-colors md:text-center md:col-start-2 md:row-start-1"
-      >
-        github
-      </a>
-      <a
-        href="#"
-        class="hover:text-accent transition-colors md:text-right md:col-start-3 md:row-start-1"
-      >
-        linkedin
-      </a>
+
+      <DoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
+        <a href="#">github</a>
+      </DoodleHover>
+      <DoodleHover class="md:col-start-3 md:row-start-1 md:justify-self-end">
+        <a href="#">linkedin</a>
+      </DoodleHover>
     </div>
   </section>
 </template>
