@@ -145,10 +145,10 @@ const openMail = (): void => {
       </NuxtLink>
 
       <RandomDoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
-        <NuxtLink to="https://github.com/samuhlo">github</NuxtLink>
+        <NuxtLink to="https://github.com/samuhlo" target="_blank">github</NuxtLink>
       </RandomDoodleHover>
       <RandomDoodleHover class="md:col-start-3 md:row-start-1 md:justify-self-end">
-        <NuxtLink to="https://www.linkedin.com/in/samuhlo/">linkedin</NuxtLink>
+        <NuxtLink to="https://www.linkedin.com/in/samuhlo/" target="_blank">linkedin</NuxtLink>
       </RandomDoodleHover>
     </div>
   </section>

@@ -11,33 +11,34 @@
 // =============================================================================
 // █ SEO: Page-level meta
 // =============================================================================
-const SITE_URL = 'https://samuhlo.dev';
+const reqUrl = useRequestURL();
+const SITE_URL = reqUrl.origin; // Se adapta a localhost, vercel preview o prod
 
-const title = 'Developer & Designer';
+const title = 'Dev & Design';
 
 const description =
-  'Samuel Lopez designs complex digital ecosystems and codes them from scratch. Building web architectures that are solid like concrete, but move like water. Clean code + controlled chaos.';
+  'Samuel López designs complex digital ecosystems and codes them from scratch. Building web architectures that are solid like concrete, but move like water. Clean code + Aggressive design.';
 
 useSeoMeta({
   title,
   description,
   // ── Open Graph ──
   ogType: 'website',
-  ogTitle: `Samuel Lopez _ ${title}`, // Variante con guion bajo para redes
+  ogTitle: `Samuel López _ ${title}`, // Variante con guion bajo para redes
   ogDescription: description,
   ogUrl: SITE_URL,
-  ogSiteName: 'SamuhLo.sh', // Tu dominio conceptual
+  ogSiteName: 'SAMUHLO.sh', // Tu dominio conceptual
   ogLocale: 'en_US',
   ogImage: `${SITE_URL}/images/og-cover.png`,
   ogImageWidth: 1200,
   ogImageHeight: 630,
-  ogImageAlt: 'Samuel Lopez — Code, Design & Much More',
+  ogImageAlt: 'Samuel López — Code, Design & Much More',
   // ── Twitter Card ──
   twitterCard: 'summary_large_image',
-  twitterTitle: `Samuel Lopez _ ${title}`,
+  twitterTitle: `Samuel López _ ${title}`,
   twitterDescription: description,
   twitterImage: `${SITE_URL}/images/og-cover.png`,
-  twitterImageAlt: 'Samuel Lopez — Code, Design & Much More',
+  twitterImageAlt: 'Samuel López — Code, Design & Much More',
 });
 </script>
 

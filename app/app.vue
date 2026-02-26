@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 
+const reqUrl = useRequestURL();
+
+useHead({
+  link: [{ rel: 'canonical', href: reqUrl.href }],
+});
+
 const isLoading = ref(true);
 
 // ESPERAR HIDRATACIÓN COMPLETA -> onMounted de los hijos (GSAP) ya ejecutó.

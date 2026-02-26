@@ -57,12 +57,14 @@ const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-sm'));
         <ul :class="['space-y-2 opacity-80', bodySize]">
           <li>
             <RandomDoodleHover
-              ><NuxtLink to="https://tinyshow.vercel.app/">LIVE DEMO</NuxtLink></RandomDoodleHover
+              ><NuxtLink to="https://tinyshow.vercel.app/" target="_blank"
+                >LIVE DEMO</NuxtLink
+              ></RandomDoodleHover
             >
           </li>
           <li>
             <RandomDoodleHover
-              ><NuxtLink to="https://github.com/samuhlo/tinyshow"
+              ><NuxtLink to="https://github.com/samuhlo/tinyshow" target="_blank"
                 >GITHUB</NuxtLink
               ></RandomDoodleHover
             >
@@ -71,6 +73,7 @@ const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-sm'));
             <RandomDoodleHover
               ><NuxtLink
                 to="https://www.linkedin.com/feed/update/urn:li:activity:7415770262341955584/"
+                target="_blank"
                 >POST</NuxtLink
               ></RandomDoodleHover
             >
