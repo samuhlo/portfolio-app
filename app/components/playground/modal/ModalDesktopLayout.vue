@@ -92,5 +92,10 @@ defineExpose({
         <ModalImageSlide v-for="(img, i) in images" :key="i" :src="img" class="w-auto h-[80%]" />
       </div>
     </div>
+
+    <!-- Scroll Direction Indicators -->
+    <div class="absolute bottom-8 right-12">
+      <ModalScrollIndicators :scroll-container="scrollContainerRef" />
+    </div>
   </div>
 </template>

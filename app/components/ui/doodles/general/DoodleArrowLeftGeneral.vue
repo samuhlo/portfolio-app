@@ -18,7 +18,7 @@ defineExpose({ svg: svgRef });
         <path
           d="M773.09,564.234C824.609,564.234 823.427,563.656 874.805,561.339"
           stroke="var(--color-accent, #ffca40)"
-          stroke-width="4"
+          stroke-width="5"
           stroke-linecap="round"
           stroke-linejoin="round"
         />
@@ -27,7 +27,7 @@ defineExpose({ svg: svgRef });
         <path
           d="M839.446,553.014C860.845,555.598 860.576,556.694 883.018,561.036C860.047,566.874 852.122,569.914 843.88,571.78"
           stroke="var(--color-accent, #ffca40)"
-          stroke-width="4"
+          stroke-width="5"
           stroke-linecap="round"
           stroke-linejoin="round"
         />

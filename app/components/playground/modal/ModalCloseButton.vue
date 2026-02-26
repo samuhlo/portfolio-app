@@ -11,10 +11,12 @@ import { useDoodleDraw } from '~/composables/useDoodleDraw';
 
 interface Props {
   size?: 'sm' | 'lg';
+  autoPlay?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'lg',
+  autoPlay: false,
 });
 
 const emit = defineEmits<{
@@ -39,6 +41,13 @@ let preparedPaths: SVGPathElement[] = [];
 
 onMounted(() => {
   preparedPaths = preparePaths(doodleRef.value?.svg ?? null);
+
+  // [NOTE] En móvil, dibujar el doodle automáticamente al montar (no hay hover)
+  if (props.autoPlay) {
+    nextTick(() => {
+      setTimeout(draw, 400);
+    });
+  }
 });
 
 function killAllTweens() {
@@ -80,10 +89,12 @@ function draw() {
 }
 
 function erase() {
+  // [NOTE] En autoPlay (mobile) el doodle queda permanente, no borrar
+  if (props.autoPlay) return;
+
   const svg = doodleRef.value?.svg;
   if (!svg || !preparedPaths.length) return;
 
-  // [FIX] Matar tweens pendientes antes de borrar
   killAllTweens();
 
   gsap.to(svg, {
@@ -110,8 +121,9 @@ function erase() {
       class="absolute inset-3 w-auto h-auto opacity-0 pointer-events-none"
     />
 
-    <!-- Icono base (SVG líneas rectas) -->
+    <!-- Icono base (SVG líneas rectas) — oculto en autoPlay/mobile -->
     <svg
+      v-if="!autoPlay"
       width="32"
       height="32"
       viewBox="0 0 24 24"

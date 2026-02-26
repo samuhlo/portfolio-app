@@ -17,14 +17,14 @@ defineExpose({ svg: svgRef });
       <path
         d="M773.09,564.234C824.609,564.234 824.382,564.699 875.76,562.381"
         stroke="var(--color-accent, #ffca40)"
-        stroke-width="4"
+        stroke-width="5"
         stroke-linecap="round"
         stroke-linejoin="round"
       />
       <path
         d="M840.27,557.054C861.67,559.638 861.444,559.735 883.018,561.036C850.471,571.209 866.569,565.014 831.985,574.643"
         stroke="var(--color-accent, #ffca40)"
-        stroke-width="4"
+        stroke-width="5"
         stroke-linecap="round"
         stroke-linejoin="round"
       />

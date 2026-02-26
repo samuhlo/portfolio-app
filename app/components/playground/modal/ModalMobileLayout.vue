@@ -33,7 +33,7 @@ defineExpose({
     class="w-full min-h-dvh flex flex-col px-6 pt-12 pb-24 overflow-y-auto overflow-x-hidden relative"
   >
     <!-- Close Button -->
-    <ModalCloseButton size="sm" @close="emit('close')" />
+    <ModalCloseButton size="sm" auto-play @close="emit('close')" />
 
     <!-- 1. Title -->
     <div class="mt-8 mb-8 pr-12">
@@ -54,9 +54,13 @@ defineExpose({
         <ModalImageSlide v-for="(img, i) in images" :key="i" :src="img" class="h-[40vh] min-h-75" />
       </div>
     </div>
+    <!-- Scroll Direction Indicators -->
+    <div class="flex justify-end mt-2 mr-2">
+      <ModalScrollIndicators :scroll-container="scrollContainerRef" />
+    </div>
 
     <!-- 3. Text content -->
-    <div class="mt-8">
+    <div class="mt-6">
       <ModalProjectInfo size="sm" layout="column" />
     </div>
   </div>

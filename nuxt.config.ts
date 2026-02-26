@@ -1,5 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 
+const SITE_URL = 'https://samuhlo.dev';
+
 export default defineNuxtConfig({
   ssr: true,
   future: { compatibilityVersion: 4 },
@@ -18,5 +20,25 @@ export default defineNuxtConfig({
   ],
   typescript: {
     strict: true,
+  },
+
+  // =========================================================================
+  // █ SEO: Global head defaults
+  // =========================================================================
+  app: {
+    head: {
+      htmlAttrs: { lang: 'en' },
+      charset: 'utf-8',
+      viewport: 'width=device-width, initial-scale=1',
+      titleTemplate: '%s // SAMUHLO',
+      link: [
+        { rel: 'canonical', href: SITE_URL },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+      meta: [
+        { name: 'author', content: 'Samuel Lopez (samuhlo)' },
+        { name: 'theme-color', content: '#0C0011' },
+      ],
+    },
   },
 });
