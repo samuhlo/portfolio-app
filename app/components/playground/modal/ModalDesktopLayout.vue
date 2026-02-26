@@ -10,7 +10,7 @@
 
 interface Props {
   projectName: string;
-  images: number[];
+  images: string[];
 }
 
 defineProps<Props>();
@@ -75,13 +75,13 @@ defineExpose({
               <h3 class="font-bold tracking-wider mb-2 text-base">[LINKS]</h3>
               <ul class="space-y-2 opacity-80 text-sm text-right">
                 <li>
-                  <DoodleHover><a href="#">LIVE DEMO</a></DoodleHover>
+                  <RandomDoodleHover><NuxtLink to="#">LIVE DEMO</NuxtLink></RandomDoodleHover>
                 </li>
                 <li>
-                  <DoodleHover><a href="#">GITHUB</a></DoodleHover>
+                  <RandomDoodleHover><NuxtLink to="#">GITHUB</NuxtLink></RandomDoodleHover>
                 </li>
                 <li>
-                  <DoodleHover><a href="#">POST</a></DoodleHover>
+                  <RandomDoodleHover><NuxtLink to="#">POST</NuxtLink></RandomDoodleHover>
                 </li>
               </ul>
             </div>
@@ -89,7 +89,7 @@ defineExpose({
         </div>
 
         <!-- 2. Image slides -->
-        <ModalImageSlide v-for="img in images" :key="img" class="w-auto h-[80%]" />
+        <ModalImageSlide v-for="(img, i) in images" :key="i" :src="img" class="w-auto h-[80%]" />
       </div>
     </div>
   </div>

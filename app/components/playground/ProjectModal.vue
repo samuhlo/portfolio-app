@@ -182,7 +182,13 @@ onUnmounted(() => {
 // ---------------------------------------------------------------------------
 // 4. Datos
 // ---------------------------------------------------------------------------
-const images = Array.from({ length: 6 }, (_, i) => i + 1);
+const images = [
+  '/images/projects/tinyshow_main.webp',
+  '/images/projects/tinyshowcaptures/tinyshow_1.webp',
+  '/images/projects/tinyshowcaptures/tinyshow_3.webp',
+  '/images/projects/tinyshowcaptures/tinyshow_4.webp',
+  '/images/projects/tinyshowcaptures/tinyshow_5.webp',
+];
 </script>
 
 <template>

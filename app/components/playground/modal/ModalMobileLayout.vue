@@ -10,7 +10,7 @@
 
 interface Props {
   projectName: string;
-  images: number[];
+  images: string[];
 }
 
 defineProps<Props>();
@@ -51,7 +51,7 @@ defineExpose({
       class="w-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing no-scrollbar relative pointer-events-auto -mx-6 px-6"
     >
       <div ref="scrollContentRef" class="flex items-center gap-4 box-border w-max pb-6">
-        <ModalImageSlide v-for="img in images" :key="img" class="h-[40vh] min-h-75" />
+        <ModalImageSlide v-for="(img, i) in images" :key="i" :src="img" class="h-[40vh] min-h-75" />
       </div>
     </div>
 

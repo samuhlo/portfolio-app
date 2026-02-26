@@ -21,9 +21,10 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const positionClass = computed(() => (props.size === 'sm' ? 'top-6 right-6' : 'top-12 right-12'));
+const positionClass = computed(() => (props.size === 'sm' ? 'top-4 right-4' : 'top-8 right-8'));
 
-const buttonSize = computed(() => (props.size === 'sm' ? 'w-10 h-10' : 'w-14 h-14'));
+// [NOTE] Superficie de hover más grande que el icono visual
+const buttonSize = computed(() => (props.size === 'sm' ? 'w-14 h-14' : 'w-18 h-18'));
 
 // ---------------------------------------------------------------------------
 // Doodle Draw Animation
@@ -35,27 +36,39 @@ interface DoodleExposed {
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
 const doodleRef = ref<DoodleExposed | null>(null);
 let preparedPaths: SVGPathElement[] = [];
-let isAnimating = false;
 
 onMounted(() => {
   preparedPaths = preparePaths(doodleRef.value?.svg ?? null);
 });
 
-function draw() {
-  if (isAnimating) return;
-  isAnimating = true;
-
+function killAllTweens() {
   const svg = doodleRef.value?.svg;
-  if (!svg || !preparedPaths.length) {
-    isAnimating = false;
-    return;
-  }
+  if (svg) gsap.killTweensOf(svg);
+  preparedPaths.forEach((p) => gsap.killTweensOf(p));
+}
 
-  const tl = gsap.timeline({
-    onComplete: () => {
-      isAnimating = false;
-    },
+function resetPaths() {
+  const svg = doodleRef.value?.svg;
+  if (!svg) return;
+  gsap.set(svg, { opacity: 0 });
+  preparedPaths.forEach((path) => {
+    const length = path.getTotalLength() + 20;
+    gsap.set(path, {
+      strokeDashoffset: length,
+      visibility: 'hidden',
+    });
   });
+}
+
+function draw() {
+  const svg = doodleRef.value?.svg;
+  if (!svg || !preparedPaths.length) return;
+
+  // [FIX] Matar cualquier animación pendiente y resetear antes de redibujar
+  killAllTweens();
+  resetPaths();
+
+  const tl = gsap.timeline();
 
   addDrawAnimation(tl, {
     svg,
@@ -70,20 +83,14 @@ function erase() {
   const svg = doodleRef.value?.svg;
   if (!svg || !preparedPaths.length) return;
 
+  // [FIX] Matar tweens pendientes antes de borrar
+  killAllTweens();
+
   gsap.to(svg, {
     opacity: 0,
     duration: 0.2,
     ease: 'power1.in',
-    onComplete: () => {
-      preparedPaths.forEach((path) => {
-        const length = path.getTotalLength() + 20;
-        gsap.set(path, {
-          strokeDashoffset: length,
-          visibility: 'hidden',
-        });
-      });
-      isAnimating = false;
-    },
+    onComplete: () => resetPaths(),
   });
 }
 </script>
@@ -94,13 +101,13 @@ function erase() {
     @mouseenter="draw"
     @mouseleave="erase"
     :class="[positionClass, buttonSize]"
-    class="absolute flex items-center justify-center cursor-pointer z-20 group"
+    class="absolute flex items-center justify-center cursor-pointer z-20 group p-3"
     aria-label="Cerrar modal"
   >
     <!-- Doodle X (se dibuja en hover) -->
     <DoodleXCloseGeneral
       ref="doodleRef"
-      class="absolute inset-0 w-full h-full opacity-0 pointer-events-none"
+      class="absolute inset-3 w-auto h-auto opacity-0 pointer-events-none"
     />
 
     <!-- Icono base (SVG líneas rectas) -->
@@ -109,7 +116,7 @@ function erase() {
       height="32"
       viewBox="0 0 24 24"
       fill="none"
-      class="stroke-background w-full h-full transition-opacity duration-200 group-hover:opacity-0"
+      class="stroke-background w-full h-full transition-opacity duration-200 group-hover:opacity-0 p-1"
     >
       <path d="M18 6L6 18M6 6l12 12" stroke-width="1.5" stroke-linecap="square" />
     </svg>

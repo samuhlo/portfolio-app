@@ -56,13 +56,13 @@ const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-sm'));
         <h3 :class="['font-bold tracking-wider mb-2', textSize]">[LINKS]</h3>
         <ul :class="['space-y-2 opacity-80', bodySize]">
           <li>
-            <DoodleHover><a href="#">LIVE DEMO</a></DoodleHover>
+            <RandomDoodleHover><NuxtLink to="#">LIVE DEMO</NuxtLink></RandomDoodleHover>
           </li>
           <li>
-            <DoodleHover><a href="#">GITHUB</a></DoodleHover>
+            <RandomDoodleHover><NuxtLink to="#">GITHUB</NuxtLink></RandomDoodleHover>
           </li>
           <li>
-            <DoodleHover><a href="#">POST</a></DoodleHover>
+            <RandomDoodleHover><NuxtLink to="#">POST</NuxtLink></RandomDoodleHover>
           </li>
         </ul>
       </div>

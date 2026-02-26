@@ -134,7 +134,7 @@ const openMail = (): void => {
     <div
       class="relative z-10 w-full py-10 px-6 md:px-12 font-bold tracking-widest md:mt-20 flex flex-col items-end gap-4 text-sm md:grid md:grid-cols-3 md:gap-0 md:text-[1.75rem] md:items-end md:h-full"
     >
-      <a href="mailto:hola@samuhlo.dev" class="md:text-left md:col-start-1 md:row-start-1">
+      <NuxtLink to="mailto:hola@samuhlo.dev" class="md:text-left md:col-start-1 md:row-start-1">
         <span class="relative inline-block w-fit">
           hola@samuhlo.dev
           <DoodleCircleGeneral
@@ -142,14 +142,14 @@ const openMail = (): void => {
             class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0"
           />
         </span>
-      </a>
+      </NuxtLink>
 
-      <DoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
-        <a href="#">github</a>
-      </DoodleHover>
-      <DoodleHover class="md:col-start-3 md:row-start-1 md:justify-self-end">
-        <a href="#">linkedin</a>
-      </DoodleHover>
+      <RandomDoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
+        <NuxtLink to="https://github.com/samuhlo">github</NuxtLink>
+      </RandomDoodleHover>
+      <RandomDoodleHover class="md:col-start-3 md:row-start-1 md:justify-self-end">
+        <NuxtLink to="https://www.linkedin.com/in/samuhlo/">linkedin</NuxtLink>
+      </RandomDoodleHover>
     </div>
   </section>
 </template>

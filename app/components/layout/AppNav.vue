@@ -51,17 +51,19 @@ onMounted(() => {
     class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-6 md:px-12 w-full"
   >
     <div class="flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
-      <DoodleHover>
+      <RandomDoodleHover>
         <NuxtLink to="/" class="hover:font-bold transition-opacity">Home</NuxtLink>
-      </DoodleHover>
-      <DoodleHover>
+      </RandomDoodleHover>
+      <RandomDoodleHover>
         <NuxtLink to="/" class="hover:font-bold transition-opacity">Logs</NuxtLink>
-      </DoodleHover>
+      </RandomDoodleHover>
     </div>
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
-      <DoodleHover>
-        <a href="mailto:hola@samuhlo.dev" class="hover:font-bold transition-opacity">Contact</a>
-      </DoodleHover>
+      <RandomDoodleHover>
+        <NuxtLink to="mailto:hola@samuhlo.dev" class="hover:font-bold transition-opacity"
+          >Contact</NuxtLink
+        >
+      </RandomDoodleHover>
     </div>
   </nav>
 </template>
