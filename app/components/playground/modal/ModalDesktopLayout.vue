@@ -49,42 +49,8 @@ defineExpose({
               <span class="text-base font-mono font-normal opacity-60 align-top ml-2">2025</span>
             </h1>
 
-            <!-- INFO solo (sin techs/links, esos van abajo) -->
-            <div class="font-mono space-y-4">
-              <h3 class="font-bold uppercase tracking-wider mb-2 text-base">[INFO]</h3>
-              <p class="opacity-80 leading-relaxed text-sm max-w-sm">
-                Hi, I'm Samuel. I work as a Product Architect, which is a fancy way of saying I love
-                designing complex things and coding them from scratch. I believe a website should be
-                solid like a rock but move like water.
-              </p>
-            </div>
-          </div>
-
-          <!-- TECHS & LINKS -->
-          <div class="flex gap-8 font-mono uppercase justify-between mt-auto pt-8 flex-wrap">
-            <div>
-              <h3 class="font-bold tracking-wider mb-2 text-base">[MAIN TECHS]</h3>
-              <ul class="space-y-1 opacity-80 text-sm">
-                <li>NUXTJS</li>
-                <li>PINIA</li>
-                <li>TAILWIND</li>
-                <li>GSAP</li>
-              </ul>
-            </div>
-            <div class="text-right">
-              <h3 class="font-bold tracking-wider mb-2 text-base">[LINKS]</h3>
-              <ul class="space-y-2 opacity-80 text-sm text-right">
-                <li>
-                  <RandomDoodleHover><NuxtLink to="#">LIVE DEMO</NuxtLink></RandomDoodleHover>
-                </li>
-                <li>
-                  <RandomDoodleHover><NuxtLink to="#">GITHUB</NuxtLink></RandomDoodleHover>
-                </li>
-                <li>
-                  <RandomDoodleHover><NuxtLink to="#">POST</NuxtLink></RandomDoodleHover>
-                </li>
-              </ul>
-            </div>
+            <!-- Project Info (INFO + TECHS + LINKS) -->
+            <ModalProjectInfo size="lg" layout="row" />
           </div>
         </div>
 
