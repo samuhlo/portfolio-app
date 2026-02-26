@@ -11,7 +11,7 @@
 <template>
   <div class="flex flex-col min-h-screen font-sans">
     <AppNav />
-    <main class="grow w-full">
+    <main class="grow w-full overflow-x-clip">
       <slot />
     </main>
     <AppFooter />

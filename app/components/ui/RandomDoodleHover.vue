@@ -12,6 +12,9 @@ import { ref, onMounted } from 'vue';
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 
+// [NOTE] En dispositivos táctiles no hay hover real → no animar doodles
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
+
 interface DoodleExposed {
   svg: SVGSVGElement | null;
 }
@@ -42,7 +45,7 @@ onMounted(() => {
 });
 
 const draw = () => {
-  if (isAnimating) return;
+  if (!hasHover || isAnimating) return;
   isAnimating = true;
 
   // [NOTE] Elegir un doodle aleatorio distinto al anterior cuando sea posible

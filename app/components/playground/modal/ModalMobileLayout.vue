@@ -30,7 +30,8 @@ defineExpose({
 
 <template>
   <div
-    class="w-full min-h-dvh flex flex-col px-6 pt-12 pb-24 overflow-y-auto overflow-x-hidden relative"
+    class="w-full h-dvh flex flex-col px-6 pt-12 pb-24 overflow-y-auto overflow-x-hidden relative"
+    data-lenis-prevent
   >
     <!-- Close Button -->
     <ModalCloseButton size="sm" auto-play @close="emit('close')" />

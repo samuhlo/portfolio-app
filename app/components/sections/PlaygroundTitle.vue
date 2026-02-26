@@ -83,7 +83,7 @@ onUnmounted(() => {
   <div class="relative inline-block self-start mb-16 md:mb-32">
     <h2
       ref="titleRef"
-      class="text-[clamp(4rem,12vw,12rem)] leading-none font-black uppercase tracking-tighter relative"
+      class="text-[clamp(3rem,12vw,12rem)] leading-none font-black uppercase tracking-tighter relative"
     >
       Playground
 

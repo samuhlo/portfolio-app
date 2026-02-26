@@ -212,8 +212,8 @@ const images = [
           -->
           <div
             ref="contentRef"
-            class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl py-16"
-            :class="isMobile ? 'min-h-dvh' : 'h-[75vh]'"
+            class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
+            :class="isMobile ? 'h-dvh overflow-hidden' : 'h-[75vh] py-16'"
           >
             <ModalDesktopLayout
               v-if="!isMobile"

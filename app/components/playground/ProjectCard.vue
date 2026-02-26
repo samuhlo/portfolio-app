@@ -42,6 +42,10 @@ const cardAvatarSize = computed(() => props.avatarSize);
 const cardAvatarStroke = computed(() => props.avatarStroke);
 const cardColor = computed(() => props.color);
 
+// --- HOVER CAPABILITY DETECTION ---
+// [NOTE] En dispositivos táctiles no hay hover real → desactivar cursor-label y magnetic
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
+
 // --- CURSOR LABEL (composable) ---
 const { containerRef, labelRef, isHovering, onMouseMove, onMouseEnter, onMouseLeave } =
   useCursorLabel({ lerp: 0.12, offsetX: 16, offsetY: 12 });
@@ -52,17 +56,20 @@ const { magneticRef, onMagneticMove, onMagneticLeave } = useMagneticHover({
   returnEase: 'elastic.out(1, 0.6)',
 });
 
-// [NOTE] Combinar handlers de ambos composables en un solo evento
+// [NOTE] Combinar handlers — solo se ejecutan si el dispositivo soporta hover
 function handleMouseMove(event: MouseEvent) {
+  if (!hasHover) return;
   onMouseMove(event);
   onMagneticMove(event);
 }
 
 function handleMouseEnter(event: MouseEvent) {
+  if (!hasHover) return;
   onMouseEnter(event);
 }
 
 function handleMouseLeave() {
+  if (!hasHover) return;
   onMouseLeave();
   onMagneticLeave();
 }
@@ -168,10 +175,15 @@ function openProject() {
 }
 
 /* [NOTE] En móvil no hay hover, así que el avatar siempre está visible */
+/* Reposicionar a bottom-right para evitar clipping por overflow-x-clip */
 @media (hover: none) {
   .project-avatar {
     opacity: 1;
     transform: scale(1) translateY(0);
+    top: auto;
+    right: auto;
+    bottom: -4.5%;
+    left: 2%;
   }
 
   .cursor-label {

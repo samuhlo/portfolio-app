@@ -11,8 +11,9 @@
 // =============================================================================
 // █ SEO: Page-level meta
 // =============================================================================
-const reqUrl = useRequestURL();
-const SITE_URL = reqUrl.origin; // Se adapta a localhost, vercel preview o prod
+// const reqUrl = useRequestURL();
+// const SITE_URL = reqUrl.origin; // Se adapta a localhost, vercel preview o prod
+const SITE_URL = 'https://samuhlo.dev/';
 
 const title = 'Dev & Design';
 
@@ -30,6 +31,8 @@ useSeoMeta({
   ogSiteName: 'SAMUHLO.sh', // Tu dominio conceptual
   ogLocale: 'en_US',
   ogImage: `${SITE_URL}/images/og-cover.png`,
+  ogImageSecureUrl: `${SITE_URL}/images/og-cover.png`,
+  ogImageType: 'image/png',
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: 'Samuel López — Code, Design & Much More',

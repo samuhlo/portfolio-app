@@ -48,6 +48,7 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
           syncCanvasSize();
 
           if (canvasRef.value) {
+            prevCanvasWidth = canvasRef.value.width;
             initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
           }
 
@@ -61,14 +62,22 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
 };
 
 // [NOTE] Debounce para el resize: destruye y re-inicia la simulación
-// con las nuevas dimensiones para que las letras no queden deformadas
+// con las nuevas dimensiones para que las letras no queden deformadas.
+// SOLO si el width cambió → ignora el hide/show de la barra de URL del móvil
+// que solo modifica el height.
 let resizeTimer: ReturnType<typeof setTimeout> | null = null;
+let prevCanvasWidth = 0;
 const RESIZE_DEBOUNCE_MS = 300;
 
 const handleResize = (): void => {
   if (resizeTimer) clearTimeout(resizeTimer);
   resizeTimer = setTimeout(() => {
-    if (!triggered || !canvasRef.value) return;
+    if (!triggered || !canvasRef.value || !sectionRef.value) return;
+
+    const newWidth = sectionRef.value.clientWidth;
+    if (newWidth === prevCanvasWidth) return;
+    prevCanvasWidth = newWidth;
+
     destroy();
     syncCanvasSize();
     initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
