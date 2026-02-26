@@ -17,7 +17,7 @@ interface DoodleExposed {
   svg: SVGSVGElement | null;
 }
 
-const { gsap, initGSAP } = useGSAP();
+const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
 const { createPinnedScroll } = usePinnedScroll();
 
@@ -42,6 +42,7 @@ const LAYOUT = {
 };
 
 const TEXT_ENDS_AT = 0.3;
+const HEARTBEAT_DELAY_MS = 600;
 const textContainerRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
@@ -135,6 +136,42 @@ onMounted(() => {
       end: '+=2000',
       phases: [{ timeline: doodleTl, start: 0, end: 1 }],
     });
+
+    // ── HEARTBEAT: Latido en loop tras completar todos los doodles ──
+    const heartSvg = heartRef.value?.svg;
+    if (heartSvg) {
+      let doodlesComplete = false;
+      const heartbeatTl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, paused: true });
+
+      // [NOTE] Doble pulso (bum-bum) como un corazón real
+      gsap.set(heartSvg, { transformOrigin: 'center center' });
+      heartbeatTl
+        .to(heartSvg, { scale: 1.25, duration: 0.12, ease: 'power2.out' })
+        .to(heartSvg, { scale: 1, duration: 0.1, ease: 'power2.in' })
+        .to(heartSvg, { scale: 1.15, duration: 0.1, ease: 'power2.out' }, '+=0.08')
+        .to(heartSvg, { scale: 1, duration: 0.2, ease: 'power2.in' });
+
+      // Primera vez: arranca cuando TODOS los doodles terminan de dibujarse
+      doodleTl.eventCallback('onComplete', () => {
+        doodlesComplete = true;
+        setTimeout(() => heartbeatTl.play(0), HEARTBEAT_DELAY_MS);
+      });
+
+      // Posteriores: re-arranca al volver a entrar en viewport
+      ScrollTrigger.create({
+        trigger: sectionRef.value,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        onEnter: () => {
+          if (doodlesComplete) setTimeout(() => heartbeatTl.play(0), HEARTBEAT_DELAY_MS);
+        },
+        onEnterBack: () => {
+          if (doodlesComplete) setTimeout(() => heartbeatTl.play(0), HEARTBEAT_DELAY_MS);
+        },
+        onLeave: () => heartbeatTl.pause(),
+        onLeaveBack: () => heartbeatTl.pause(),
+      });
+    }
   });
 });
 </script>

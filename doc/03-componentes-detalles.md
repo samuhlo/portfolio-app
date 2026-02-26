@@ -10,6 +10,7 @@
 | :-- | :-------------------- | :----------------------------------------------- | :----------------------------------------- |
 | 1   | `NoiseBackground.vue` | Efecto TV Grain / Film Grain a pantalla completa | SVG dinámico en base64 + CSS Anim steps(2) |
 | 2   | `ContactSection.vue`  | Letras que caen con física real (Matter.js)      | Canvas 2D + IntersectionObserver lazy init |
+| 3   | `PageLoader.vue`      | Overlay anti-FOUC para hidratación de GSAP       | CSS-only + onMounted chain                 |
 
 ---
 
@@ -197,3 +198,81 @@ sequenceDiagram
 - Se gestiona con `onUnmounted(() => destroy())` directamente
 
 > **Lección**: No fuerces un patrón de abstracción donde no encaja. `useGSAP` existe para GSAP. Matter.js tiene su propio ciclo de vida y merece su propia limpieza.
+
+---
+
+## 3. PageLoader.vue (Overlay anti-FOUC)
+
+### El problema: Flash Of Unstyled Content en el Hero
+
+`HeroTitle.vue` usa `gsap.from()` para animar la entrada del título. Esto significa que el texto se renderiza **visible** en el DOM y luego GSAP lo fuerza a `opacity: 0` para animarlo de vuelta. El resultado en la primera carga:
+
+1. El HTML se pinta con las letras visibles
+2. GSAP se inicializa en `onMounted` y setea `opacity: 0`
+3. GSAP anima `opacity: 0 → 1`
+
+El usuario ve: **letras → parpadeo → letras animándose**. Es un artefacto clásico de `gsap.from()` en SSR/hidratación.
+
+### La solución: Overlay opaco hasta que GSAP esté listo
+
+Un `<div>` fullscreen con el mismo color de fondo (`--color-background`) que tapa todo hasta que los `onMounted` de los hijos terminan de ejecutar GSAP.
+
+**Decisión clave: CSS puro, sin GSAP.** El loader debe funcionar _antes_ de que GSAP cargue. Si dependiera de GSAP para su propia animación, tendríamos el mismo problema de chicken-and-egg.
+
+### Cadena de sincronización en `app.vue`
+
+```typescript
+const isLoading = ref(true);
+const TRANSITION_BUFFER_MS = 100;
+
+onMounted(async () => {
+  await nextTick(); // DOM de los hijos actualizado
+  requestAnimationFrame(() => {
+    // Browser ya pintó el frame
+    setTimeout(() => {
+      // Buffer mínimo para suavizar
+      isLoading.value = false; // Trigger fade-out del overlay
+    }, TRANSITION_BUFFER_MS);
+  });
+});
+```
+
+**¿Por qué tres niveles?**
+
+| Paso                    | Garantiza                                                        |
+| :---------------------- | :--------------------------------------------------------------- |
+| `onMounted` (app.vue)   | Los `onMounted` de los hijos ya ejecutaron (Vue monta bottom-up) |
+| `nextTick`              | El DOM refleja los cambios que GSAP hizo en los hijos            |
+| `requestAnimationFrame` | El browser ya pintó el frame con el estado correcto              |
+| `setTimeout(100)`       | Buffer visual para que la transición de fade-out no sea abrupta  |
+
+### Ciclo de vida del overlay
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant AppVue as app.vue
+    participant PL as PageLoader
+    participant Hero as HeroTitle
+
+    Browser->>AppVue: Hidratación SSR
+    AppVue->>PL: visible=true (overlay opaco)
+    AppVue->>Hero: Render HTML visible
+    Hero->>Hero: onMounted → gsap.from(opacity:0)
+    Note over PL: El flash queda DETRÁS del overlay
+    AppVue->>AppVue: onMounted → nextTick → rAF → 100ms
+    AppVue->>PL: visible=false
+    PL->>PL: CSS transition (opacity + translateY)
+    PL->>PL: transitionend → v-if=false (desmontado)
+```
+
+### Anatomía del fade-out
+
+El overlay no desaparece con `v-if` directo (sería un corte brusco). Usa un patrón de **dos fases**:
+
+1. `visible` pasa a `false` → activa clase `loader-leaving` (CSS transition: opacity + translateY)
+2. Al terminar la transición (`@transitionend`) → `shouldRender = false` → `v-if` lo desmonta del DOM
+
+Esto asegura que la transición de salida se complete visualmente antes de limpiar el nodo.
+
+> **Lección**: `gsap.from()` es peligroso en SSR porque el estado inicial del DOM es visible. Si no puedes cambiar a `gsap.fromTo()`, un overlay de carga es la solución más limpia sin tocar la lógica de animación existente.

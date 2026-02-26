@@ -447,6 +447,35 @@ const destroy = (): void => {
 
 Se llama desde `onUnmounted` en ContactSection.
 
+#### 6. Slam — El manotazo en la mesa
+
+Cuando el usuario hace click en el link de email, `slam()` aplica un impulso violento hacia arriba a **todas** las letras, como si alguien diera un golpe en la mesa:
+
+```typescript
+const slam = (): void => {
+  if (!isRunning) return;
+
+  for (const { body } of letterBodies) {
+    const upForce = -(15 + Math.random() * 10); // Impulso vertical variable
+    Body.setVelocity(body, {
+      x: (Math.random() - 0.5) * 8, // Dispersión horizontal
+      y: upForce,
+    });
+    Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.3); // Giro caótico
+  }
+};
+```
+
+**Tres capas de aleatoriedad:**
+
+| Parámetro            | Rango        | Efecto                             |
+| :------------------- | :----------- | :--------------------------------- |
+| `y` (impulso arriba) | `-(15 a 25)` | Cada letra salta a distinta altura |
+| `x` (horizontal)     | `±4`         | Se dispersan lateralmente          |
+| `angularVelocity`    | `±0.15`      | Giran caóticamente al saltar       |
+
+Después del impulso, la gravedad las vuelve a atraer y se re-apilan en el suelo, en posiciones distintas cada vez. El efecto es determinista en su mecánica pero caótico en su resultado — nunca se ve igual dos veces.
+
 ### Constantes físicas
 
 | Constante             | Valor   | Efecto                                                 |
@@ -475,9 +504,18 @@ Composable que desplaza un elemento hacia el cursor al hacer hover, usando `gsap
 
 ---
 
+## 8. `useDragScroll` — Click-and-drag horizontal
+
+> Documentación completa en [06 - ProjectModal](./06-project-modal.md#8-usedragscroll--click-and-drag-en-desktop)
+
+Composable que habilita click-and-drag para scroll horizontal en un contenedor. Opera directamente sobre `scrollLeft` con un multiplicador de velocidad (1.5x). Se vincula y desvincula con `bind()`/`unbind()`, integrado al ciclo de vida de Lenis en el ProjectModal.
+
+---
+
 ## Siguiente lectura
 
 - [01 - Arquitectura](./01-arquitectura-animaciones.md) — Visión general del sistema
 - [03 - Componentes](./03-componentes-detalles.md) — Análisis técnico de componentes
 - [04 - Problemas resueltos](./04-problemas-resueltos.md) — Trampas y lecciones aprendidas
 - [05 - Playground](./05-playground-projectcard.md) — ProjectCard y efectos interactivos
+- [06 - ProjectModal](./06-project-modal.md) — Sistema modular de detalle de proyecto

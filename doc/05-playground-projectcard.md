@@ -301,3 +301,4 @@ Los handlers se combinan en el componente para que un solo `@mousemove` alimente
 - [02 - Composables](./02-composables-detalle.md) — Referencia técnica de composables
 - [03 - Componentes](./03-componentes-detalles.md) — Análisis técnico de componentes
 - [04 - Problemas resueltos](./04-problemas-resueltos.md) — Trampas y lecciones aprendidas
+- [06 - ProjectModal](./06-project-modal.md) — Sistema modular de detalle de proyecto
