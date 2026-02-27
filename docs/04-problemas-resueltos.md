@@ -364,35 +364,39 @@ Lo que ocurre es que en un milisegundo:
 3. Pero el motor de Momentum de Lenis/iOS **sigue empujando** con la velocidad calculada según la página _antigua_.
 4. Conflicto total de posiciones, resultando en un salto de varios miles de píxeles en 1 frame.
 
-### La solución: "Delayed Kill" basado en Velocidad
+### La solución: Delayed Kill
 
-En lugar de matar el Pin Spacer instantáneamente, metemos la lógica en un bucle inteligente mediante `requestAnimationFrame` que **mira la velocidad actual de Lenis**.
-Si el scroll todavía lleva su inercia (`Math.abs(lenis.velocity) > 0.1`), posponemos el cálculo. Cuando la inercia llega a su fin, lo matamos de manera completamente invisible.
+Implementamos un sistema que retrasa la muerte (`kill()`) del `ScrollTrigger` hasta que la velocidad inercial del usuario (_momentum_) sea casi cero **y además haya levantado el dedo de la pantalla**, permitiendo que Safari decelere de forma natural antes de hacer el cambio en el DOM:
 
 ```typescript
-// En usePinnedScroll.ts -> onLeave
-const attemptKill = () => {
-  // Asegurarnos de que no hemos retrocedido
-  if (!self.isActive && self.progress === 1) {
-    const velocity = lenis?.velocity || 0;
+// En composables/usePinnedScroll.ts
 
-    if (Math.abs(velocity) < 0.1) {
-      // Inercia terminada = Kill seguro e invisible
-      const targetScroll = self.scroll() - pinSpacerHeight;
-      self.kill();
-      lenis?.scrollTo(targetScroll, { immediate: true });
-      requestAnimationFrame(() => ScrollTrigger.refresh());
-    } else {
-      // Sigue habiendo momentum activo, re-intentarlo el próximo frame
-      requestAnimationFrame(attemptKill);
+onLeave: (self) => {
+  const pinSpacerHeight = self.end - self.start;
+
+  const attemptKill = () => {
+    if (!self.isActive && self.progress === 1) {
+      // 1. Miramos a qué velocidad se mueve el usuario
+      const velocity = lenis?.velocity || 0;
+
+      // 2. Solo aplicamos el Kill si la inercia acabó Y el usuario soltó la pantalla
+      if (Math.abs(velocity) < 0.1 && !(window as any).__isTouching) {
+        const targetScroll = self.scroll() - pinSpacerHeight;
+        self.kill();
+        lenis?.scrollTo(targetScroll, { immediate: true });
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+      } else {
+        // 3. Seguimos comprobando en el próximo frame
+        requestAnimationFrame(attemptKill);
+      }
     }
-  }
-};
+  };
 
-requestAnimationFrame(attemptKill);
+  requestAnimationFrame(attemptKill);
+};
 ```
 
-> **Lección de Oro:** Si tocas el DOM para alterar el tamaño total de la página (_resize_, _kill pin spacer_), nunca lo hagas mientras el usuario está en el medio de un **Swipe de Inercia Táctil**. Conflicto balístico asegurado.
+Para que esta comprobación sepa si el usuario está tocando la pantalla, inyectamos listeners globales de touch en el plugin de `Lenis`. Conflicto balístico asegurado.
 
 ---
 
@@ -457,11 +461,8 @@ Añadimos parámetros de configuración global a `ScrollTrigger` justo en el fic
 
 // [FIX] GSAP ignorará los pequeños cambios verticales (URL bar resizing) en móviles
 ScrollTrigger.config({ ignoreMobileResize: true });
-
-// [FIX] (Opcional pero recomendable) Fuerza el registro de un smooth touch behavior unificado.
-ScrollTrigger.normalizeScroll(true);
 ```
 
-La opción `ignoreMobileResize` previene categóricamente estos recálculos destructivos derivados de la barra del navegador, preservando el layout intacto a menos que el usuario rote el móvil (cambio de `width`). Y `normalizeScroll` sincroniza un único hilo para el táctil junto con Lenis, reduciendo combates de eventos nativos en Safari.
+La opción `ignoreMobileResize` previene categóricamente estos recálculos destructivos derivados de la barra del navegador, preservando el layout intacto a menos que el usuario rote el móvil (cambio de `width`).
 
-> **Lección:** Todos los frameworks de animación web vinculados al scroll asumen erróneamente que los resizes son intencionados, excepto en el ecosistema móvil. `ignoreMobileResize` debería ser casi obligatorio en Single Page Applications animadas modernas.
+> **Peligro con `normalizeScroll`:** Aunque la documentación de GSAP sugiere `ScrollTrigger.normalizeScroll(true)` para problemas táctiles, **NUNCA** lo uses en combinación con Lenis o bibliotecas de smooth scroll que dependan de la inercia nativa de iOS. Aplicar `normalizeScroll(true)` forza a GSAP a secuestrar el hilo de touch principal, arruinando los _amortiguadores_ nativos del móvil y re-introduciendo el bug letal de saltos de sección al romper nuestro sistema de lectura pasiva de velocidad `lenis.velocity`.

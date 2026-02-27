@@ -91,7 +91,7 @@ export const usePinnedScroll = () => {
       onLeave: (self) => {
         // [NOTE] En móviles (iOS Safari), eliminar el pin-spacer y cambiar
         // el scroll de golpe durante un fling de momentum causa un salto errático.
-        // Solución: Esperar a que la velocidad de Lenis sea ~0 para aplicar el kill de forma invisible.
+        // Solución: Esperar a que la velocidad de Lenis sea ~0 Y que el usuario haya levantado el dedo
         const pinSpacerHeight = self.end - self.start;
 
         const attemptKill = () => {
@@ -99,7 +99,8 @@ export const usePinnedScroll = () => {
           // Si el usuario scrolleó rápido hacia arriba y volvió a entrar, abortamos el kill.
           if (!self.isActive && self.progress === 1) {
             const velocity = lenis?.velocity || 0;
-            if (Math.abs(velocity) < 0.1) {
+            // Solo matamos el trigger si el usuario ha soltado el dedo y se acabó la inercia
+            if (Math.abs(velocity) < 0.1 && !(window as any).__isTouching) {
               const targetScroll = self.scroll() - pinSpacerHeight;
               self.kill();
               lenis?.scrollTo(targetScroll, { immediate: true });

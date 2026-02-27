@@ -16,10 +16,6 @@ if (import.meta.client) {
   // [FIX] Ignorar los pequeños cambios de tamaño en móvil (como mostrar/ocultar
   // la barra de navegación de Safari/Chrome) que causan un "refresh" total y parpadeo.
   ScrollTrigger.config({ ignoreMobileResize: true });
-
-  // [FIX] Normalizar el scroll en dispositivos táctiles para evitar que la inercia
-  // nativa y el "bounce" de iOS peleen con los pins de GSAP causando "tilt".
-  ScrollTrigger.normalizeScroll(true);
 }
 
 /**
