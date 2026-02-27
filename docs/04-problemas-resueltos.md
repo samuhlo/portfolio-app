@@ -6,17 +6,20 @@
 
 ## Índice de problemas
 
-| #   | Problema                                    | Solución final                          |
-| :-- | :------------------------------------------ | :-------------------------------------- |
-| 1   | Animaciones se deshacen al scrollear arriba | Flags `completed[]` unidireccionales    |
-| 2   | Salto brusco al terminar el pin             | `lenis.scrollTo()` con compensación     |
-| 3   | `window.scrollTo` no funciona con Lenis     | `lenis.scrollTo({ immediate: true })`   |
-| 4   | Tilt/glitch al eliminar pin-spacer          | Matar en `onLeave` (sección off-screen) |
-| 5   | BioSection roto tras refactor               | `ScrollTrigger.refresh()` post-kill     |
-| 6   | Scroll horizontal en el Hero                | `overflow-x: clip` (no `hidden`)        |
-| 7   | `overflow-x: hidden` crea doble scroll      | Diferencia entre `hidden` y `clip`      |
-| 8   | Código duplicado en Hero y Bio              | Composable `usePinnedScroll`            |
-| 9   | Efecto TV Grain de Canvas consume mucha CPU | Reescritura usando Canvas oculto + rAF  |
+| #   | Problema                                                     | Solución final                                                                 |
+| :-- | :----------------------------------------------------------- | :----------------------------------------------------------------------------- |
+| 1   | Animaciones se deshacen al scrollear arriba                  | Flags `completed[]` unidireccionales                                           |
+| 2   | Salto brusco al terminar el pin                              | `lenis.scrollTo()` con compensación                                            |
+| 3   | `window.scrollTo` no funciona con Lenis                      | `lenis.scrollTo({ immediate: true })`                                          |
+| 4   | Tilt/glitch al eliminar pin-spacer                           | Matar en `onLeave` (sección off-screen)                                        |
+| 5   | BioSection roto tras refactor                                | `ScrollTrigger.refresh()` post-kill                                            |
+| 6   | Scroll horizontal en el Hero                                 | `overflow-x: clip` (no `hidden`)                                               |
+| 7   | `overflow-x: hidden` crea doble scroll                       | Diferencia entre `hidden` y `clip`                                             |
+| 8   | Código duplicado en Hero y Bio                               | Composable `usePinnedScroll`                                                   |
+| 9   | Efecto TV Grain de Canvas consume mucha CPU                  | Reescritura usando Canvas oculto + rAF                                         |
+| 10  | Salto de scroll extremo al hacer swipe en móvil (iOS Safari) | `Delayed Kill` basado en velocidad pasiva (`lenis.velocity`)                   |
+| 11  | ContactSection (Canvas) reinventándose en cada scroll táctil | Filtrar `resize` event por umbral de dif. de `width`                           |
+| 12  | "Tilt" o parpadeo general en móvil al hacer scroll           | `ScrollTrigger.config({ ignoreMobileResize: true })` y `normalizeScroll(true)` |
 
 ---
 
@@ -333,14 +336,132 @@ function tick() {
 
 ---
 
-## Checklist para futuras secciones pineadas
+---
 
-Cuando quieras añadir una nueva sección con pin + animaciones:
+## 10. Salto de scroll extremo al hacer swipe en móvil (iOS Safari)
 
-- [ ] Crear los timelines con `paused: true`
-- [ ] Usar `useDoodleDraw` si hay SVGs
-- [ ] Llamar a `createPinnedScroll()` con las fases
-- [ ] Poner `overflow-x: clip` en el wrapper si hay contenido que sobresale
-- [ ] Testear con scroll rápido y scroll lento
-- [ ] Testear subir y bajar después de completar la animación
-- [ ] Verificar que no hay scroll horizontal en móvil
+### El problema
+
+Habíamos logrado corregir el pequeño _tilt_ o glitch al destruir el `ScrollTrigger` con `onLeave` en desktop, pero en dispositivos móviles táctiles (particularmente iOS Safari), surgió un nuevo fallo espantoso:
+Si hacias un **fling** rápido (un deslizamiento con inercia), la página daba un salto dramático hacia abajo, saltándose a menudo la siguiente sección por completo.
+
+Añadir `syncTouch: true` en la configuración de Lenis arreglaba el problema de GSAP, pero bloqueaba las mecánicas nativas de touch de iOS y generaba scroll cortado o falso en ciertos contextos.
+
+### Por qué pasaba
+
+Cuando el usuario da un empujón fuerte a la pantalla (un "fling") y suelta el dedo, el OS y Lenis entran en una interpolación de **Momentum**.
+Durante esta fase de altísima velocidad, si el `ScrollTrigger` entra en la zona `onLeave` e inmediatamente invocamos:
+
+```typescript
+self.kill();
+lenis.scrollTo(targetScroll, { immediate: true });
+```
+
+Lo que ocurre es que en un milisegundo:
+
+1. Destruimos un elemento de 2000px de alto (el `<div class="pin-spacer">`).
+2. Ajustamos virtualmente la posición.
+3. Pero el motor de Momentum de Lenis/iOS **sigue empujando** con la velocidad calculada según la página _antigua_.
+4. Conflicto total de posiciones, resultando en un salto de varios miles de píxeles en 1 frame.
+
+### La solución: "Delayed Kill" basado en Velocidad
+
+En lugar de matar el Pin Spacer instantáneamente, metemos la lógica en un bucle inteligente mediante `requestAnimationFrame` que **mira la velocidad actual de Lenis**.
+Si el scroll todavía lleva su inercia (`Math.abs(lenis.velocity) > 0.1`), posponemos el cálculo. Cuando la inercia llega a su fin, lo matamos de manera completamente invisible.
+
+```typescript
+// En usePinnedScroll.ts -> onLeave
+const attemptKill = () => {
+  // Asegurarnos de que no hemos retrocedido
+  if (!self.isActive && self.progress === 1) {
+    const velocity = lenis?.velocity || 0;
+
+    if (Math.abs(velocity) < 0.1) {
+      // Inercia terminada = Kill seguro e invisible
+      const targetScroll = self.scroll() - pinSpacerHeight;
+      self.kill();
+      lenis?.scrollTo(targetScroll, { immediate: true });
+      requestAnimationFrame(() => ScrollTrigger.refresh());
+    } else {
+      // Sigue habiendo momentum activo, re-intentarlo el próximo frame
+      requestAnimationFrame(attemptKill);
+    }
+  }
+};
+
+requestAnimationFrame(attemptKill);
+```
+
+> **Lección de Oro:** Si tocas el DOM para alterar el tamaño total de la página (_resize_, _kill pin spacer_), nunca lo hagas mientras el usuario está en el medio de un **Swipe de Inercia Táctil**. Conflicto balístico asegurado.
+
+---
+
+## 11. ContactSection (Canvas) reinventándose en cada scroll táctil
+
+### El problema
+
+En el móvil, si interactuabas con la página haciendo scroll, el motor de físicas de `Matter.js` responsable de dejar caer las letras de "Contact" ejecutaba un **Re-Init** y generaba el desplome otra vez inesperadamente.
+
+### Por qué pasaba
+
+Se incluyó un `window.addEventListener('resize')` con un _debounce_ para redimensionar el canvas en base a los cambios de proporciones del usuario.
+Sin embargo, **en móviles**, el navegador móvil oculta su "Barra de URL" verticalmente al scrollear hacia abajo, y la vuelve a mostrar al subir.
+**Esto gatilla globalmente el evento `resize` del DOM.**
+Aunque esto solo altera un 5% el `height` total, el código llamaba ciega e implícitamente a `destroy()` y a `initPhysics()`.
+
+### La solución: Umbral de Sensibilidad por Width
+
+Filtrar los eventos `resize` validando si únicamente nos interesa actuar. Como Matter.js usa gravedad vertical, si el ancho cambia un par de píxeles no hace falta repintar. Reestablecemos el universo físico **solo si el cambio de anchura fue drástico** (como rotar de pantalla vertical a horizontal), lo cual comprobamos evaluando si la diferencia de ancho supera los 50px de margen:
+
+```typescript
+const handleResize = (): void => {
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    // ...
+    const newWidth = sectionRef.value.clientWidth;
+
+    // Si la diferencia de ancho es mínima, abortar: es simplemente
+    // la barra del URL cambiando el alto o el teclado irrumpiendo.
+    if (Math.abs(newWidth - prevCanvasWidth) < 50) return;
+
+    prevCanvasWidth = newWidth;
+    destroy();
+    syncCanvasSize();
+    initPhysics(...);
+  }, 300);
+};
+```
+
+---
+
+## 12. "Tilt" o parpadeo general en móvil al hacer scroll
+
+### El problema
+
+Al hacer scroll en móvil, frecuentemente la página pegaba un "tilt" o un parpadeo visual repentino como si se estuviera recargando brevemente la página, rompiendo la experiencia de fluidez por completo.
+
+### Por qué pasaba
+
+Este es un comportamiento infame pero 100% intencionado en diseño de la librería GSAP. De forma predeterminada, `ScrollTrigger` "escucha" los eventos de redimensionamiento de ventana (`resize`) para recalcular y re-dibujar la posición exacta de todos sus "Triggers" (pins, in-outs).
+
+En escritorio esto es normal (cuando el usuario cambia el tamaño de la ventana). En **MÓVILES**, cuando haces scroll hacia abajo, la mayoría de los navegadores (como Safari en iOS o Chrome en Android) ocultan dinámicamente su barra de direcciones (URL bar). Cuando haces scroll arriba, la muestran. Este show/hide cambia artificialmente la propiedad `window.innerHeight`, disparando el evento de _resize_.
+
+Resultado: En cada micro-scroll donde la barra de URL se asomaba o desaparecía, GSAP detenía todo, mataba todas las animaciones instantáneamente, recalculaba la altura de toda la página y volvía a redibujar el DOM. Un caos (El infame _flicker_).
+
+### La solución: GSAP Config
+
+Añadimos parámetros de configuración global a `ScrollTrigger` justo en el fichero donde lo inicializamos por primera vez en la aplicación (`useGSAP.ts`):
+
+```typescript
+// En composables/useGSAP.ts
+
+// [FIX] GSAP ignorará los pequeños cambios verticales (URL bar resizing) en móviles
+ScrollTrigger.config({ ignoreMobileResize: true });
+
+// [FIX] (Opcional pero recomendable) Fuerza el registro de un smooth touch behavior unificado.
+ScrollTrigger.normalizeScroll(true);
+```
+
+La opción `ignoreMobileResize` previene categóricamente estos recálculos destructivos derivados de la barra del navegador, preservando el layout intacto a menos que el usuario rote el móvil (cambio de `width`). Y `normalizeScroll` sincroniza un único hilo para el táctil junto con Lenis, reduciendo combates de eventos nativos en Safari.
+
+> **Lección:** Todos los frameworks de animación web vinculados al scroll asumen erróneamente que los resizes son intencionados, excepto en el ecosistema móvil. `ignoreMobileResize` debería ser casi obligatorio en Single Page Applications animadas modernas.
