@@ -39,7 +39,7 @@ defineExpose({
     <!-- 1. Title -->
     <div class="mt-8 mb-8 pr-12">
       <h1
-        class="text-[14vw] sm:text-[10vw] font-black uppercase leading-[0.85] tracking-tight wrap-break-word"
+        class="text-[clamp(2.5rem,12vw,4rem)] sm:text-[10vw] font-black uppercase leading-[0.85] tracking-tight text-balance hyphens-auto wrap-break-word"
       >
         {{ projectName }}
         <span class="text-xs font-mono font-normal opacity-60 align-top ml-1">2025</span>

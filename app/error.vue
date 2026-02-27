@@ -37,14 +37,9 @@ const SETTLE_FRAME_COUNT = 45;
 // =============================================================================
 // █ CONSTANTS: POSICIONAMIENTO (ajustables en "em")
 // =============================================================================
-/** Offset X/Y del doodle respecto al centro del bloque (em) */
-const DOODLE_OFFSET_X = 0;
-const DOODLE_OFFSET_Y = 4;
 /** Ancho del doodle wrapper en mobile / desktop (em) */
 const DOODLE_WIDTH_MOBILE = 17.5;
 const DOODLE_WIDTH_DESKTOP = 25;
-/** Distancia del botón back debajo del bloque (em) */
-const BACK_BUTTON_GAP = 7.5;
 
 // =============================================================================
 // █ REFS Y STATE
@@ -52,8 +47,6 @@ const BACK_BUTTON_GAP = 7.5;
 const containerRef = ref<HTMLElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const doodleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
-const doodleWrapperRef = ref<HTMLElement | null>(null);
-const backButtonRef = ref<HTMLElement | null>(null);
 const isSettled = ref(false);
 
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
@@ -88,9 +81,15 @@ const initPhysics = (): void => {
   const H = canvas.height;
   const isMobile = W < 768;
 
-  const fontSize = isMobile ? Math.round(W * 0.28) : Math.round(W * 0.18);
   const fontFamily = '"Arial Black", "Impact", sans-serif';
   const text = '404';
+
+  ctx.font = `${FONT_WEIGHT} 100px ${fontFamily}`;
+  const baseWidth = ctx.measureText(text).width;
+
+  // En móvil ocupa el 90% del ancho, en escritorio el 60%
+  const targetTextWidth = isMobile ? W * 0.9 : W * 0.6;
+  const fontSize = Math.floor((targetTextWidth / baseWidth) * 100);
 
   ctx.font = `${FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
   const textWidth = ctx.measureText(text).width;
@@ -108,9 +107,14 @@ const initPhysics = (): void => {
     }),
     Bodies.rectangle(-WALL_THICKNESS / 2, H / 2, WALL_THICKNESS, H * 4, { isStatic: true }),
     Bodies.rectangle(W + WALL_THICKNESS / 2, H / 2, WALL_THICKNESS, H * 4, { isStatic: true }),
+    // Techo para evitar que salga propulsado hacia arriba
+    Bodies.rectangle(W / 2, -WALL_THICKNESS / 2, W * 2, WALL_THICKNESS, { isStatic: true }),
   ]);
 
-  textBody = Bodies.rectangle(W / 2, -textHeight, textWidth * 0.92, textHeight, {
+  // Empezamos ligeramente dentro de la pantalla para evitar colisionar en el frame 0 con el techo
+  const startY = Math.max(textHeight / 2, 50);
+
+  textBody = Bodies.rectangle(W / 2, startY, textWidth * 0.92, textHeight, {
     restitution: BLOCK_RESTITUTION,
     friction: BLOCK_FRICTION,
     frictionAir: BLOCK_FRICTION_AIR,
@@ -150,7 +154,6 @@ const initPhysics = (): void => {
       settleCounter++;
       if (settleCounter >= SETTLE_FRAME_COUNT) {
         isSettled.value = true;
-        onBlockSettled();
       }
     } else if (!isSettled.value) {
       settleCounter = 0;
@@ -160,38 +163,6 @@ const initPhysics = (): void => {
   };
 
   rafId = requestAnimationFrame(draw);
-};
-
-// =============================================================================
-// █ DOODLE DRAW: POST-REPOSO
-// =============================================================================
-
-const onBlockSettled = (): void => {
-  if (!textBody) return;
-
-  const cx = textBody.position.x;
-  const cy = textBody.position.y;
-  const angle = textBody.angle;
-
-  // POSICIONAR doodle sobre el bloque 404
-  if (doodleWrapperRef.value) {
-    const wrapper = doodleWrapperRef.value;
-    wrapper.style.left = `calc(${cx}px + ${DOODLE_OFFSET_X}em)`;
-    wrapper.style.top = `calc(${cy}px + ${DOODLE_OFFSET_Y}em)`;
-    wrapper.style.transform = `translate(-50%, -50%) rotate(${angle}rad)`;
-  }
-
-  // POSICIONAR botón back debajo del bloque
-  if (backButtonRef.value) {
-    backButtonRef.value.style.left = `${cx}px`;
-    backButtonRef.value.style.top = `calc(${cy}px + ${BACK_BUTTON_GAP}em)`;
-    backButtonRef.value.style.transform = 'translate(-50%, 0)';
-    backButtonRef.value.style.opacity = '1';
-  }
-
-  if (doodleTimeline) {
-    doodleTimeline.play();
-  }
 };
 
 // =============================================================================
@@ -246,10 +217,10 @@ onMounted(() => {
   syncCanvasSize();
   prevCanvasWidth = canvasRef.value?.width ?? 0;
 
-  // PREPARAR DOODLE -> paths listos antes de que caiga el bloque
+  // PREPARAR DOODLE -> se anima independiente de la física desde el montaje
   if (doodleRef.value?.svg) {
     const paths = preparePaths(doodleRef.value.svg);
-    doodleTimeline = gsap.timeline({ paused: true });
+    doodleTimeline = gsap.timeline(); // Se reproduce instantáneamente
     addDrawAnimation(doodleTimeline, {
       svg: doodleRef.value.svg,
       paths,
@@ -294,9 +265,8 @@ onUnmounted(() => {
       style="color: var(--color-foreground, #0c0011)"
     />
 
-    <!-- Doodle "working" dibujado sobre el 404 al estabilizarse -->
+    <!-- Doodle animado independiente centrado -->
     <div
-      ref="doodleWrapperRef"
       class="absolute pointer-events-none md:w-(--w-desktop)"
       :style="{
         '--w-mobile': `${DOODLE_WIDTH_MOBILE}em`,
@@ -307,15 +277,11 @@ onUnmounted(() => {
         transform: 'translate(-50%, -50%)',
       }"
     >
-      <DoodleWorking404General ref="doodleRef" class="w-full opacity-0" />
+      <DoodleWorking404General ref="doodleRef" class="w-full" />
     </div>
 
-    <!-- Botón back: posicionado dinámicamente debajo del bloque 404 -->
-    <div
-      ref="backButtonRef"
-      class="absolute z-10 opacity-0 transition-opacity duration-500"
-      style="left: 50%; top: 60%; transform: translate(-50%, 0)"
-    >
+    <!-- Botón back estático abajo -->
+    <div class="absolute z-10 bottom-12 left-1/2 -translate-x-1/2">
       <RandomDoodleHover>
         <button
           class="text-foreground font-bold tracking-widest text-xl md:text-3xl cursor-pointer"

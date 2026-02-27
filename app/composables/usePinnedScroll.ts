@@ -80,23 +80,11 @@ export const usePinnedScroll = () => {
       // Acelerar la animación global en móvil para que no se quede atrás del scroll
       masterTl.timeScale(1.8);
 
-      // Si es el Hero (isHero === true), queremos que espere a que el usuario interactúe
-      // (haga scroll o deslice el dedo). Si no, simplemente usamos intersección.
+      // Si es el Hero (isHero === true), queremos que se reproduzca solo tras un delay
       if (isHero) {
-        let hasInteracted = false;
-        const playAnimation = () => {
-          if (hasInteracted) return;
-          hasInteracted = true;
+        setTimeout(() => {
           masterTl.play();
-          window.removeEventListener('scroll', playAnimation);
-          window.removeEventListener('touchstart', playAnimation);
-          window.removeEventListener('wheel', playAnimation);
-        };
-
-        // Escuchar el primer intento de scroll o interacción en móvil
-        window.addEventListener('scroll', playAnimation, { passive: true });
-        window.addEventListener('touchstart', playAnimation, { passive: true });
-        window.addEventListener('wheel', playAnimation, { passive: true });
+        }, 1200);
       } else {
         // BioSection u otras secciones que están más abajo -> Intersection
         return ScrollTrigger.create({
