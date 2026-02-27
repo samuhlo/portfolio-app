@@ -20,6 +20,7 @@
 | 10  | Salto de scroll extremo al hacer swipe en móvil (iOS Safari) | `Delayed Kill` basado en velocidad pasiva (`lenis.velocity`)                   |
 | 11  | ContactSection (Canvas) reinventándose en cada scroll táctil | Filtrar `resize` event por umbral de dif. de `width`                           |
 | 12  | "Tilt" o parpadeo general en móvil al hacer scroll           | `ScrollTrigger.config({ ignoreMobileResize: true })` y `normalizeScroll(true)` |
+| 13  | Scroll pinned (scrub) es tedioso y errático en móvil         | Pivotar a animaciones `auto-play` rápidas sin `pin` en móvil                   |
 
 ---
 
@@ -466,3 +467,24 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 La opción `ignoreMobileResize` previene categóricamente estos recálculos destructivos derivados de la barra del navegador, preservando el layout intacto a menos que el usuario rote el móvil (cambio de `width`).
 
 > **Peligro con `normalizeScroll`:** Aunque la documentación de GSAP sugiere `ScrollTrigger.normalizeScroll(true)` para problemas táctiles, **NUNCA** lo uses en combinación con Lenis o bibliotecas de smooth scroll que dependan de la inercia nativa de iOS. Aplicar `normalizeScroll(true)` forza a GSAP a secuestrar el hilo de touch principal, arruinando los _amortiguadores_ nativos del móvil y re-introduciendo el bug letal de saltos de sección al romper nuestro sistema de lectura pasiva de velocidad `lenis.velocity`.
+
+---
+
+## 13. Scroll pinned (scrub) es tedioso y errático en móvil
+
+### El problema
+
+A pesar de todos los parches técnicos (Delayed Kill, `ignoreMobileResize`, syncTouch, etc.), la experiencia de usuario (UX) de tener secciones _pineadas_ atadas al scroll (scrub) en pantallas táctiles se sentía rota. La gente no quiere tener que deslizar el dedo tres veces la misma pantalla solo para ver una palabra escribirse cuadro por cuadro. Interrumpe el flujo natural de lectura en un teléfono y hace que el sitio se sienta "pesado" o roto.
+
+### Por qué pasaba
+
+El patrón de GSAP `pin: true` combinado con `scrub: true` es un paradigma de escritorio. En desktop, usar la rueda del ratón es un gesto continuo, abstracto y sin esfuerzo. En móvil, el usuario interactúa 1:1 con el cristal: espera que si arrastra la pantalla hacia arriba, el contenido suba inmediatamente en la misma proporción. Bloquear ese movimiento espacial para reproducir una animación de "timeline" genera fricción cognitiva y física.
+
+### La solución: El Gran Pivot Mobile
+
+Rompimos la asimetría entre desktop y mobile creando lógicas condicionales puras:
+
+1. **Desktop:** Las secciones hero y bio se quedan "pegadas" (`pin: true`) y las simulaciones de la línea de tiempo están "friccionadas" al movimiento de la rueda del ratón (`scrub: true`).
+2. **Mobile:** Las restricciones se eliminan (`pin: false`, `scrub: false`). La página fluye de manera natural de arriba a abajo.
+3. **Auto-Play Trigger:** En móvil, las animaciones se ejecutan instántaneamente y de forma ininterrumpida cuando la sección respectiva hace aparición (`IntersectionObserver` o GSAP `ScrollTrigger` básico que detona el `play()`).
+4. **Fast-Forward:** Para compensar que la página ya no está congelada y el usuario sigue bajando velozmente de largo, re-calibramos los tiempos (`duration`) para que se ejecuten radicalmente más rápidos si `isMobile` es `true`. Modificamos la gravedad (aumentándola) de la física generativa del Canvas de contacto, aceleramos los `staggers` de entrada de texto e hicimos que las transiciones de color de background fueran súbitas.

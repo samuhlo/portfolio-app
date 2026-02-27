@@ -30,8 +30,8 @@ const LAYOUT = {
 };
 
 const TIMING = {
-  duracion: 0.4,
-  stagger: 0.12,
+  duracion: 0.2,
+  stagger: 0.06,
   ease: 'power3.out',
 };
 // ==================================================================

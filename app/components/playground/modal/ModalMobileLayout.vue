@@ -30,7 +30,7 @@ defineExpose({
 
 <template>
   <div
-    class="w-full h-dvh flex flex-col px-6 pt-12 pb-24 overflow-y-auto overflow-x-hidden relative"
+    class="w-full min-h-dvh flex flex-col px-6 pt-12 pb-24 overflow-x-hidden relative"
     data-lenis-prevent
   >
     <!-- Close Button -->
@@ -52,7 +52,12 @@ defineExpose({
       class="w-full overflow-x-auto overflow-y-hidden cursor-grab active:cursor-grabbing no-scrollbar relative pointer-events-auto -mx-6 px-6"
     >
       <div ref="scrollContentRef" class="flex items-center gap-4 box-border w-max pb-6">
-        <ModalImageSlide v-for="(img, i) in images" :key="i" :src="img" class="h-[40vh] min-h-75" />
+        <ModalImageSlide
+          v-for="(img, i) in images"
+          :key="i"
+          :src="img"
+          class="w-[85vw] sm:w-[60vw] max-w-100"
+        />
       </div>
     </div>
     <!-- Scroll Direction Indicators -->
@@ -62,7 +67,7 @@ defineExpose({
 
     <!-- 3. Text content -->
     <div class="mt-6">
-      <ModalProjectInfo size="sm" layout="column" />
+      <ModalProjectInfo size="sm" layout="row" />
     </div>
   </div>
 </template>

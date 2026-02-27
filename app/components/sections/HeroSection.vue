@@ -35,6 +35,7 @@ onMounted(() => {
       trigger: pinWrapperRef.value,
       start: 'top top',
       end: '+=2500',
+      isHero: true,
       phases: [
         { timeline: titleTl, start: 0, end: TITLE_ENDS_AT },
         { timeline: subtitleTl, start: TITLE_ENDS_AT, end: 1 },

@@ -23,10 +23,10 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const positionClass = computed(() => (props.size === 'sm' ? 'top-4 right-4' : 'top-8 right-8'));
+const positionClass = computed(() => (props.size === 'sm' ? 'top-3 right-3' : 'top-8 right-8'));
 
 // [NOTE] Superficie de hover más grande que el icono visual
-const buttonSize = computed(() => (props.size === 'sm' ? 'w-14 h-14' : 'w-18 h-18'));
+const buttonSize = computed(() => (props.size === 'sm' ? 'w-12 h-12' : 'w-18 h-18'));
 
 // ---------------------------------------------------------------------------
 // Doodle Draw Animation

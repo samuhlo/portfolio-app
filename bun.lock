@@ -4,6 +4,7 @@
     "": {
       "name": "portfolio-app",
       "dependencies": {
+        "@nuxt/fonts": "0.14.0",
         "@nuxt/image": "2.0.0",
         "@pinia/nuxt": "^0.11.3",
         "@tailwindcss/vite": "^4.2.0",
@@ -89,6 +90,8 @@
     "@babel/types": ["@babel/types@7.29.0", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.28.5" } }, "sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A=="],
 
     "@bomb.sh/tab": ["@bomb.sh/tab@0.0.12", "", { "peerDependencies": { "cac": "^6.7.14", "citty": "^0.1.6", "commander": "^13.1.0" }, "optionalPeers": ["cac", "citty", "commander"], "bin": { "tab": "dist/bin/cli.js" } }, "sha512-dYRwg4MqfHR5/BcTy285XOGRhjQFmNpaJBZ0tl2oU+RY595MQ5ApTF6j3OvauPAooHL6cfoOZMySQrOQztT8RQ=="],
+
+    "@capsizecss/unpack": ["@capsizecss/unpack@4.0.0", "", { "dependencies": { "fontkitten": "^1.0.0" } }, "sha512-VERIM64vtTP1C4mxQ5thVT9fK0apjPFobqybMtA1UdUujWka24ERHbRHFGmpbbhp73MhV+KSsHQH9C6uOTdEQA=="],
 
     "@clack/core": ["@clack/core@1.0.1", "", { "dependencies": { "picocolors": "^1.0.0", "sisteransi": "^1.0.5" } }, "sha512-WKeyK3NOBwDOzagPR5H08rFk9D/WuN705yEbuZvKqlkmoLM2woKtXb10OO2k1NoSU4SFG947i2/SCYh+2u5e4g=="],
 
@@ -291,6 +294,8 @@
     "@nuxt/eslint-config": ["@nuxt/eslint-config@1.15.1", "", { "dependencies": { "@antfu/install-pkg": "^1.1.0", "@clack/prompts": "^1.0.0", "@eslint/js": "^9.39.2", "@nuxt/eslint-plugin": "1.15.1", "@stylistic/eslint-plugin": "^5.8.0", "@typescript-eslint/eslint-plugin": "^8.55.0", "@typescript-eslint/parser": "^8.55.0", "eslint-config-flat-gitignore": "^2.1.0", "eslint-flat-config-utils": "^3.0.1", "eslint-merge-processors": "^2.0.0", "eslint-plugin-import-lite": "^0.5.0", "eslint-plugin-import-x": "^4.16.1", "eslint-plugin-jsdoc": "^62.5.4", "eslint-plugin-regexp": "^3.0.0", "eslint-plugin-unicorn": "^62.0.0", "eslint-plugin-vue": "^10.7.0", "eslint-processor-vue-blocks": "^2.0.0", "globals": "^17.3.0", "local-pkg": "^1.1.2", "pathe": "^2.0.3", "vue-eslint-parser": "^10.2.0" }, "peerDependencies": { "eslint": "^9.0.0 || ^10.0.0", "eslint-plugin-format": "*" }, "optionalPeers": ["eslint-plugin-format"] }, "sha512-dKXWGKYxJhJbH3OsojpUxg46OoQWGnbEcK0wfUjIYETdcE/4epEYOhw8nef5vbCGHkC6CjGnn1rTUIsKcfcnDA=="],
 
     "@nuxt/eslint-plugin": ["@nuxt/eslint-plugin@1.15.1", "", { "dependencies": { "@typescript-eslint/types": "^8.55.0", "@typescript-eslint/utils": "^8.55.0" }, "peerDependencies": { "eslint": "^9.0.0 || ^10.0.0" } }, "sha512-nUw2qOvo/ZqaqPWp2wPMBi6F1hgMKiDYGEJB/NHdUIYHNibgcIdq7cb9QksyudxumaPOD/M9h+62eHeUIzArIQ=="],
+
+    "@nuxt/fonts": ["@nuxt/fonts@0.14.0", "", { "dependencies": { "@nuxt/devtools-kit": "^3.2.1", "@nuxt/kit": "^4.2.2", "consola": "^3.4.2", "defu": "^6.1.4", "fontless": "^0.2.1", "h3": "^1.15.5", "magic-regexp": "^0.10.0", "ofetch": "^1.5.1", "pathe": "^2.0.3", "sirv": "^3.0.2", "tinyglobby": "^0.2.15", "ufo": "^1.6.3", "unifont": "^0.7.4", "unplugin": "^3.0.0", "unstorage": "^1.17.4" } }, "sha512-4uXQl9fa5F4ibdgU8zomoOcyMdnwgdem+Pi8JEqeDYI5yPR32Kam6HnuRr47dTb97CstaepAvXPWQUUHMtjsFQ=="],
 
     "@nuxt/image": ["@nuxt/image@2.0.0", "", { "dependencies": { "@nuxt/kit": "^4.2.0", "consola": "^3.4.2", "defu": "^6.1.4", "h3": "^1.15.4", "image-meta": "^0.2.2", "knitwork": "^1.2.0", "ohash": "^2.0.11", "pathe": "^2.0.3", "std-env": "^3.10.0", "ufo": "^1.6.1" }, "optionalDependencies": { "ipx": "^3.1.1" } }, "sha512-otHi6gAoYXKLrp8m27ZjX1PjxOPaltQ4OiUs/BhkW995mF/vXf8SWQTw68fww+Uric0v+XgoVrP9icDi+yT6zw=="],
 
@@ -1042,6 +1047,12 @@
 
     "flatted": ["flatted@3.3.3", "", {}, "sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg=="],
 
+    "fontaine": ["fontaine@0.8.0", "", { "dependencies": { "@capsizecss/unpack": "^4.0.0", "css-tree": "^3.1.0", "magic-regexp": "^0.10.0", "magic-string": "^0.30.21", "pathe": "^2.0.3", "ufo": "^1.6.1", "unplugin": "^2.3.10" } }, "sha512-eek1GbzOdWIj9FyQH/emqW1aEdfC3lYRCHepzwlFCm5T77fBSRSyNRKE6/antF1/B1M+SfJXVRQTY9GAr7lnDg=="],
+
+    "fontkitten": ["fontkitten@1.0.2", "", { "dependencies": { "tiny-inflate": "^1.0.3" } }, "sha512-piJxbLnkD9Xcyi7dWJRnqszEURixe7CrF/efBfbffe2DPyabmuIuqraruY8cXTs19QoM8VJzx47BDRVNXETM7Q=="],
+
+    "fontless": ["fontless@0.2.1", "", { "dependencies": { "consola": "^3.4.2", "css-tree": "^3.1.0", "defu": "^6.1.4", "esbuild": "^0.27.0", "fontaine": "0.8.0", "jiti": "^2.6.1", "lightningcss": "^1.30.2", "magic-string": "^0.30.21", "ohash": "^2.0.11", "pathe": "^2.0.3", "ufo": "^1.6.1", "unifont": "^0.7.4", "unstorage": "^1.17.1" }, "peerDependencies": { "vite": "*" }, "optionalPeers": ["vite"] }, "sha512-mUWZ8w91/mw2KEcZ6gHNoNNmsAq9Wiw2IypIux5lM03nhXm+WSloXGUNuRETNTLqZexMgpt7Aj/v63qqrsWraQ=="],
+
     "foreground-child": ["foreground-child@3.3.1", "", { "dependencies": { "cross-spawn": "^7.0.6", "signal-exit": "^4.0.1" } }, "sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw=="],
 
     "fraction.js": ["fraction.js@5.3.4", "", {}, "sha512-1X1NTtiJphryn/uLQz3whtY6jK3fTqoE3ohKs0tT+Ujr1W59oopxmoEh7Lu5p6vBaPbgoM0bzveAW4Qi5RyWDQ=="],
@@ -1646,6 +1657,8 @@
 
     "text-decoder": ["text-decoder@1.2.7", "", { "dependencies": { "b4a": "^1.6.4" } }, "sha512-vlLytXkeP4xvEq2otHeJfSQIRyWxo/oZGEbXrtEEF9Hnmrdly59sUbzZ/QgyWuLYHctCHxFF4tRQZNQ9k60ExQ=="],
 
+    "tiny-inflate": ["tiny-inflate@1.0.3", "", {}, "sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw=="],
+
     "tiny-invariant": ["tiny-invariant@1.3.3", "", {}, "sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg=="],
 
     "tinyexec": ["tinyexec@1.0.2", "", {}, "sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg=="],
@@ -1689,6 +1702,8 @@
     "unhead": ["unhead@2.1.4", "", { "dependencies": { "hookable": "^6.0.1" } }, "sha512-+5091sJqtNNmgfQ07zJOgUnMIMKzVKAWjeMlSrTdSGPB6JSozhpjUKuMfWEoLxlMAfhIvgOU8Me0XJvmMA/0fA=="],
 
     "unicorn-magic": ["unicorn-magic@0.3.0", "", {}, "sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA=="],
+
+    "unifont": ["unifont@0.7.4", "", { "dependencies": { "css-tree": "^3.1.0", "ofetch": "^1.5.1", "ohash": "^2.0.11" } }, "sha512-oHeis4/xl42HUIeHuNZRGEvxj5AaIKR+bHPNegRq5LV1gdc3jundpONbjglKpihmJf+dswygdMJn3eftGIMemg=="],
 
     "unimport": ["unimport@5.6.0", "", { "dependencies": { "acorn": "^8.15.0", "escape-string-regexp": "^5.0.0", "estree-walker": "^3.0.3", "local-pkg": "^1.1.2", "magic-string": "^0.30.21", "mlly": "^1.8.0", "pathe": "^2.0.3", "picomatch": "^4.0.3", "pkg-types": "^2.3.0", "scule": "^1.3.0", "strip-literal": "^3.1.0", "tinyglobby": "^0.2.15", "unplugin": "^2.3.11", "unplugin-utils": "^0.3.1" } }, "sha512-8rqAmtJV8o60x46kBAJKtHpJDJWkA2xcBqWKPI14MgUb05o1pnpnCnXSxedUXyeq7p8fR5g3pTo2BaswZ9lD9A=="],
 
@@ -1897,6 +1912,8 @@
     "eslint-plugin-unicorn/globals": ["globals@16.5.0", "", {}, "sha512-c/c15i26VrJ4IRt5Z89DnIzCGDn9EcebibhAOjw5ibqEHsE1wLUgkPn9RDmNcUKyU87GeaL633nyJ+pplFR2ZQ=="],
 
     "fast-glob/glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
+
+    "fontaine/unplugin": ["unplugin@2.3.11", "", { "dependencies": { "@jridgewell/remapping": "^2.3.5", "acorn": "^8.15.0", "picomatch": "^4.0.3", "webpack-virtual-modules": "^0.6.2" } }, "sha512-5uKD0nqiYVzlmCRs01Fhs2BdkEgBS3SAVP6ndrBsuK42iC2+JHyxM05Rm9G8+5mkmRtzMZGY8Ct5+mliZxU/Ww=="],
 
     "glob/minimatch": ["minimatch@10.2.2", "", { "dependencies": { "brace-expansion": "^5.0.2" } }, "sha512-+G4CpNBxa5MprY+04MbgOw1v7So6n5JY166pFi9KfYwT78fxScCeSNQSNzp6dpPSW2rONOps6Ocam1wFhCgoVw=="],
 

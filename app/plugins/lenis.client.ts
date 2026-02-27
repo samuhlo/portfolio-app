@@ -13,35 +13,10 @@ export default defineNuxtPlugin((nuxtApp) => {
   // Inicializamos Lenis con configuraciones recomendadas
   const lenis = new Lenis({
     autoRaf: false, // Vamos a usar el ticker de GSAP para sincronía perfecta
-    syncTouch: true, // [RESTORE] Reactivar los "amortiguadores" en móvil a petición del usuario
-    touchMultiplier: 2, // Añadimos algo de factor de multiplicador
   });
 
   // GSAP: Sincronizar ScrollTrigger con Lenis cada vez que hagamos scroll
   lenis.on('scroll', ScrollTrigger.update);
-
-  // [HACK] Necesitamos saber si el usuario tiene el dedo en la pantalla para nuestro Delayed Kill
-  window.addEventListener(
-    'touchstart',
-    () => {
-      (window as any).__isTouching = true;
-    },
-    { passive: true },
-  );
-  window.addEventListener(
-    'touchend',
-    () => {
-      (window as any).__isTouching = false;
-    },
-    { passive: true },
-  );
-  window.addEventListener(
-    'touchcancel',
-    () => {
-      (window as any).__isTouching = false;
-    },
-    { passive: true },
-  );
 
   // Enganchar el RequestAnimationFrame de Lenis al ticker interno de GSAP
   // para que todas las animaciones y scroll vayan al mismo frame rate.

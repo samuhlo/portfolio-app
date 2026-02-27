@@ -195,10 +195,7 @@ const images = [
   <ClientOnly>
     <Teleport to="body">
       <Transition @enter="onEnter" @leave="onLeave" :css="false">
-        <div
-          v-if="isOpen"
-          class="fixed inset-0 z-100 flex items-center justify-center pointer-events-auto"
-        >
+        <div v-if="isOpen" class="fixed inset-0 z-100 pointer-events-auto">
           <!-- Background Blur -->
           <div
             ref="bgRef"
@@ -206,30 +203,36 @@ const images = [
             @click="closeModal"
           />
 
-          <!--
-            [FIX] Wrapper único con contentRef — GSAP siempre tiene un nodo
-            real que animar, independientemente de qué layout esté montado.
-          -->
+          <!-- Scrollable Wrapper for Modal Content -->
           <div
-            ref="contentRef"
-            class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
-            :class="isMobile ? 'h-dvh overflow-hidden' : 'h-[75vh] py-16'"
+            class="absolute inset-0 w-full h-full flex justify-center"
+            :class="isMobile ? 'overflow-y-auto items-start' : 'items-center'"
           >
-            <ModalDesktopLayout
-              v-if="!isMobile"
-              ref="layoutRef"
-              :project-name="currentProject"
-              :images="images"
-              @close="closeModal"
-            />
+            <!--
+              [FIX] Wrapper único con contentRef — GSAP siempre tiene un nodo
+              real que animar, independientemente de qué layout esté montado.
+            -->
+            <div
+              ref="contentRef"
+              class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
+              :class="isMobile ? 'min-h-dvh h-auto pb-12' : 'h-[75vh] py-16'"
+            >
+              <ModalDesktopLayout
+                v-if="!isMobile"
+                ref="layoutRef"
+                :project-name="currentProject"
+                :images="images"
+                @close="closeModal"
+              />
 
-            <ModalMobileLayout
-              v-else
-              ref="layoutRef"
-              :project-name="currentProject"
-              :images="images"
-              @close="closeModal"
-            />
+              <ModalMobileLayout
+                v-else
+                ref="layoutRef"
+                :project-name="currentProject"
+                :images="images"
+                @close="closeModal"
+              />
+            </div>
           </div>
         </div>
       </Transition>

@@ -117,10 +117,13 @@ export const usePhysicsLetters = () => {
 
     // [NOTE] Móvil usa letras más grandes para llenar el ancho en 2 filas
     const fontSize = isMobile ? Math.round(W * 0.38) : Math.round(W * 0.21);
-    const fontFamily = '"Arial Black", "Impact", sans-serif';
+    const fontFamily = 'Strawford, sans-serif';
     const upperText = text.toUpperCase();
 
-    engine = Engine.create({ gravity: { x: 0, y: 4.5 } });
+    // [NOTE] Gravedad aumentada en móvil para que bajen rápido y no se queden
+    // en pantalla mientras el usuario hace scroll hacia abajo rápidamente.
+    const engineGravity = isMobile ? 8.5 : 4.5;
+    engine = Engine.create({ gravity: { x: 0, y: engineGravity } });
     runner = Runner.create();
 
     const staticOpts = { isStatic: true };
@@ -141,12 +144,15 @@ export const usePhysicsLetters = () => {
       const measBottom = measureRow(ctx, rowBottom, fontSize, fontFamily);
       const measTop = measureRow(ctx, rowTop, fontSize, fontFamily);
 
+      // Stagger más rápido en móvil
+      const staggerDelay = 25;
+
       // TACT: spawn justo encima del canvas — cae primero y se asienta
-      const bottomBodies = spawnRow(measBottom, W, -(measBottom[0]!.h / 2), 70);
+      const bottomBodies = spawnRow(measBottom, W, -(measBottom[0]!.h / 2), staggerDelay);
 
       // CON: spawn mucho más arriba para que TACT esté asentado cuando llegue
-      const topSpawnY = -(measTop[0]!.h / 2 + rowBottom.length * 70 + fontSize * 2.5);
-      const topBodies = spawnRow(measTop, W, topSpawnY, 70);
+      const topSpawnY = -(measTop[0]!.h / 2 + rowBottom.length * staggerDelay + fontSize * 1.8);
+      const topBodies = spawnRow(measTop, W, topSpawnY, staggerDelay);
 
       letterBodies = [...bottomBodies, ...topBodies];
     } else {

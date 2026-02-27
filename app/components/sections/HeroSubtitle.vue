@@ -56,6 +56,18 @@ const TIMING = {
 const buildTimeline = (): gsap.core.Timeline => {
   const tl = gsap.timeline({ paused: true });
 
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+  const currentTiming = isMobile
+    ? {
+        delayArranque: 0.1,
+        duracionTachon: 0.3,
+        duracionPalabra: 0.2,
+        solapamiento: '-=0.2' as gsap.Position,
+        staggerTrazos: 0.05,
+      }
+    : TIMING;
+
   // Obtener elementos SVG de los componentes
   const crossSvg = crosslineRef.value?.svg ?? null;
   const frontSvg = frontRef.value?.svg ?? null;
@@ -79,9 +91,9 @@ const buildTimeline = (): gsap.core.Timeline => {
     addDrawAnimation(tl, {
       svg: crossSvg,
       paths: crossPaths,
-      duration: TIMING.duracionTachon,
+      duration: currentTiming.duracionTachon,
       ease: 'power2.out',
-      position: TIMING.delayArranque,
+      position: currentTiming.delayArranque,
     });
   }
 
@@ -100,9 +112,9 @@ const buildTimeline = (): gsap.core.Timeline => {
       addDrawAnimation(tl, {
         svg: group.svg,
         paths: group.paths,
-        duration: TIMING.duracionPalabra,
-        stagger: TIMING.staggerTrazos,
-        position: TIMING.solapamiento,
+        duration: currentTiming.duracionPalabra,
+        stagger: currentTiming.staggerTrazos,
+        position: currentTiming.solapamiento,
       });
     }
   });

@@ -36,6 +36,8 @@ interface PinnedScrollOptions {
   tweenDuration?: number;
   /** Easing del tween de suavizado (default: 'power3.out') */
   tweenEase?: string;
+  /** Flag para identificar si es la primera sección (Hero) para lógicas móviles */
+  isHero?: boolean;
 }
 
 /**
@@ -51,7 +53,7 @@ interface PinnedScrollOptions {
 export const usePinnedScroll = () => {
   const lenis = useLenis();
 
-  const createPinnedScroll = (options: PinnedScrollOptions): ScrollTrigger => {
+  const createPinnedScroll = (options: PinnedScrollOptions): ScrollTrigger | undefined => {
     const {
       trigger,
       start = 'top top',
@@ -59,8 +61,55 @@ export const usePinnedScroll = () => {
       phases,
       tweenDuration = 0.5,
       tweenEase = 'power3.out',
+      isHero = false,
     } = options;
 
+    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+    // [PIVOT] En móvil, descartamos el pinning y el scroll largo.
+    // Queremos que las animaciones se reproduzcan solas, rápido y en secuencia
+    // al hacer el primer scroll.
+    if (isMobile) {
+      const masterTl = gsap.timeline({ paused: true });
+
+      // Encadenar las fases secuencialmente
+      phases.forEach((phase) => {
+        masterTl.add(phase.timeline.play(), '>');
+      });
+
+      // Acelerar la animación global en móvil para que no se quede atrás del scroll
+      masterTl.timeScale(1.8);
+
+      // Si es el Hero (isHero === true), queremos que espere a que el usuario interactúe
+      // (haga scroll o deslice el dedo). Si no, simplemente usamos intersección.
+      if (isHero) {
+        let hasInteracted = false;
+        const playAnimation = () => {
+          if (hasInteracted) return;
+          hasInteracted = true;
+          masterTl.play();
+          window.removeEventListener('scroll', playAnimation);
+          window.removeEventListener('touchstart', playAnimation);
+          window.removeEventListener('wheel', playAnimation);
+        };
+
+        // Escuchar el primer intento de scroll o interacción en móvil
+        window.addEventListener('scroll', playAnimation, { passive: true });
+        window.addEventListener('touchstart', playAnimation, { passive: true });
+        window.addEventListener('wheel', playAnimation, { passive: true });
+      } else {
+        // BioSection u otras secciones que están más abajo -> Intersection
+        return ScrollTrigger.create({
+          trigger,
+          start: 'top 60%', // Disparar cuando entra un poco en pantalla
+          onEnter: () => masterTl.play(),
+          once: true, // Reproducir solo una vez
+        });
+      }
+      return;
+    }
+
+    // ── DESKTOP: Comportamiento original pineado ──
     // Flag por fase para que el progreso solo avance, nunca retroceda
     const completed = phases.map(() => false);
 
@@ -89,17 +138,12 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] En móviles (iOS Safari), eliminar el pin-spacer y cambiar
-        // el scroll de golpe durante un fling de momentum causa un salto errático.
-        // Solución: Esperar a que la velocidad de Lenis sea ~0 Y que el usuario haya levantado el dedo
+        // [NOTE] En tablets/portátiles táctiles, eliminar el pin-spacer...
         const pinSpacerHeight = self.end - self.start;
 
         const attemptKill = () => {
-          // Asegurarnos de que seguimos "fuera" por debajo (progress = 1 y no activo)
-          // Si el usuario scrolleó rápido hacia arriba y volvió a entrar, abortamos el kill.
           if (!self.isActive && self.progress === 1) {
             const velocity = lenis?.velocity || 0;
-            // Solo matamos el trigger si el usuario ha soltado el dedo y se acabó la inercia
             if (Math.abs(velocity) < 0.1 && !(window as any).__isTouching) {
               const targetScroll = self.scroll() - pinSpacerHeight;
               self.kill();

@@ -101,8 +101,12 @@ onMounted(() => {
     }
   });
 
+  // [NOTE] Ajusta este valor (0.0 a 1.0) para decidir en qué momento cae el texto CONTACT.
+  // 0.1 = cae casi al asomar la sección. 0.9 = cae cuando casi toda la sección está visible.
+  const TRIGGER_THRESHOLD = 0.4;
+
   observer = new IntersectionObserver(handleIntersection, {
-    threshold: 0.9,
+    threshold: TRIGGER_THRESHOLD,
   });
 
   if (sectionRef.value) {
