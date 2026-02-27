@@ -75,7 +75,7 @@ const handleResize = (): void => {
     if (!triggered || !canvasRef.value || !sectionRef.value) return;
 
     const newWidth = sectionRef.value.clientWidth;
-    if (newWidth === prevCanvasWidth) return;
+    if (Math.abs(newWidth - prevCanvasWidth) < 50) return;
     prevCanvasWidth = newWidth;
 
     destroy();

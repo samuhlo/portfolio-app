@@ -1,0 +1,183 @@
+<script setup lang="ts">
+/**
+ * █ [UI_ATOM] :: DOODLE WORKING 404 GENERAL
+ * =====================================================================
+ * DESC:   SVG "working" tachado para página 404 o uso general.
+ * STATUS: STABLE
+ * =====================================================================
+ */
+import { ref } from 'vue';
+const svgRef = ref<SVGSVGElement | null>(null);
+defineExpose({ svg: svgRef });
+</script>
+
+<template>
+  <svg ref="svgRef" viewBox="0 0 639 180" fill="none">
+    <g transform="matrix(1,0,0,1,-689.702563,-376.056222)">
+      <g id="Capa2">
+        <path
+          d="M693.703,426.898C700.236,474.597 708.829,513.012 716.117,551.278C716.894,502.018 718.738,493.106 724.438,467.689C731.681,482.501 732.167,488.645 743.816,536.288C745.257,521.308 753.086,457.794 755.654,432.087"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M776.606,448.089C751.131,489.558 758.36,540.264 784.706,521.438C794.96,514.112 811.042,481.334 785.353,449.496"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M826.422,513.519C810.528,455.025 805.739,436.366 824.049,431.27C843.472,425.865 857.552,471.756 824.109,480.861C842.625,492.088 850.285,513.898 854.05,522.42"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M856.163,423.181C860.054,450.524 863.883,459.236 864.672,509.884"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M861.74,474.484C874.01,456.953 874.255,457.15 883.099,437.576"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M862.483,474.856C877.255,481.803 884.19,482.441 899.062,511.029"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M912.671,518.724C907.126,483.035 907.69,483.02 907.326,452.43"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M906.723,419.463C906.224,402.027 906.551,402.116 905.416,384.733"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M935.349,515.006C929.634,483.996 930.919,483.966 926.25,452.649C929.14,457.067 940.675,474.707 961.792,508.248C962.172,502.845 963.96,477.397 956.83,440.725"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <g transform="matrix(1,0,0,1,-5,-1)">
+          <path
+            d="M1011.638,433.59C993.375,436.191 987.481,454.582 984.569,466.579C981.658,478.575 987.503,501.841 994.17,505.569C1000.838,509.297 1020.352,514.179 1024.573,488.948C1029.074,462.047 1015.195,464.398 1008.502,471.447"
+            stroke="var(--color-accent, #ffca40)"
+            stroke-width="8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </g>
+        <path
+          d="M1095.207,439.538C1091.37,442.831 1066.091,464.526 1076.559,499.922C1085.105,528.821 1120.276,484.123 1094.054,446.331"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1120.115,512.776C1119.071,506.686 1113.446,480.664 1115.456,443.074C1129.121,468.359 1128.296,468.768 1139.142,509.662C1145.405,495.924 1152.129,483.203 1153.729,439.462"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1194.468,509.058C1195.319,484.727 1195.745,468.418 1193.549,444.585"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1193.724,417.604C1193.54,415.874 1193.581,415.892 1191.656,395.954"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1227.926,505.34C1227.023,452.543 1225.023,446.831 1222.82,430.276"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1210.825,441.769C1235.989,437.412 1235.775,436.971 1261.137,433.859"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1291.498,380.056C1288.007,425.82 1285.156,425.429 1281.904,471.245"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1324.585,388.235C1318.576,441.524 1318.949,439.598 1314.12,492.19"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1266.59,530.992C1274.472,518.132 1274.566,518.299 1282.031,505.088"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1268.448,503.482C1275.515,513.244 1275.505,513.091 1283.027,522.382"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1300.048,551.067C1312.112,533.468 1313.003,534.306 1324.67,519.531"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+        <path
+          d="M1305.253,521.698C1306.408,523.872 1310.078,530.78 1320.367,548.499"
+          stroke="var(--color-accent, #ffca40)"
+          stroke-width="8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </g>
+    </g>
+  </svg>
+</template>
+
+<style scoped>
+svg {
+  overflow: visible;
+}
+</style>

@@ -32,8 +32,7 @@ const heartRef = ref<DoodleExposed | null>(null);
 const circleRef = ref<DoodleExposed | null>(null);
 const quotesCloseRef = ref<DoodleExposed | null>(null);
 
-// [NOTE] Posiciones originales de desktop — los doodles sobresalen del contenedor intencionalmente
-const LAYOUT_DESKTOP = {
+const LAYOUT = {
   quotesOpen: { top: '-2em', right: '0.2em', width: '2em', transform: 'rotate(-10deg)' },
   crossFun: { top: '60%', left: '-5%', width: '110%', transform: 'translateY(-50%)' },
   fun: { bottom: '55%', left: '10%', width: '2.5em' },
@@ -42,20 +41,6 @@ const LAYOUT_DESKTOP = {
   circle: { top: '50%', left: '50%', width: '115%', transform: 'translate(-50%, -50%)' },
   quotesClose: { bottom: '-0.2em', left: '110%', width: '2em', transform: 'rotate(10deg)' },
 };
-
-// [NOTE] En móvil overflow-x-clip recorta lo que sobresale → ajustar posiciones
-const LAYOUT_MOBILE = {
-  ...LAYOUT_DESKTOP,
-  quotesOpen: { top: '-2.2em', right: '-0.5em', width: '2em', transform: 'rotate(-10deg)' },
-  crossFun: { top: '60%', left: '-2%', width: '104%', transform: 'translateY(-50%)' },
-  heart: { top: '-15%', left: '80%', width: '1.5em', transform: 'rotate(30deg)' },
-  circle: { top: '50%', left: '50%', width: '105%', transform: 'translate(-50%, -50%)' },
-  quotesClose: { bottom: '-0.2em', left: '90%', width: '2em', transform: 'rotate(10deg)' },
-};
-
-const MOBILE_BREAKPOINT = 768;
-const { width } = useWindowSize();
-const LAYOUT = computed(() => (width.value < MOBILE_BREAKPOINT ? LAYOUT_MOBILE : LAYOUT_DESKTOP));
 
 const TEXT_ENDS_AT = 0.3;
 const HEARTBEAT_DELAY_MS = 600;

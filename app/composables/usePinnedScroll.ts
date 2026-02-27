@@ -89,23 +89,28 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] Al salir del viewport (scrolling down), la sección queda FUERA
-        // de pantalla. Matamos el trigger aquí para que el tilt sea invisible.
-        // CRITICAL: Parar Lenis ANTES del kill para congelar el momentum táctil
-        // en móvil. Sin esto, la inercia del touch sigue scrolleando después
-        // de la compensación y provoca un salto visible.
-        lenis?.stop();
-
+        // [NOTE] En móviles (iOS Safari), eliminar el pin-spacer y cambiar
+        // el scroll de golpe durante un fling de momentum causa un salto errático.
+        // Solución: Esperar a que la velocidad de Lenis sea ~0 para aplicar el kill de forma invisible.
         const pinSpacerHeight = self.end - self.start;
-        const targetScroll = self.scroll() - pinSpacerHeight;
-        self.kill();
-        lenis?.scrollTo(targetScroll, { immediate: true });
 
-        requestAnimationFrame(() => {
-          ScrollTrigger.refresh();
-          // Reanudar Lenis después de que el DOM se haya estabilizado
-          lenis?.start();
-        });
+        const attemptKill = () => {
+          // Asegurarnos de que seguimos "fuera" por debajo (progress = 1 y no activo)
+          // Si el usuario scrolleó rápido hacia arriba y volvió a entrar, abortamos el kill.
+          if (!self.isActive && self.progress === 1) {
+            const velocity = lenis?.velocity || 0;
+            if (Math.abs(velocity) < 0.1) {
+              const targetScroll = self.scroll() - pinSpacerHeight;
+              self.kill();
+              lenis?.scrollTo(targetScroll, { immediate: true });
+              requestAnimationFrame(() => ScrollTrigger.refresh());
+            } else {
+              requestAnimationFrame(attemptKill);
+            }
+          }
+        };
+
+        requestAnimationFrame(attemptKill);
       },
     });
   };

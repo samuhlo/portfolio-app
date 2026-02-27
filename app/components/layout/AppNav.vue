@@ -55,7 +55,7 @@ onMounted(() => {
         <NuxtLink to="/" class="hover:font-bold transition-opacity">Home</NuxtLink>
       </RandomDoodleHover>
       <RandomDoodleHover>
-        <NuxtLink to="/" class="hover:font-bold transition-opacity">Logs</NuxtLink>
+        <NuxtLink to="/logs" class="hover:font-bold transition-opacity">Logs</NuxtLink>
       </RandomDoodleHover>
     </div>
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
