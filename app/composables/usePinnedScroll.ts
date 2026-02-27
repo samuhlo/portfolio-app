@@ -91,12 +91,21 @@ export const usePinnedScroll = () => {
       onLeave: (self) => {
         // [NOTE] Al salir del viewport (scrolling down), la sección queda FUERA
         // de pantalla. Matamos el trigger aquí para que el tilt sea invisible.
-        // Compensamos el scroll con Lenis y refrescamos los demás triggers.
+        // CRITICAL: Parar Lenis ANTES del kill para congelar el momentum táctil
+        // en móvil. Sin esto, la inercia del touch sigue scrolleando después
+        // de la compensación y provoca un salto visible.
+        lenis?.stop();
+
         const pinSpacerHeight = self.end - self.start;
         const targetScroll = self.scroll() - pinSpacerHeight;
         self.kill();
         lenis?.scrollTo(targetScroll, { immediate: true });
-        requestAnimationFrame(() => ScrollTrigger.refresh());
+
+        requestAnimationFrame(() => {
+          ScrollTrigger.refresh();
+          // Reanudar Lenis después de que el DOM se haya estabilizado
+          lenis?.start();
+        });
       },
     });
   };

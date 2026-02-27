@@ -46,6 +46,7 @@ const LAYOUT_DESKTOP = {
 // [NOTE] En móvil overflow-x-clip recorta lo que sobresale → ajustar posiciones
 const LAYOUT_MOBILE = {
   ...LAYOUT_DESKTOP,
+  quotesOpen: { top: '-2.2em', right: '-0.5em', width: '2em', transform: 'rotate(-10deg)' },
   crossFun: { top: '60%', left: '-2%', width: '104%', transform: 'translateY(-50%)' },
   heart: { top: '-15%', left: '80%', width: '1.5em', transform: 'rotate(30deg)' },
   circle: { top: '50%', left: '50%', width: '105%', transform: 'translate(-50%, -50%)' },

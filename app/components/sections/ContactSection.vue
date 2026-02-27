@@ -102,7 +102,7 @@ onMounted(() => {
   });
 
   observer = new IntersectionObserver(handleIntersection, {
-    threshold: 0.2,
+    threshold: 0.9,
   });
 
   if (sectionRef.value) {
