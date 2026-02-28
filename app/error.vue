@@ -108,7 +108,7 @@ onUnmounted(() => {
     </div>
 
     <!-- Botón back estático abajo -->
-    <div class="absolute z-10 bottom-[24em] left-1/2 -translate-x-1/2">
+    <div class="absolute z-10 bottom-32 left-1/2 -translate-x-1/2">
       <RandomDoodleHover>
         <button
           class="text-foreground font-bold tracking-widest text-xl md:text-3xl cursor-pointer"
