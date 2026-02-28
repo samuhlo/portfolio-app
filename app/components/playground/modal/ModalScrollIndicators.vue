@@ -150,11 +150,36 @@ watch(canScrollRight, (can) => {
   if (can) drawArrow(svg, rightPaths);
   else eraseArrow(svg, rightPaths);
 });
+
+// =============================================================================
+// █ INTERACTION: CLICK TO SCROLL
+// =============================================================================
+function doScrollLeft() {
+  if (!props.scrollContainer || !canScrollLeft.value) return;
+  const offset = window.innerWidth * 0.8;
+  props.scrollContainer.scrollBy({ left: -offset, behavior: 'smooth' });
+}
+
+function doScrollRight() {
+  if (!props.scrollContainer || !canScrollRight.value) return;
+  const offset = window.innerWidth * 0.8;
+  props.scrollContainer.scrollBy({ left: offset, behavior: 'smooth' });
+}
 </script>
 
 <template>
   <div class="flex items-center gap-3 pointer-events-none">
-    <DoodleArrowLeftGeneral ref="leftRef" class="w-20 h-auto opacity-0" />
-    <DoodleArrowRightGeneral ref="rightRef" class="w-20 h-auto opacity-0" />
+    <DoodleArrowLeftGeneral
+      ref="leftRef"
+      class="w-20 h-auto opacity-0 transition-transform active:scale-95"
+      :class="canScrollLeft ? 'pointer-events-auto cursor-pointer' : ''"
+      @click="doScrollLeft"
+    />
+    <DoodleArrowRightGeneral
+      ref="rightRef"
+      class="w-20 h-auto opacity-0 transition-transform active:scale-95"
+      :class="canScrollRight ? 'pointer-events-auto cursor-pointer' : ''"
+      @click="doScrollRight"
+    />
   </div>
 </template>
