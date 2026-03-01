@@ -110,5 +110,9 @@ app/
 
 ## Siguiente lectura
 
-- [02 - Composables en detalle](./02-composables-detalle.md) — Cómo funciona cada composable
-- [03 - Problemas resueltos](./03-problemas-resueltos.md) — Lecciones aprendidas y trampas
+- [02 - Animaciones Scroll](./02-animaciones-scroll.md) — GSAP + ScrollTrigger + Pinned Scroll
+- [03 - Composables](./03-composables.md) — Funciones reutilizadas
+- [04 - Secciones](./04-secciones.md) — Componentes de página
+- [05 - Playground](./05-playground.md) — ProjectCard + Modal
+- [06 - UI & Layout](./06-ui-layout.md) — Nav, Footer, Noise, Loader
+- [07 - Problemas Resueltos](./07-problemas-resueltos.md) — Lecciones aprendidas

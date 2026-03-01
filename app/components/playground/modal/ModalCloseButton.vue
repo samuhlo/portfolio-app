@@ -4,6 +4,9 @@
  * =====================================================================
  * DESC:   Botón de cierre con doodle X que se dibuja al hacer hover.
  *         Usa useDoodleDraw para la animación stroke-dash.
+ *         autoPlay para mobile (dibujo automático).
+ * USAGE:  <ModalCloseButton @close="fn" /> dentro de ModalLayout
+ * STATUS: STABLE
  * =====================================================================
  */
 import gsap from 'gsap';
@@ -28,9 +31,9 @@ const positionClass = computed(() => (props.size === 'sm' ? 'top-2 right-2' : 't
 // [NOTE] Superficie de hover más grande que el icono visual
 const buttonSize = computed(() => (props.size === 'sm' ? 'w-10 h-10' : 'w-18 h-18'));
 
-// ---------------------------------------------------------------------------
-// Doodle Draw Animation
-// ---------------------------------------------------------------------------
+// =============================================================================
+// █ Doodle Draw Animation
+// =============================================================================
 interface DoodleExposed {
   svg: SVGSVGElement | null;
 }

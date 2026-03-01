@@ -4,6 +4,8 @@
  * =====================================================================
  * DESC:   Bloque de información del proyecto: [INFO], [MAIN TECHS], [LINKS].
  *         Reutilizado en layouts mobile y desktop con variantes de tamaño.
+ * USAGE:  <ModalProjectInfo size="lg" layout="row" />
+ * STATUS: STABLE
  * =====================================================================
  */
 

@@ -488,3 +488,11 @@ Rompimos la asimetría entre desktop y mobile creando lógicas condicionales pur
 2. **Mobile:** Las restricciones se eliminan (`pin: false`, `scrub: false`). La página fluye de manera natural de arriba a abajo.
 3. **Auto-Play Trigger:** En móvil, las animaciones se ejecutan instántaneamente y de forma ininterrumpida cuando la sección respectiva hace aparición (`IntersectionObserver` o GSAP `ScrollTrigger` básico que detona el `play()`).
 4. **Fast-Forward:** Para compensar que la página ya no está congelada y el usuario sigue bajando velozmente de largo, re-calibramos los tiempos (`duration`) para que se ejecuten radicalmente más rápidos si `isMobile` es `true`. Modificamos la gravedad (aumentándola) de la física generativa del Canvas de contacto, aceleramos los `staggers` de entrada de texto e hicimos que las transiciones de color de background fueran súbitas.
+
+---
+
+## Siguiente lectura
+
+- [01 - Arquitectura General](./01-arquitectura-general.md) — Visión global
+- [02 - Animaciones Scroll](./02-animaciones-scroll.md) — GSAP + ScrollTrigger
+- [03 - Composables](./03-composables.md) — Funciones reutilizadas

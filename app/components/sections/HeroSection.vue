@@ -5,6 +5,7 @@
  * DESC:   Orquestador de las animaciones del Hero. Gestiona el pin
  *         del scroll y alimenta los timelines de HeroTitle y HeroSubtitle
  *         desde un único ScrollTrigger para un control preciso y limpio.
+ * USAGE:  Incluir en página como primer section. Expone refs a child timelines.
  * STATUS: STABLE
  * =====================================================================
  */

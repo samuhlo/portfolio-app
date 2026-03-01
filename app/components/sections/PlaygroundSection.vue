@@ -5,6 +5,8 @@
  * DESC:   Grilla de proyectos experimentales y estáticos.
  *         El título se gestiona en PlaygroundTitle.vue.
  *         Cada proyecto usa <ProjectCard> con avatar como prop.
+ *         ProjectModal se incluye para detalles de proyectos.
+ * USAGE:  <PlaygroundSection /> → ProjectCard → ProjectModal
  * STATUS: STABLE
  * =====================================================================
  */

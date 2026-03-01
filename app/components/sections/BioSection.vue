@@ -4,6 +4,8 @@
  * =====================================================================
  * DESC:   Sección estática de biografía y manifiesto de diseño.
  *         Incluye animaciones de SVGs (doodles) usando GSAP.
+ *         Texto se anima con SplitText, doodles con pinned scroll.
+ * USAGE:  Incluir entre Hero y Contact/Playground.
  * STATUS: STABLE
  * =====================================================================
  */

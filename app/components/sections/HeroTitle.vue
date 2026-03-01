@@ -3,6 +3,8 @@
  * █ [FEATURE] :: HERO TITLE
  * =====================================================================
  * DESC:   Título animado principal. Manipula nodos DOM con GSAP ScrollTrigger.
+ *         Animación: caída de letras + dibujo de "h" con doodle.
+ * USAGE:  <HeroTitle ref="heroRef" /> → heroRef.getTimeline()
  * STATUS: STABLE
  * =====================================================================
  */
@@ -13,11 +15,11 @@ import { useDoodleDraw } from '~/composables/useDoodleDraw';
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths } = useDoodleDraw();
 
-// =========================================================================
-// CONFIGURACIÓN VISUAL Y DE ANIMACIÓN
+// =============================================================================
+// █ CONFIGURACIÓN VISUAL Y DE ANIMACIÓN
 // Ajusta estos valores para modificar el tamaño, posición de la letra "h",
 // el hueco que se crea y los tiempos de la animación sin tocar la lógica.
-// =========================================================================
+// =============================================================================
 const ANIMATION_CONFIG = {
   // [NOTE] El tamaño y posición de la "h" se definen en CSS em en el template.
   // Solo conservamos el ancho del hueco (gapWidth) y los tiempos.
@@ -25,7 +27,7 @@ const ANIMATION_CONFIG = {
   // Tamaño del hueco al empujar las letras L y O. (El usuario ajustó a 0.85)
   gapWidth: 0.85,
 
-  // --- ANIMACIONES ---
+  // ANIMACIONES
   durations: {
     bump: 0.25,
     fall: 0.7,
@@ -38,7 +40,7 @@ const ANIMATION_CONFIG = {
   rotationsBump: [-8, 12, 0, -15, 8, -12],
   rotationsFall: [-40, 60, 0, -80, 50, -70],
 };
-// =========================================================================
+// =============================================================================
 
 const containerRef = ref<HTMLElement | null>(null);
 const dotRef = ref<HTMLElement | null>(null);

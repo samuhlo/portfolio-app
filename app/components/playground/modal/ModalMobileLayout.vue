@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * █ [UI_ORGANISM] :: MODAL MOBILE LAYOUT
+ * █ [LAYOUT] :: MODAL MOBILE LAYOUT
  * =====================================================================
  * DESC:   Layout vertical para móvil. Título → slider de imágenes
  *         horizontal independiente → bloque de texto.
  *         Expone refs del scroll container para Lenis externo.
+ * USAGE:  <ModalMobileLayout v-else /> dentro de ProjectModal
+ * STATUS: STABLE
  * =====================================================================
  */
 

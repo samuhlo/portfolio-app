@@ -3,6 +3,8 @@
  * █ [FEATURE] :: CONTACT SECTION
  * =====================================================================
  * DESC:   Sección de contacto interactiva. Despliega simulación 2D con Matter.js.
+ *         Letras caen con física real. Click en email → slam effect.
+ * USAGE:  Incluir como última section. Email link dispara slam().
  * STATUS: STABLE
  * =====================================================================
  */

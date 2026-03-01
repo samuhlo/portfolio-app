@@ -5,6 +5,7 @@
  * DESC:   Título principal de la Playground Section con el doodle
  *         "digitallab" animado mediante stroke-draw (GSAP) al entrar
  *         en viewport una sola vez. Queda fijo al terminar la animación.
+ * USAGE:  <PlaygroundTitle /> dentro de PlaygroundSection
  * STATUS: STABLE
  * =====================================================================
  */
@@ -22,8 +23,10 @@ interface DoodleExposed {
 const titleRef = ref<HTMLElement | null>(null);
 const digitallabRef = ref<DoodleExposed | null>(null);
 
-// CONFIGURACIÓN DE LAYOUT ==========================================
+// =============================================================================
+// █ CONFIGURACIÓN DE LAYOUT
 // Posición relativa al h2. Usa em para que escale con el font-size.
+// =============================================================================
 const LAYOUT = {
   // [NOTE] Ajusta bottom/right para alinear con la maqueta
   digitallab: { bottom: '-0.15em', right: '-0.2em', width: '2.5em' },
@@ -34,7 +37,7 @@ const TIMING = {
   stagger: 0.06,
   ease: 'power3.out',
 };
-// ==================================================================
+// =============================================================================
 
 let observer: IntersectionObserver | null = null;
 

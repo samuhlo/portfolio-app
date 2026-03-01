@@ -4,6 +4,8 @@
  * =====================================================================
  * DESC:   Slide de imagen para el modal. Usa NuxtImg para optimización
  *         automática (lazy, format, sizes). Fallback a placeholder X.
+ * USAGE:  <ModalImageSlide src="/img.webp" alt="Desc" /> dentro de ModalLayout
+ * STATUS: STABLE
  * =====================================================================
  */
 

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * █ [UI_ORGANISM] :: MODAL DESKTOP LAYOUT
+ * █ [LAYOUT] :: MODAL DESKTOP LAYOUT
  * =====================================================================
  * DESC:   Layout horizontal para desktop. Slider con texto como primer
  *         slide seguido de placeholders de imagen.
  *         Expone refs del scroll container para Lenis externo.
+ * USAGE:  <ModalDesktopLayout v-if="!isMobile" /> dentro de ProjectModal
+ * STATUS: STABLE
  * =====================================================================
  */
 

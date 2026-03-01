@@ -6,6 +6,8 @@
  *         Dibuja flecha izquierda si se puede scrollear a la izquierda,
  *         flecha derecha si se puede scrollear a la derecha.
  *         Usa useDoodleDraw para animación stroke-dash.
+ * USAGE:  <ModalScrollIndicators :scroll-container="el" />
+ * STATUS: STABLE
  * =====================================================================
  */
 import gsap from 'gsap';

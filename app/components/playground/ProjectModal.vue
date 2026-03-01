@@ -6,6 +6,7 @@
  *         Se abre/cierra en base al query ?project de la URL.
  *         Usa GSAP para animaciones y Lenis local para slider horizontal.
  *         Delega layouts a ModalDesktopLayout / ModalMobileLayout.
+ * USAGE:  Se abre automáticamente al hacer click en ProjectCard (?project=slug)
  * STATUS: STABLE
  * =====================================================================
  */
@@ -13,9 +14,9 @@ import gsap from 'gsap';
 import Lenis from 'lenis';
 import { useWindowSize, onKeyStroke } from '@vueuse/core';
 
-// ---------------------------------------------------------------------------
-// 1. Estado del Modal (source of truth: query param)
-// ---------------------------------------------------------------------------
+// =============================================================================
+// █ 1. Estado del Modal (source of truth: query param)
+// =============================================================================
 const route = useRoute();
 const router = useRouter();
 
@@ -32,9 +33,9 @@ onKeyStroke('Escape', () => {
   if (isOpen.value) closeModal();
 });
 
-// ---------------------------------------------------------------------------
-// 2. Animación GSAP (Enter / Leave)
-// ---------------------------------------------------------------------------
+// =============================================================================
+// █ 2. Animación GSAP (Enter / Leave)
+// =============================================================================
 const { $lenis } = useNuxtApp();
 const bgRef = ref<HTMLElement | null>(null);
 const contentRef = ref<HTMLElement | null>(null);
@@ -102,9 +103,9 @@ function onLeave(_el: Element, done: () => void) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// 3. Lenis Local para Scroll Horizontal
-// ---------------------------------------------------------------------------
+// =============================================================================
+// █ 3. Lenis Local para Scroll Horizontal
+// =============================================================================
 const { width } = useWindowSize();
 const isMobile = computed(() => width.value < 1024);
 
@@ -179,9 +180,9 @@ onUnmounted(() => {
   if (isOpen.value) $lenis?.start();
 });
 
-// ---------------------------------------------------------------------------
-// 4. Datos
-// ---------------------------------------------------------------------------
+// =============================================================================
+// █ 4. Datos
+// =============================================================================
 const images = [
   '/images/projects/tinyshow_main.webp',
   '/images/projects/tinyshowcaptures/tinyshow_1.webp',

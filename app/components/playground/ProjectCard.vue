@@ -1,11 +1,12 @@
 <script setup lang="ts">
 /**
- * █ [UI] :: PROJECT CARD
+ * █ [UI_MOLECULE] :: PROJECT CARD
  * =====================================================================
  * DESC:   Tarjeta reutilizable para proyectos del Playground.
  *         Imagen principal + avatar SVG con hover + subtítulo.
  *         El avatar se pasa como prop (componente dinámico).
  *         Label flotante gestionado por useCursorLabel().
+ * USAGE:  <ProjectCard name="Tinyshow" image="/img.webp" :avatar="Comp" />
  * STATUS: STABLE
  * =====================================================================
  */
@@ -42,15 +43,21 @@ const cardAvatarSize = computed(() => props.avatarSize);
 const cardAvatarStroke = computed(() => props.avatarStroke);
 const cardColor = computed(() => props.color);
 
-// --- HOVER CAPABILITY DETECTION ---
+// =============================================================================
+// █ HOVER CAPABILITY DETECTION
+// =============================================================================
 // [NOTE] En dispositivos táctiles no hay hover real → desactivar cursor-label y magnetic
 const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
 
-// --- CURSOR LABEL (composable) ---
+// =============================================================================
+// █ CURSOR LABEL (composable)
+// =============================================================================
 const { containerRef, labelRef, isHovering, onMouseMove, onMouseEnter, onMouseLeave } =
   useCursorLabel({ lerp: 0.12, offsetX: 16, offsetY: 12 });
 
-// --- MAGNETIC HOVER (composable) ---
+// =============================================================================
+// █ MAGNETIC HOVER (composable)
+// =============================================================================
 const { magneticRef, onMagneticMove, onMagneticLeave } = useMagneticHover({
   strength: 0.12,
   returnEase: 'elastic.out(1, 0.6)',
@@ -150,7 +157,9 @@ function openProject() {
   paint-order: stroke fill; /* [NOTE] El stroke se pinta DETRÁS del fill */
 }
 
-/* --- CURSOR-FOLLOWING LABEL --- */
+/* =============================================================================
+ * CURSOR-FOLLOWING LABEL
+ * ============================================================================ */
 .cursor-label {
   position: absolute;
   top: 0;
