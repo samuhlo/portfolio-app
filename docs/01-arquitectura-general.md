@@ -94,16 +94,29 @@ GSAP tiene un sistema interno que "comprime" el tiempo cuando detecta tirones (f
 
 ```
 app/
+├── config/
+│   └── site.ts               ← Constantes globales: SITE, BREAKPOINTS, COLORS
+├── types/
+│   └── doodle.ts              ← Tipo compartido DoodleExposed
+├── utils/
+│   └── matter.ts              ← Utilidad destroyMatterEngine (cleanup Matter.js)
 ├── plugins/
-│   └── lenis.client.ts      ← Inicializa Lenis + sincroniza con GSAP
+│   └── lenis.client.ts        ← Inicializa Lenis + sincroniza con GSAP
 ├── composables/
-│   ├── useGSAP.ts            ← Contexto GSAP con auto-cleanup
-│   ├── useLenis.ts           ← Acceso a la instancia global de Lenis
-│   ├── usePinnedScroll.ts    ← Secciones pineadas con fases de timeline
-│   └── useDoodleDraw.ts      ← Animación de dibujo SVG stroke-dash
+│   ├── useGSAP.ts             ← Contexto GSAP con auto-cleanup
+│   ├── useLenis.ts            ← Acceso a la instancia global de Lenis
+│   ├── usePinnedScroll.ts     ← Secciones pineadas con fases de timeline
+│   ├── useDoodleDraw.ts       ← Animación de dibujo SVG stroke-dash
+│   ├── usePhysicsLetters.ts   ← Motor Matter.js para letras (con pause/resume)
+│   ├── useErrorPhysics.ts     ← Motor Matter.js para 404 (con settle detection)
+│   ├── useCursorLabel.ts      ← Label flotante con lerp + rAF
+│   ├── useMagneticHover.ts    ← Efecto imán con GSAP elastic
+│   ├── useDragScroll.ts       ← Click-and-drag horizontal
+│   └── useParallax.ts         ← Parallax simple por velocidad
 └── components/sections/
-    ├── HeroSection.vue        ← Pin con 2 fases: título → subtítulo
-    └── BioSection.vue         ← Texto independiente + pin solo para doodles
+    ├── HeroSection.vue         ← Pin con 2 fases: título → subtítulo
+    ├── BioSection.vue          ← Texto independiente + pin solo para doodles
+    └── ContactSection.vue      ← Letras físicas con IntersectionObserver pause/resume
 ```
 
 ---
@@ -116,3 +129,4 @@ app/
 - [05 - Playground](./05-playground.md) — ProjectCard + Modal
 - [06 - UI & Layout](./06-ui-layout.md) — Nav, Footer, Noise, Loader
 - [07 - Problemas Resueltos](./07-problemas-resueltos.md) — Lecciones aprendidas
+- [08 - Refactor Audit](./08-refactor-audit.md) — Changelog del refactor completo

@@ -15,7 +15,7 @@
 
 ## // 00\_ THE_MISSION
 
-Portfolio personal construido como un ejercicio de ingeniería de animación sobre Nuxt 3. El objetivo era conseguir scroll-linked animations complejas (pinned sections, SVG draw-on-scroll, simulación de físicas 2D) manteniendo tres restricciones: SSR funcional, 60 FPS estables en móvil, y una arquitectura de composables que permita escalar sin acoplar lógica de animación a los componentes de vista.
+Portfolio personal construido como un ejercicio de ingeniería de animación sobre Nuxt 4. El objetivo era conseguir scroll-linked animations complejas (pinned sections, SVG draw-on-scroll, simulación de físicas 2D) manteniendo tres restricciones: SSR funcional, 60 FPS estables en móvil, y una arquitectura de composables que permita escalar sin acoplar lógica de animación a los componentes de vista.
 
 > _Note: Toda la lógica de animación vive aislada en composables puros (`useGSAP`, `usePinnedScroll`, `usePhysicsLetters`). Los componentes `.vue` solo declaran qué animar, nunca cómo. Si se elimina un módulo, el resto no se rompe._
 
@@ -23,21 +23,21 @@ Portfolio personal construido como un ejercicio de ingeniería de animación sob
 
 ## // 01\_ THE_BLUEPRINT (ARCHITECTURE)
 
-| LAYER      | TECH        | IMPLEMENTATION DETAIL                           |
-| :--------- | :---------- | :---------------------------------------------- |
-| **Core**   | `Nuxt 3`    | SSR con Vue Composition API pura.               |
-| **Motion** | `GSAP`      | Instanciado solo cliente + ScrollTrigger        |
-| **Smooth** | `Lenis`     | AutoRaf apagado, inyectado en el ticker de GSAP |
-| **Physic** | `Matter.js` | Render loop en Canvas atado a IntersectionObs.  |
-| **Styles** | `Tailwind`  | Config v4 estricta, utility-first sin CSS roto. |
+| LAYER      | TECH         | IMPLEMENTATION DETAIL                           |
+| :--------- | :----------- | :---------------------------------------------- |
+| **Core**   | `Nuxt 4`     | SSR con Vue Composition API pura.               |
+| **Motion** | `GSAP`       | Instanciado solo cliente + ScrollTrigger        |
+| **Smooth** | `Lenis`      | AutoRaf apagado, inyectado en el ticker de GSAP |
+| **Physic** | `Matter.js`  | Canvas + IntersectionObs. con pause/resume      |
+| **Styles** | `Tailwind 4` | Config v4 estricta, utility-first sin CSS roto. |
 
 ---
 
 ## // 02\_ CONTROLLED_CHAOS (KEY FEATURES)
 
-- **Simulaciones de Gravedad Laziloaded:** La sección de contacto no es CSS. Es Canvas 2D renderizando coordenadas inyectadas por Matter.js. Dinámico, calcula los cuerpos midiendo los glyphs tipográficos y solo inicia su bucle de recursos cuando entra al 20% del Viewport.
+- **Simulaciones de Gravedad Laziloaded:** La sección de contacto no es CSS. Es Canvas 2D renderizando coordenadas inyectadas por Matter.js. Dinámico, calcula los cuerpos midiendo los glyphs tipográficos. Inicia al 40% del viewport, se pausa automáticamente al salir y reanuda al volver — cero CPU fuera de pantalla.
 - **Scroll Animado Monolítico Unilateral:** Un header y claims (Hero/Bio) que se descomponen con Scrubbing de scroll, reteniendo el avance (completed[]) para no deshacer la animación en el scroll inverso.
-- **Microinteracciones SVG Coreografiadas:** Doodles en líneas (dashArray/Offset) instanciados en un timeline central que se nutre vía el composable arquitectónico `useDoodleDraw`.
+- **Microinteracciones SVG Coreografiadas:** Doodles en líneas (dashArray/Offset) instanciados en un timeline central que se nutre vía el composable arquitectónico `useDoodleDraw`, con `resetPaths`/`erasePaths` reutilizables para hover y scroll indicators.
 
 ---
 
@@ -50,29 +50,28 @@ El puente entre memoria, CPU y GPU. Aislando el motor de gravedad para no sangra
 // EXECUTING COMPLEX LOGIC...
 
 const draw = (): void => {
-  if (!isRunning || !engine) return;
+  if (paused) return; // Offscreen → no quemar CPU
 
-  const canvasW = canvasRef.value!.width;
-  // Clear full Canvas previo
-  ctx.clearRect(0, 0, canvasW, canvasRef.value!.height);
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = getComputedStyle(canvas).color || COLORS.background;
 
-  // Dibujando con coordenadas atadas al Physics Engine
-  for (const item of letterBodies) {
-    const { position, angle } = item.body;
+  for (const { body, char } of letterBodies) {
     ctx.save();
-    ctx.translate(position.x, position.y);
-    ctx.rotate(angle);
-    ctx.fillText(item.char, 0, 0);
+    ctx.translate(body.position.x, body.position.y);
+    ctx.rotate(body.angle);
+    ctx.fillText(char, 0, 0);
     ctx.restore();
   }
   rafId = requestAnimationFrame(draw);
 };
 
 const destroy = (): void => {
-  cancelAnimationFrame(rafId);
-  Runner.stop(runner); // Matar proceso lógico Matter
-  World.clear(engine.world, false); // Limpiar heap
+  const reset = destroyMatterEngine({ engine, runner, rafId });
+  engine = reset.engine;
+  runner = reset.runner;
+  rafId = reset.rafId;
   letterBodies = [];
+  isRunning = false;
 };
 ```
 

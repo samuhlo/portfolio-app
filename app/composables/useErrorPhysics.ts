@@ -1,5 +1,7 @@
 import { onMounted, onUnmounted, type Ref } from 'vue';
 import { Engine, Runner, Bodies, World, Body } from 'matter-js';
+import { BREAKPOINTS, COLORS } from '~/config/site';
+import { destroyMatterEngine } from '~/utils/matter';
 
 // =============================================================================
 // █ CONSTANTS: FÍSICA
@@ -11,6 +13,10 @@ const BLOCK_FRICTION_AIR = 0.002; // Casi sin resistencia al aire
 const BLOCK_DENSITY = 0.3; // Muy pesado
 const GRAVITY_Y = 2.5; // Gravedad fuerte para sensación de peso
 const WALL_THICKNESS = 200;
+
+// — Settle detection: para el loop cuando el bloque deja de moverse
+const SETTLE_SPEED_THRESHOLD = 0.05; // Velocidad lineal + angular mínima
+const SETTLE_FRAMES_REQUIRED = 60; // ~1s a 60fps
 
 export function useErrorPhysics(
   containerRef: Ref<HTMLElement | null>,
@@ -38,7 +44,7 @@ export function useErrorPhysics(
 
     const W = canvas.width;
     const H = canvas.height;
-    const isMobile = W < 768;
+    const isMobile = W < BREAKPOINTS.mobile;
 
     const fontFamily = '"Arial Black", "Impact", sans-serif';
     const text = '404';
@@ -91,6 +97,8 @@ export function useErrorPhysics(
     World.add(engine.world, textBody);
     Runner.run(runner, engine);
 
+    let settleCount = 0;
+
     const draw = (): void => {
       ctx.clearRect(0, 0, W, H);
       if (!textBody) return;
@@ -98,13 +106,29 @@ export function useErrorPhysics(
       ctx.font = `${FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.fillStyle = getComputedStyle(canvas).color || '#faf3f0';
+      ctx.fillStyle = getComputedStyle(canvas).color || COLORS.background;
 
       ctx.save();
       ctx.translate(textBody.position.x, textBody.position.y);
       ctx.rotate(textBody.angle);
       ctx.fillText(text, 0, 0);
       ctx.restore();
+
+      // [NOTE] Settle detection: si el bloque apenas se mueve durante
+      // SETTLE_FRAMES_REQUIRED frames consecutivos, paramos el Runner y el rAF.
+      // Renderizamos un último frame estático y liberamos ciclos de CPU.
+      const speed = textBody.speed + Math.abs(textBody.angularSpeed);
+      if (speed < SETTLE_SPEED_THRESHOLD) {
+        settleCount++;
+        if (settleCount >= SETTLE_FRAMES_REQUIRED) {
+          // Parar Runner — el bloque ya no se mueve
+          if (runner) Runner.stop(runner);
+          rafId = null;
+          return;
+        }
+      } else {
+        settleCount = 0;
+      }
 
       rafId = requestAnimationFrame(draw);
     };
@@ -132,19 +156,10 @@ export function useErrorPhysics(
   };
 
   const destroyPhysics = (): void => {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-    if (runner) {
-      Runner.stop(runner);
-      runner = null;
-    }
-    if (engine) {
-      World.clear(engine.world, false);
-      Engine.clear(engine);
-      engine = null;
-    }
+    const reset = destroyMatterEngine({ engine, runner, rafId });
+    engine = reset.engine;
+    runner = reset.runner;
+    rafId = reset.rafId;
     textBody = null;
   };
 

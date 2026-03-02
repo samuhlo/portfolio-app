@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const textSize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-base'));
-const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-sm'));
+const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-base'));
 </script>
 
 <template>

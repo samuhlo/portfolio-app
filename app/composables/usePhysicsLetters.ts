@@ -5,7 +5,9 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { Engine, Runner, Bodies, World, Body } from 'matter-js'; // =============================================================================
+import { Engine, Runner, Bodies, World, Body } from 'matter-js';
+import { BREAKPOINTS, COLORS } from '~/config/site';
+import { destroyMatterEngine } from '~/utils/matter'; // =============================================================================
 // █ CONSTANTS: FÍSICA Y RENDER
 // =============================================================================
 const FONT_WEIGHT = 900;
@@ -44,6 +46,8 @@ export const usePhysicsLetters = () => {
   let rafId: number | null = null;
   let letterBodies: LetterBody[] = [];
   let isRunning = false;
+  let paused = false;
+  let drawFn: (() => void) | null = null;
 
   // =============================================================================
   // █ LÓGICA CORE: SPAWN Y RENDERING
@@ -113,7 +117,7 @@ export const usePhysicsLetters = () => {
 
     const W = canvas.width;
     const H = canvas.height;
-    const isMobile = opts.isMobile ?? W < 768;
+    const isMobile = opts.isMobile ?? W < BREAKPOINTS.mobile;
 
     // [NOTE] Móvil usa letras más grandes para llenar el ancho en 2 filas
     const fontSize = isMobile ? Math.round(W * 0.38) : Math.round(W * 0.21);
@@ -175,11 +179,13 @@ export const usePhysicsLetters = () => {
     Runner.run(runner, engine);
 
     const draw = (): void => {
+      if (paused) return;
+
       ctx.clearRect(0, 0, W, H);
       ctx.font = `${FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
       ctx.textBaseline = 'middle';
       ctx.textAlign = 'center';
-      ctx.fillStyle = getComputedStyle(canvas).color || '#f5f0e8';
+      ctx.fillStyle = getComputedStyle(canvas).color || COLORS.background;
 
       for (const { body, char } of letterBodies) {
         ctx.save();
@@ -192,17 +198,39 @@ export const usePhysicsLetters = () => {
       rafId = requestAnimationFrame(draw);
     };
 
+    drawFn = draw;
     rafId = requestAnimationFrame(draw);
   };
 
   /**
-   * ◼️ SLAM
+   * ◼️ PAUSE / RESUME
    * ---------------------------------------------------------
-   * Aplica un impulso "manotazo" a todas las letras.
-   * -> Saltan hacia arriba con rotación y desplazamiento aleatorio.
+   * Pausa el Runner de Matter.js y cancela el rAF loop cuando la sección
+   * sale del viewport. Resume al volver a entrar.
+   * -> Evita ciclos de CPU desperdiciados en contenido no visible.
    */
+  const pause = (): void => {
+    if (!isRunning || paused) return;
+    paused = true;
+    if (runner) Runner.stop(runner);
+    if (rafId != null) {
+      cancelAnimationFrame(rafId);
+      rafId = null;
+    }
+  };
+
+  const resume = (): void => {
+    if (!isRunning || !paused) return;
+    paused = false;
+    if (runner && engine) Runner.run(runner, engine);
+    if (drawFn) rafId = requestAnimationFrame(drawFn);
+  };
+
   const slam = (): void => {
     if (!isRunning) return;
+
+    // Si estaba pausado (offscreen), reanudar para que el slam sea visible
+    if (paused) resume();
 
     for (const { body } of letterBodies) {
       const upForce = -(15 + Math.random() * 10);
@@ -215,22 +243,15 @@ export const usePhysicsLetters = () => {
   };
 
   const destroy = (): void => {
-    if (rafId !== null) {
-      cancelAnimationFrame(rafId);
-      rafId = null;
-    }
-    if (runner) {
-      Runner.stop(runner);
-      runner = null;
-    }
-    if (engine) {
-      World.clear(engine.world, false);
-      Engine.clear(engine);
-      engine = null;
-    }
+    const reset = destroyMatterEngine({ engine, runner, rafId });
+    engine = reset.engine;
+    runner = reset.runner;
+    rafId = reset.rafId;
     letterBodies = [];
     isRunning = false;
+    paused = false;
+    drawFn = null;
   };
 
-  return { initPhysics, slam, destroy };
+  return { initPhysics, slam, pause, resume, destroy };
 };

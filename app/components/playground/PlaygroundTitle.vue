@@ -12,13 +12,10 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
 
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
-
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
 
 const titleRef = ref<HTMLElement | null>(null);
 const digitallabRef = ref<DoodleExposed | null>(null);

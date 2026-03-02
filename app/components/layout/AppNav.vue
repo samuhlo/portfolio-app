@@ -9,6 +9,7 @@
  */
 
 import { ref, onMounted } from 'vue';
+import { SITE } from '~/config/site';
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 
@@ -60,7 +61,7 @@ onMounted(() => {
     </div>
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover>
-        <NuxtLink to="mailto:hola@samuhlo.dev" class="hover:font-bold transition-opacity"
+        <NuxtLink :to="`mailto:${SITE.email}`" class="hover:font-bold transition-opacity"
           >Contact</NuxtLink
         >
       </RandomDoodleHover>

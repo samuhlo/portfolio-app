@@ -11,6 +11,7 @@
  */
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
 
 interface Props {
   size?: 'sm' | 'lg';
@@ -34,11 +35,12 @@ const buttonSize = computed(() => (props.size === 'sm' ? 'w-10 h-10' : 'w-18 h-1
 // =============================================================================
 // █ Doodle Draw Animation
 // =============================================================================
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
-
-const { preparePaths, addDrawAnimation } = useDoodleDraw();
+const {
+  preparePaths,
+  addDrawAnimation,
+  resetPaths: resetDoodlePaths,
+  erasePaths,
+} = useDoodleDraw();
 const doodleRef = ref<DoodleExposed | null>(null);
 let preparedPaths: SVGPathElement[] = [];
 
@@ -53,32 +55,12 @@ onMounted(() => {
   }
 });
 
-function killAllTweens() {
-  const svg = doodleRef.value?.svg;
-  if (svg) gsap.killTweensOf(svg);
-  preparedPaths.forEach((p) => gsap.killTweensOf(p));
-}
-
-function resetPaths() {
-  const svg = doodleRef.value?.svg;
-  if (!svg) return;
-  gsap.set(svg, { opacity: 0 });
-  preparedPaths.forEach((path) => {
-    const length = path.getTotalLength() + 20;
-    gsap.set(path, {
-      strokeDashoffset: length,
-      visibility: 'hidden',
-    });
-  });
-}
-
 function draw() {
   const svg = doodleRef.value?.svg;
   if (!svg || !preparedPaths.length) return;
 
-  // [FIX] Matar cualquier animación pendiente y resetear antes de redibujar
-  killAllTweens();
-  resetPaths();
+  // [FIX] Resetear antes de redibujar
+  resetDoodlePaths(svg, preparedPaths);
 
   const tl = gsap.timeline();
 
@@ -98,15 +80,14 @@ function erase() {
   const svg = doodleRef.value?.svg;
   if (!svg || !preparedPaths.length) return;
 
-  killAllTweens();
-
-  gsap.to(svg, {
-    opacity: 0,
-    duration: 0.2,
-    ease: 'power1.in',
-    onComplete: () => resetPaths(),
-  });
+  erasePaths(svg, preparedPaths);
 }
+
+// [FIX] Cleanup GSAP tweens al desmontar para evitar memory leaks
+onUnmounted(() => {
+  const svg = doodleRef.value?.svg;
+  if (svg) resetDoodlePaths(svg, preparedPaths);
+});
 </script>
 
 <template>

@@ -12,6 +12,7 @@
  */
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
 
 interface Props {
   scrollContainer: HTMLElement | null;
@@ -22,11 +23,7 @@ const props = defineProps<Props>();
 // =============================================================================
 // █ CORE: DOODLE DRAW SETUP
 // =============================================================================
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
-
-const { preparePaths, addDrawAnimation } = useDoodleDraw();
+const { preparePaths, addDrawAnimation, resetPaths, erasePaths } = useDoodleDraw();
 
 const leftRef = ref<DoodleExposed | null>(null);
 const rightRef = ref<DoodleExposed | null>(null);
@@ -84,33 +81,17 @@ onUnmounted(() => {
   if (props.scrollContainer && scrollHandler) {
     props.scrollContainer.removeEventListener('scroll', scrollHandler);
   }
+  // [FIX] Matar tweens GSAP pendientes al desmontar para evitar memory leaks
+  resetPaths(leftRef.value?.svg ?? null, leftPaths);
+  resetPaths(rightRef.value?.svg ?? null, rightPaths);
 });
 
 // =============================================================================
 // █ ANIMATION: DRAW / ERASE
 // =============================================================================
-function killAndReset(svg: SVGSVGElement | null, paths: SVGPathElement[]) {
-  if (!svg || !paths.length) return;
-  gsap.killTweensOf(svg);
-  paths.forEach((p) => gsap.killTweensOf(p));
-  gsap.set(svg, { opacity: 0 });
-  paths.forEach((path) => {
-    const length = path.getTotalLength() + 20;
-    gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
-  });
-}
-
 function drawArrow(svg: SVGSVGElement | null, paths: SVGPathElement[]) {
   if (!svg || !paths.length) return;
-  gsap.killTweensOf(svg);
-  paths.forEach((p) => gsap.killTweensOf(p));
-
-  // Resetear antes de dibujar
-  gsap.set(svg, { opacity: 0 });
-  paths.forEach((path) => {
-    const length = path.getTotalLength() + 20;
-    gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
-  });
+  resetPaths(svg, paths);
 
   const tl = gsap.timeline();
   addDrawAnimation(tl, {
@@ -124,20 +105,7 @@ function drawArrow(svg: SVGSVGElement | null, paths: SVGPathElement[]) {
 
 function eraseArrow(svg: SVGSVGElement | null, paths: SVGPathElement[]) {
   if (!svg || !paths.length) return;
-  gsap.killTweensOf(svg);
-  paths.forEach((p) => gsap.killTweensOf(p));
-
-  gsap.to(svg, {
-    opacity: 0,
-    duration: 0.25,
-    ease: 'power1.in',
-    onComplete: () => {
-      paths.forEach((path) => {
-        const length = path.getTotalLength() + 20;
-        gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
-      });
-    },
-  });
+  erasePaths(svg, paths, { duration: 0.25 });
 }
 
 // [NOTE] Reaccionar a cambios de canScrollLeft / canScrollRight

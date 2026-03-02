@@ -17,10 +17,13 @@
 | 7   | `overflow-x: hidden` crea doble scroll                       | Diferencia entre `hidden` y `clip`                                             |
 | 8   | Código duplicado en Hero y Bio                               | Composable `usePinnedScroll`                                                   |
 | 9   | Efecto TV Grain de Canvas consume mucha CPU                  | Reescritura usando Canvas oculto + rAF                                         |
-| 10  | Salto de scroll extremo al hacer swipe en móvil (iOS Safari) | `Delayed Kill` basado en velocidad pasiva (`lenis.velocity`)                   |
+| 10  | Salto de scroll extremo al hacer swipe en móvil (iOS Safari) | `Delayed Kill` basado en velocidad pasiva (`lenis.velocity`) + bailout forzado |
 | 11  | ContactSection (Canvas) reinventándose en cada scroll táctil | Filtrar `resize` event por umbral de dif. de `width`                           |
 | 12  | "Tilt" o parpadeo general en móvil al hacer scroll           | `ScrollTrigger.config({ ignoreMobileResize: true })` y `normalizeScroll(true)` |
 | 13  | Scroll pinned (scrub) es tedioso y errático en móvil         | Pivotar a animaciones `auto-play` rápidas sin `pin` en móvil                   |
+| 14  | Física de ContactSection consume CPU offscreen               | `IntersectionObserver` con `pause()`/`resume()` + settle detection             |
+| 15  | Pin-spacer huérfano tras bailout de delayed kill             | `MAX_ATTEMPTS = 300` + `killAndCompensate()` forzado en bailout                |
+| 16  | Build fail: esbuild EPIPE por xattr macOS                    | Reinstalar esbuild (`bun pm rm esbuild && bun pm add esbuild`)                 |
 
 ---
 
@@ -365,29 +368,36 @@ Lo que ocurre es que en un milisegundo:
 3. Pero el motor de Momentum de Lenis/iOS **sigue empujando** con la velocidad calculada según la página _antigua_.
 4. Conflicto total de posiciones, resultando en un salto de varios miles de píxeles en 1 frame.
 
-### La solución: Delayed Kill
+### La solución: Delayed Kill con bailout forzado
 
-Implementamos un sistema que retrasa la muerte (`kill()`) del `ScrollTrigger` hasta que la velocidad inercial del usuario (_momentum_) sea casi cero **y además haya levantado el dedo de la pantalla**, permitiendo que Safari decelere de forma natural antes de hacer el cambio en el DOM:
+Implementamos un sistema que retrasa la muerte (`kill()`) del `ScrollTrigger` hasta que la velocidad inercial del usuario (_momentum_) sea casi cero, permitiendo que Safari decelere de forma natural antes de hacer el cambio en el DOM:
 
 ```typescript
 // En composables/usePinnedScroll.ts
 
 onLeave: (self) => {
   const pinSpacerHeight = self.end - self.start;
+  const MAX_ATTEMPTS = 300; // ~5s a 60fps — margen amplio para Lenis momentum
+  let attempts = 0;
+
+  const killAndCompensate = () => {
+    const targetScroll = self.scroll() - pinSpacerHeight;
+    self.kill();
+    lenis?.scrollTo(targetScroll, { immediate: true });
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  };
 
   const attemptKill = () => {
-    if (!self.isActive && self.progress === 1) {
-      // 1. Miramos a qué velocidad se mueve el usuario
-      const velocity = lenis?.velocity || 0;
+    attempts++;
 
-      // 2. Solo aplicamos el Kill si la inercia acabó Y el usuario soltó la pantalla
-      if (Math.abs(velocity) < 0.1 && !(window as any).__isTouching) {
-        const targetScroll = self.scroll() - pinSpacerHeight;
-        self.kill();
-        lenis?.scrollTo(targetScroll, { immediate: true });
-        requestAnimationFrame(() => ScrollTrigger.refresh());
+    if (!self.isActive && self.progress === 1) {
+      const velocity = lenis?.velocity || 0;
+      if (Math.abs(velocity) < 0.1) {
+        killAndCompensate();
+      } else if (attempts > MAX_ATTEMPTS) {
+        // Bailout: forzar kill para evitar pin-spacer huérfano
+        killAndCompensate();
       } else {
-        // 3. Seguimos comprobando en el próximo frame
         requestAnimationFrame(attemptKill);
       }
     }
@@ -397,7 +407,8 @@ onLeave: (self) => {
 };
 ```
 
-Para que esta comprobación sepa si el usuario está tocando la pantalla, inyectamos listeners globales de touch en el plugin de `Lenis`. Conflicto balístico asegurado.
+- `MAX_ATTEMPTS = 300` da ~5 segundos de margen para que Lenis complete su momentum
+- Si se supera el límite sin que la velocidad baje, se fuerza el `killAndCompensate()` para evitar dejar un pin-spacer huérfano de 2000px (ver problema #15)o.
 
 ---
 
@@ -488,6 +499,116 @@ Rompimos la asimetría entre desktop y mobile creando lógicas condicionales pur
 2. **Mobile:** Las restricciones se eliminan (`pin: false`, `scrub: false`). La página fluye de manera natural de arriba a abajo.
 3. **Auto-Play Trigger:** En móvil, las animaciones se ejecutan instántaneamente y de forma ininterrumpida cuando la sección respectiva hace aparición (`IntersectionObserver` o GSAP `ScrollTrigger` básico que detona el `play()`).
 4. **Fast-Forward:** Para compensar que la página ya no está congelada y el usuario sigue bajando velozmente de largo, re-calibramos los tiempos (`duration`) para que se ejecuten radicalmente más rápidos si `isMobile` es `true`. Modificamos la gravedad (aumentándola) de la física generativa del Canvas de contacto, aceleramos los `staggers` de entrada de texto e hicimos que las transiciones de color de background fueran súbitas.
+
+---
+
+## 14. Física de ContactSection consume CPU offscreen
+
+### El problema
+
+La simulación de Matter.js en ContactSection seguía corriendo a 60 FPS incluso cuando la sección estaba fuera del viewport, consumiendo CPU innecesariamente y descargando la batería.
+
+### La solución: IntersectionObserver pause/resume
+
+```typescript
+// En ContactSection.vue
+
+const { pause, resume } = usePhysicsLetters();
+
+const handleIntersection: IntersectionObserverCallback = (entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting && !triggered) {
+      // Primera vez visible → iniciar física
+      triggered = true;
+      initPhysics(canvasRef.value, TEXT, { isMobile });
+    } else if (triggered) {
+      // Ya iniciada → pause/resume según visibilidad
+      if (entry.isIntersecting) {
+        resume();
+      } else {
+        pause();
+      }
+    }
+  }
+};
+
+// threshold [0, 0.4]: 0 = detectar salida, 0.4 = primer trigger de entrada
+observer = new IntersectionObserver(handleIntersection, {
+  threshold: [0, 0.4],
+});
+```
+
+`pause()` y `resume()` detienen/reanudan el `Runner` y `rAF` de Matter.js.
+
+### Settle detection (useErrorPhysics)
+
+Para errores flotantes (`useErrorPhysics`), se implementó detección de "settle": si la velocidad de todos los cuerpos es ~0 durante 60 frames consecutivos, se detiene el rAF completamente.
+
+---
+
+## 15. Pin-spacer huérfano tras bailout de delayed kill
+
+### El problema
+
+Con `MAX_ATTEMPTS = 60` (~1 segundo), si el usuario seguía haciendo scroll con inertia, el delayed kill hacía `return` silencioso al superar el límite. El pin-spacer de 2000px permanecía en el DOM, creando scroll muerto.
+
+### La solución: Bailout forzado
+
+```typescript
+const MAX_ATTEMPTS = 300; // ~5s a 60fps
+let attempts = 0;
+
+const killAndCompensate = () => {
+  const targetScroll = self.scroll() - pinSpacerHeight;
+  self.kill();
+  lenis?.scrollTo(targetScroll, { immediate: true });
+  requestAnimationFrame(() => ScrollTrigger.refresh());
+};
+
+const attemptKill = () => {
+  attempts++;
+  if (!self.isActive && self.progress === 1) {
+    const velocity = lenis?.velocity || 0;
+    if (Math.abs(velocity) < 0.1) {
+      killAndCompensate();
+    } else if (attempts > MAX_ATTEMPTS) {
+      // Bailout: forzar kill para evitar pin-spacer huérfano
+      killAndCompensate();
+    } else {
+      requestAnimationFrame(attemptKill);
+    }
+  }
+};
+```
+
+En vez de `return` silencioso, se fuerza `killAndCompensate()` incluso si la velocity no ha llegado a 0.
+
+---
+
+## 16. Build fail: esbuild EPIPE por xattr macOS
+
+### El problema
+
+El build fallaba con error:
+
+```
+Error: write EPIPE
+at WriteWrap.callback (fs.js: ...)
+```
+
+### Por qué pasaba
+
+El ejecutable `esbuild` en macOS tenía extendido el atributo `com.apple.provenance` (xattr de seguridad de macOS). Cuando Node.js intentaba ejecutar el binario, el xattr causaba un `SIGKILL` intermitente.
+
+### La solución
+
+Reinstalar esbuild a través de bun:
+
+```bash
+bun pm rm esbuild && bun pm add esbuild
+```
+
+Esto limpia el binario cacheado y descarga una versión limpia.
 
 ---
 

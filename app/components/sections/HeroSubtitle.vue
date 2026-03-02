@@ -11,14 +11,11 @@
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
+import { BREAKPOINTS } from '~/config/site';
 
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
-
-// Tipo de los componentes doodle que exponen { svg: Ref<SVGSVGElement> }
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
 
 const containerRef = ref<HTMLElement | null>(null);
 
@@ -56,7 +53,7 @@ const TIMING = {
 const buildTimeline = (): gsap.core.Timeline => {
   const tl = gsap.timeline({ paused: true });
 
-  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
 
   const currentTiming = isMobile
     ? {

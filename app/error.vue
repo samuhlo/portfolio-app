@@ -14,14 +14,9 @@ import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import { useErrorPhysics } from '~/composables/useErrorPhysics';
 
-const props = defineProps({
+defineProps({
   error: Object as () => NuxtError,
 });
-
-/** Umbral de velocidad para considerar el body en reposo */
-const SETTLE_SPEED_THRESHOLD = 0.15;
-/** Frames consecutivos bajo el umbral para confirmar reposo */
-const SETTLE_FRAME_COUNT = 45;
 
 // =============================================================================
 // █ CONSTANTS: POSICIONAMIENTO (ajustables en "em")

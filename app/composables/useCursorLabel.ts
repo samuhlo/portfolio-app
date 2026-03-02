@@ -1,5 +1,3 @@
-import type { Ref } from 'vue';
-
 /**
  * █ [COMPOSABLE] :: USE CURSOR LABEL
  * =====================================================================

@@ -13,12 +13,8 @@ import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import { usePinnedScroll } from '~/composables/usePinnedScroll';
-import { useWindowSize } from '@vueuse/core';
 import { SplitText } from 'gsap/SplitText';
-
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
+import type { DoodleExposed } from '~/types/doodle';
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
@@ -44,7 +40,6 @@ const LAYOUT = {
   quotesClose: { bottom: '-0.2em', left: '110%', width: '2em', transform: 'rotate(10deg)' },
 };
 
-const TEXT_ENDS_AT = 0.3;
 const HEARTBEAT_DELAY_MS = 600;
 const textContainerRef = ref<HTMLElement | null>(null);
 
@@ -72,61 +67,31 @@ onMounted(() => {
     // ── DOODLES: Timeline pausado para el pinned scroll ──
     const doodleTl = gsap.timeline({ paused: true });
 
-    if (quotesOpenRef.value?.svg) {
+    // [NOTE] Config data-driven: cada entrada mapea un ref a sus parámetros de animación.
+    // Evita 7 bloques if/addDrawAnimation repetitivos.
+    const doodleConfigs: {
+      ref: typeof quotesOpenRef;
+      duration: number;
+      stagger?: number;
+      position?: string;
+    }[] = [
+      { ref: quotesOpenRef, duration: 0.5 },
+      { ref: crossFunRef, duration: 0.4, position: '+=0.1' },
+      { ref: funRef, duration: 0.5, stagger: 0.1, position: '-=0.1' },
+      { ref: waveRef, duration: 0.6, position: '+=0.1' },
+      { ref: heartRef, duration: 0.5, stagger: 0.1, position: '+=0.1' },
+      { ref: circleRef, duration: 0.6, position: '+=0.1' },
+      { ref: quotesCloseRef, duration: 0.5, position: '+=0.1' },
+    ];
+
+    for (const cfg of doodleConfigs) {
+      if (!cfg.ref.value?.svg) continue;
       addDrawAnimation(doodleTl, {
-        svg: quotesOpenRef.value.svg,
-        paths: getPaths(quotesOpenRef),
-        duration: 0.5,
-      });
-    }
-    if (crossFunRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: crossFunRef.value.svg,
-        paths: getPaths(crossFunRef),
-        duration: 0.4,
-        position: '+=0.1',
-      });
-    }
-    if (funRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: funRef.value.svg,
-        paths: getPaths(funRef),
-        duration: 0.5,
-        stagger: 0.1,
-        position: '-=0.1',
-      });
-    }
-    if (waveRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: waveRef.value.svg,
-        paths: getPaths(waveRef),
-        duration: 0.6,
-        position: '+=0.1',
-      });
-    }
-    if (heartRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: heartRef.value.svg,
-        paths: getPaths(heartRef),
-        duration: 0.5,
-        stagger: 0.1,
-        position: '+=0.1',
-      });
-    }
-    if (circleRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: circleRef.value.svg,
-        paths: getPaths(circleRef),
-        duration: 0.6,
-        position: '+=0.1',
-      });
-    }
-    if (quotesCloseRef.value?.svg) {
-      addDrawAnimation(doodleTl, {
-        svg: quotesCloseRef.value.svg,
-        paths: getPaths(quotesCloseRef),
-        duration: 0.5,
-        position: '+=0.1',
+        svg: cfg.ref.value.svg,
+        paths: getPaths(cfg.ref),
+        duration: cfg.duration,
+        ...(cfg.stagger != null && { stagger: cfg.stagger }),
+        ...(cfg.position != null && { position: cfg.position }),
       });
     }
 

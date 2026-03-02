@@ -90,12 +90,14 @@ Usa `useDoodleDraw` para preparar paths y animarlos con stroke-dashoffset.
 
 ### Estructura
 
-Cada palabra es un componente doodle que expone su SVG:
+Cada palabra es un componente doodle que expone su SVG. Se usa el tipo compartido `DoodleExposed` de `app/types/doodle.ts`:
 
 ```typescript
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
+import type { DoodleExposed } from '~/types/doodle';
+
+const crosslineRef = ref<DoodleExposed | null>(null);
+const frontRef = ref<DoodleExposed | null>(null);
+// ...
 ```
 
 ### Las palabras
@@ -127,14 +129,35 @@ Biografía con **pin solo para doodles**. El texto se anima independientemente (
 
 ```
 ├── textContainer    → gsap.from con SplitText (no pineado)
-└── doodles wrapper  → pinned scroll timeline
+└── doodles wrapper  → pinned scroll timeline (data-driven)
     ├── quotesOpen
     ├── crossFun
     ├── fun
     ├── wave
     ├── heart
+    ├── circle
     └── quotesClose
 ```
+
+### Doodles data-driven
+
+Los 7 doodles se configuran como array y se iteran en un loop, en vez de 7 bloques `if/addDrawAnimation` repetitivos:
+
+```typescript
+const doodleConfigs = [
+  { ref: quotesOpenRef, duration: 0.5 },
+  { ref: crossFunRef, duration: 0.4, position: '+=0.1' },
+  { ref: funRef, duration: 0.5, stagger: 0.1, position: '-=0.1' },
+  // ... 4 más
+];
+
+for (const cfg of doodleConfigs) {
+  if (!cfg.ref.value?.svg) continue;
+  addDrawAnimation(doodleTl, { svg: cfg.ref.value.svg, ... });
+}
+```
+
+Todos los refs usan el tipo compartido `DoodleExposed` de `app/types/doodle.ts`.
 
 ### SplitText
 
@@ -174,19 +197,39 @@ heartbeatTl
 
 "CONTACT" como letras que caen con física real (Matter.js).
 
-### Lazy init
+### Lazy init + pause/resume
+
+El `IntersectionObserver` usa doble threshold `[0, 0.4]` para dos funciones:
+
+- **threshold 0.4** → primera vez visible: inicia la física
+- **threshold 0** → detecta salida/entrada del viewport para pausar/resumir
 
 ```typescript
-const handleIntersection = (entries) => {
-  if (entry.isIntersecting && !triggered) {
-    triggered = true;
-    initPhysics(canvas, 'CONTACT', { isMobile });
+const handleIntersection: IntersectionObserverCallback = (entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting && !triggered && canvasRef.value) {
+      // Primera vez visible → iniciar física
+      triggered = true;
+      syncCanvasSize();
+      initPhysics(canvasRef.value, TEXT, { isMobile });
+    } else if (triggered) {
+      // Ya iniciada → pause/resume según visibilidad
+      if (entry.isIntersecting) {
+        resume();
+      } else {
+        pause();
+      }
+    }
   }
 };
 
-observer = new IntersectionObserver(handleIntersection, { threshold: 0.2 });
-observer.observe(sectionRef);
+const TRIGGER_THRESHOLD = 0.4;
+observer = new IntersectionObserver(handleIntersection, {
+  threshold: [0, TRIGGER_THRESHOLD],
+});
 ```
+
+`pause()` y `resume()` son métodos de `usePhysicsLetters` que detienen/reanudan el `Runner` y `rAF` de Matter.js, evitando consumo de CPU cuando la sección no es visible. Ver [03 - Composables](./03-composables.md).
 
 ### Doble fila en móvil
 

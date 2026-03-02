@@ -7,10 +7,16 @@
  * =====================================================================
  */
 import { onMounted } from 'vue';
-import figlet from 'figlet';
-import standard from 'figlet/importable-fonts/Doom.js';
+import { SITE } from '~/config/site';
 
 onMounted(async () => {
+  // [NOTE] Lazy import → figlet + font Doom (~30KB+) solo se cargan tras el mount,
+  // fuera del bundle principal. Es un easter egg de consola, no necesita ser inmediato.
+  const [{ default: figlet }, { default: standard }] = await Promise.all([
+    import('figlet'),
+    import('figlet/importable-fonts/Doom.js'),
+  ]);
+
   figlet.parseFont('Doom', standard);
 
   figlet.text('samuhlo', { font: 'Doom' }, (err, art) => {
@@ -23,12 +29,12 @@ onMounted(async () => {
     console.log('%cProduct Architect', 'color:#888;font-family:sans-serif;font-size:11px');
     console.log('%c ', '');
     console.log(
-      '%c GitHub   %chttps://github.com/samuhlo',
+      '%c GitHub   %c' + SITE.github,
       'font-weight:bold;font-family:sans-serif',
       'color:#ffca40;font-family:sans-serif',
     );
     console.log(
-      '%c Email    %chola@samuhlo.dev',
+      '%c Email    %c' + SITE.email,
       'font-weight:bold;font-family:sans-serif',
       'color:#ffca40;font-family:sans-serif',
     );

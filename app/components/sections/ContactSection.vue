@@ -12,6 +12,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import { SITE, BREAKPOINTS, COLORS } from '~/config/site';
 
 const TEXT = 'Contact';
 
@@ -19,7 +20,7 @@ const sectionRef = ref<HTMLElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const circleDoodleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
 
-const { initPhysics, slam, destroy } = usePhysicsLetters();
+const { initPhysics, slam, pause, resume, destroy } = usePhysicsLetters();
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
 
@@ -41,6 +42,7 @@ const syncCanvasSize = (): void => {
 const handleIntersection: IntersectionObserverCallback = (entries) => {
   for (const entry of entries) {
     if (entry.isIntersecting && !triggered && canvasRef.value) {
+      // Primera vez visible → iniciar física
       triggered = true;
 
       // [NOTE] Doble rAF para asegurar que el layout CSS está completamente calculado
@@ -51,7 +53,9 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
 
           if (canvasRef.value) {
             prevCanvasWidth = canvasRef.value.width;
-            initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
+            initPhysics(canvasRef.value, TEXT, {
+              isMobile: canvasRef.value.width < BREAKPOINTS.mobile,
+            });
           }
 
           if (circleAnimation) {
@@ -59,6 +63,13 @@ const handleIntersection: IntersectionObserverCallback = (entries) => {
           }
         });
       });
+    } else if (triggered) {
+      // Ya iniciada → pause/resume según visibilidad
+      if (entry.isIntersecting) {
+        resume();
+      } else {
+        pause();
+      }
     }
   }
 };
@@ -82,7 +93,7 @@ const handleResize = (): void => {
 
     destroy();
     syncCanvasSize();
-    initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < 768 });
+    initPhysics(canvasRef.value, TEXT, { isMobile: canvasRef.value.width < BREAKPOINTS.mobile });
   }, RESIZE_DEBOUNCE_MS);
 };
 
@@ -103,12 +114,12 @@ onMounted(() => {
     }
   });
 
-  // [NOTE] Ajusta este valor (0.0 a 1.0) para decidir en qué momento cae el texto CONTACT.
-  // 0.1 = cae casi al asomar la sección. 0.9 = cae cuando casi toda la sección está visible.
+  // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
+  // threshold 0.4 → dispara la caída inicial de letras cuando el 40% es visible.
   const TRIGGER_THRESHOLD = 0.4;
 
   observer = new IntersectionObserver(handleIntersection, {
-    threshold: TRIGGER_THRESHOLD,
+    threshold: [0, TRIGGER_THRESHOLD],
   });
 
   if (sectionRef.value) {
@@ -128,7 +139,7 @@ onUnmounted(() => {
 
 const openMail = (): void => {
   slam();
-  window.location.href = 'mailto:hola@samuhlo.dev';
+  window.location.href = `mailto:${SITE.email}`;
 };
 </script>
 
@@ -141,7 +152,7 @@ const openMail = (): void => {
     <canvas
       ref="canvasRef"
       class="absolute inset-0 w-full h-full cursor-pointer"
-      style="color: var(--color-background, #f5f0e8)"
+      style="color: var(--color-background, #faf3f0)"
       @click="openMail"
     />
 
@@ -149,9 +160,9 @@ const openMail = (): void => {
     <div
       class="relative z-10 w-full py-10 px-6 md:px-12 font-bold tracking-widest md:mt-20 flex flex-col items-end gap-4 text-sm md:grid md:grid-cols-3 md:gap-0 md:text-[1.75rem] md:items-end md:h-full"
     >
-      <NuxtLink to="mailto:hola@samuhlo.dev" class="md:text-left md:col-start-1 md:row-start-1">
+      <NuxtLink :to="`mailto:${SITE.email}`" class="md:text-left md:col-start-1 md:row-start-1">
         <span class="relative inline-block w-fit">
-          hola@samuhlo.dev
+          {{ SITE.email }}
           <DoodleCircleGeneral
             ref="circleDoodleRef"
             class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0"
@@ -160,10 +171,10 @@ const openMail = (): void => {
       </NuxtLink>
 
       <RandomDoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
-        <NuxtLink to="https://github.com/samuhlo" target="_blank">github</NuxtLink>
+        <NuxtLink :to="SITE.github" target="_blank">github</NuxtLink>
       </RandomDoodleHover>
       <RandomDoodleHover class="md:col-start-3 md:row-start-1 md:justify-self-end">
-        <NuxtLink to="https://www.linkedin.com/in/samuhlo/" target="_blank">linkedin</NuxtLink>
+        <NuxtLink :to="SITE.linkedin" target="_blank">linkedin</NuxtLink>
       </RandomDoodleHover>
     </div>
   </section>

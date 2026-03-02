@@ -139,9 +139,32 @@ onMounted(async () => {
 
 ---
 
-## 5. ConsoleMessage — Debug overlay
+## 5. ConsoleMessage — Easter Egg ASCII
 
-Mensaje de consola estilizado para debugging en desarrollo.
+### Propósito
+
+Easter egg visual en la consola del navegador. Imprime el nombre "samuhlo" en **ASCII Art** con el font **Doom** (figlet), seguido de info de contacto estilizada.
+
+### Lazy loading
+
+```typescript
+onMounted(async () => {
+  // [NOTE] Lazy import → figlet + font Doom (~30KB+) solo se cargan tras el mount,
+  // fuera del bundle principal. Es un easter egg de consola, no necesita ser inmediato.
+  const [{ default: figlet }, { default: standard }] = await Promise.all([
+    import('figlet'),
+    import('figlet/importable-fonts/Doom.js'),
+  ]);
+
+  figlet.parseFont('Doom', standard);
+  figlet.text('samuhlo', { font: 'Doom' }, (err, art) => {
+    console.log(`%c${art}`, 'color:#ffca40;font-family:monospace;...');
+    // ...
+  });
+});
+```
+
+El import dinámico de `figlet` + `Doom.js` ocurre **solo en client-side tras el mount**, evitando ~30KB del bundle inicial. Es un easter egg, no crítico para la UI.
 
 ---
 

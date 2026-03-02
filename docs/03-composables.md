@@ -8,16 +8,24 @@
 
 | #   | Composable          | Propósito                          |
 | --- | ------------------- | ---------------------------------- |
-| 1   | `useGSAP`           | Contexto GSAP con auto-limpieza    |
-| 2   | `useLenis`          | Acceso a instancia global de Lenis |
-| 3   | `usePinnedScroll`   | Secciones fijas con fases          |
-| 4   | `useDoodleDraw`     | Animación stroke-dash de SVGs      |
-| 5   | `useCursorLabel`    | Label flotante con lerp + rAF      |
-| 6   | `useMagneticHover`  | Efecto imán con GSAP elastic       |
-| 7   | `useDragScroll`     | Click-and-drag horizontal          |
-| 8   | `usePhysicsLetters` | Motor Matter.js para letras        |
-| 9   | `useParallax`       | Parallax simple por velocidad      |
-| 10  | `useDoodleDraw`     | Dibujo SVG stroke-dash             |
+| 1   | `useDoodleDraw`     | Animación stroke-dash de SVGs      |
+| 2   | `useCursorLabel`    | Label flotante con lerp + rAF      |
+| 3   | `useMagneticHover`  | Efecto imán con GSAP elastic       |
+| 4   | `useDragScroll`     | Click-and-drag horizontal          |
+| 5   | `usePhysicsLetters` | Motor Matter.js para letras        |
+| 6   | `useErrorPhysics`   | Motor Matter.js para 404           |
+| 7   | `useGSAP`           | Contexto GSAP con auto-limpieza    |
+| 8   | `useLenis`          | Acceso a instancia global de Lenis |
+| 9   | `usePinnedScroll`   | Secciones fijas con fases          |
+| 10  | `useParallax`       | Parallax simple por velocidad      |
+
+### Módulos compartidos
+
+| Módulo                          | Archivo               | Propósito                                    |
+| :------------------------------ | :-------------------- | :------------------------------------------- |
+| `DoodleExposed`                 | `app/types/doodle.ts` | Tipo compartido para refs de componentes SVG |
+| `SITE`, `BREAKPOINTS`, `COLORS` | `app/config/site.ts`  | Constantes globales centralizadas            |
+| `destroyMatterEngine`           | `app/utils/matter.ts` | Cleanup reutilizable para Matter.js engines  |
 
 ---
 
@@ -72,6 +80,41 @@ const addDrawAnimation = (tl, { svg, paths, duration, stagger = 0 }) => {
 ```
 
 `'<'` = start al mismo tiempo que la animación anterior.
+
+### resetPaths — Volver al estado inicial
+
+```typescript
+const resetPaths = (svg, paths) => {
+  gsap.killTweensOf(svg);
+  paths.forEach((p) => gsap.killTweensOf(p));
+  gsap.set(svg, { opacity: 0 });
+  paths.forEach((path) => {
+    const length = path.getTotalLength() + 20;
+    gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
+  });
+};
+```
+
+Mata tweens activos y resetea el SVG a estado oculto. Usado por `ModalCloseButton`, `ModalScrollIndicators` y `RandomDoodleHover`.
+
+### erasePaths — Borrar con fadeout
+
+```typescript
+const erasePaths = (svg, paths, { duration = 0.2, ease = 'power1.in' } = {}) => {
+  gsap.killTweensOf(svg);
+  paths.forEach((p) => gsap.killTweensOf(p));
+  gsap.to(svg, {
+    opacity: 0,
+    duration,
+    ease,
+    onComplete: () => {
+      /* resetea strokeDashoffset de cada path */
+    },
+  });
+};
+```
+
+Fadeout animado + reset automático al completar. Para hover-out o cuando se necesita re-animar después.
 
 ---
 
@@ -215,21 +258,49 @@ Letras que caen con física real: gravedad, rebote, fricción, colisiones.
 | Render      | Canvas 2D            |
 | Visibilidad | IntersectionObserver |
 
-### Lazy init
+### Lazy init + pause/resume
 
 ```typescript
+// Trigger inicial al 40% visible
+// Pause/resume al entrar/salir del viewport (threshold: [0, 0.4])
 const handleIntersection = (entries) => {
-  if (entry.isIntersecting && !triggered) {
-    triggered = true;
-    initPhysics(canvas, TEXT, { isMobile });
+  for (const entry of entries) {
+    if (entry.isIntersecting && !triggered) {
+      triggered = true;
+      initPhysics(canvas, TEXT, { isMobile });
+    } else if (triggered) {
+      entry.isIntersecting ? resume() : pause();
+    }
   }
 };
 
-observer = new IntersectionObserver(handleIntersection, { threshold: 0.2 });
-observer.observe(sectionRef);
+observer = new IntersectionObserver(handleIntersection, {
+  threshold: [0, 0.4], // 0 = exit, 0.4 = trigger
+});
 ```
 
-`threshold: 0.2` → activa cuando 20% visible.
+### pause / resume
+
+```typescript
+const pause = () => {
+  if (!isRunning || paused) return;
+  paused = true;
+  if (runner) Runner.stop(runner);
+  if (rafId != null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+};
+
+const resume = () => {
+  if (!isRunning || !paused) return;
+  paused = false;
+  if (runner && engine) Runner.run(runner, engine);
+  if (drawFn) rafId = requestAnimationFrame(drawFn);
+};
+```
+
+Evita ciclos de CPU desperdiciados cuando la sección está fuera del viewport. `slam()` llama a `resume()` automáticamente si estaba pausado.
 
 ### Constantes físicas
 
@@ -253,7 +324,47 @@ const slam = () => {
 };
 ```
 
-Impulso aleatorio hacia arriba al hacer click.
+Impulso aleatorio hacia arriba al hacer click. `slam()` auto-resume si el motor estaba pausado.
+
+### destroy — Cleanup compartido
+
+```typescript
+const destroy = () => {
+  const reset = destroyMatterEngine({ engine, runner, rafId });
+  engine = reset.engine;
+  runner = reset.runner;
+  rafId = reset.rafId;
+  letterBodies = [];
+  isRunning = false;
+};
+```
+
+Usa `destroyMatterEngine` de `app/utils/matter.ts` — utilidad compartida con `useErrorPhysics`.
+
+---
+
+## 6. useErrorPhysics — Matter.js para 404
+
+### Propósito
+
+Bloque "404" que cae con física real y se asienta a mitad de pantalla. Settle detection automático para liberar CPU.
+
+### Settle detection
+
+```typescript
+const speed = textBody.speed + Math.abs(textBody.angularSpeed);
+if (speed < SETTLE_SPEED_THRESHOLD) {
+  settleCount++;
+  if (settleCount >= SETTLE_FRAMES_REQUIRED) {
+    // 60 frames = ~1s
+    if (runner) Runner.stop(runner);
+    rafId = null;
+    return; // Último frame ya pintado — CPU libre
+  }
+} else {
+  settleCount = 0;
+}
+```
 
 ---
 
@@ -262,3 +373,4 @@ Impulso aleatorio hacia arriba al hacer click.
 - [02 - Animaciones Scroll](./02-animaciones-scroll.md) — GSAP + ScrollTrigger
 - [04 - Secciones](./04-secciones.md) — Hero, Bio, Contact, Playground
 - [05 - Playground](./05-playground.md) — ProjectCard + Modal
+- [08 - Refactor Audit](./08-refactor-audit.md) — Changelog del refactor

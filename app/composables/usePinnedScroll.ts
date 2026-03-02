@@ -12,6 +12,7 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from '~/composables/useLenis';
+import { BREAKPOINTS } from '~/config/site';
 
 /** Fase individual dentro de la animación pineada */
 interface ScrollPhase {
@@ -64,7 +65,7 @@ export const usePinnedScroll = () => {
       isHero = false,
     } = options;
 
-    const isMobile = window.matchMedia('(max-width: 768px)').matches;
+    const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
 
     // [PIVOT] En móvil, descartamos el pinning y el scroll largo.
     // Queremos que las animaciones se reproduzcan solas, rápido y en secuencia
@@ -126,17 +127,31 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] En tablets/portátiles táctiles, eliminar el pin-spacer...
+        // [NOTE] En tablets/portátiles táctiles, eliminar el pin-spacer
+        // para que no queden 2000px de scroll vacío al volver arriba.
+        // Esperamos a que Lenis deje de moverse para que el salto de
+        // posición sea imperceptible. Si tarda demasiado, forzamos el kill.
         const pinSpacerHeight = self.end - self.start;
+        const MAX_ATTEMPTS = 300; // ~5s a 60fps — margen amplio para Lenis momentum
+        let attempts = 0;
+
+        const killAndCompensate = () => {
+          const targetScroll = self.scroll() - pinSpacerHeight;
+          self.kill();
+          lenis?.scrollTo(targetScroll, { immediate: true });
+          requestAnimationFrame(() => ScrollTrigger.refresh());
+        };
 
         const attemptKill = () => {
+          attempts++;
+
           if (!self.isActive && self.progress === 1) {
             const velocity = lenis?.velocity || 0;
-            if (Math.abs(velocity) < 0.1 && !(window as any).__isTouching) {
-              const targetScroll = self.scroll() - pinSpacerHeight;
-              self.kill();
-              lenis?.scrollTo(targetScroll, { immediate: true });
-              requestAnimationFrame(() => ScrollTrigger.refresh());
+            if (Math.abs(velocity) < 0.1) {
+              killAndCompensate();
+            } else if (attempts > MAX_ATTEMPTS) {
+              // Bailout: forzar kill para evitar pin-spacer huérfano
+              killAndCompensate();
             } else {
               requestAnimationFrame(attemptKill);
             }

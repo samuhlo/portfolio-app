@@ -80,5 +80,48 @@ export const useDoodleDraw = () => {
     );
   };
 
-  return { preparePaths, addDrawAnimation };
+  /**
+   * Resetea los paths de un SVG a su estado inicial (ocultos, sin dibujar).
+   * Mata cualquier tween activo en el SVG y sus paths antes de resetear.
+   */
+  const resetPaths = (svg: SVGSVGElement | null, paths: SVGPathElement[]): void => {
+    if (!svg || !paths.length) return;
+    gsap.killTweensOf(svg);
+    paths.forEach((p) => gsap.killTweensOf(p));
+    gsap.set(svg, { opacity: 0 });
+    paths.forEach((path) => {
+      const length = path.getTotalLength() + 20;
+      gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
+    });
+  };
+
+  /**
+   * Borra un doodle con fadeout y resetea los paths al completar.
+   * Útil para hover-out o cuando se necesita re-animar después.
+   */
+  const erasePaths = (
+    svg: SVGSVGElement | null,
+    paths: SVGPathElement[],
+    options: { duration?: number; ease?: string } = {},
+  ): void => {
+    if (!svg || !paths.length) return;
+    const { duration = 0.2, ease = 'power1.in' } = options;
+
+    gsap.killTweensOf(svg);
+    paths.forEach((p) => gsap.killTweensOf(p));
+
+    gsap.to(svg, {
+      opacity: 0,
+      duration,
+      ease,
+      onComplete: () => {
+        paths.forEach((path) => {
+          const length = path.getTotalLength() + 20;
+          gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
+        });
+      },
+    });
+  };
+
+  return { preparePaths, addDrawAnimation, resetPaths, erasePaths };
 };

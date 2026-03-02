@@ -8,12 +8,12 @@
  * =====================================================================
  */
 
+import { SITE } from '~/config/site';
+
 // =============================================================================
 // █ SEO: Page-level meta
 // =============================================================================
-// const reqUrl = useRequestURL();
-// const SITE_URL = reqUrl.origin; // Se adapta a localhost, vercel preview o prod
-const SITE_URL = 'https://samuhlo.dev/';
+const SITE_URL = SITE.url;
 
 const title = 'Dev & Design';
 

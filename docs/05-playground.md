@@ -193,18 +193,20 @@ onMounted(() => {
 });
 ```
 
-### Stuck animation fix
+### Stuck animation fix + resetPaths
 
 ```typescript
 function draw() {
   gsap.killTweensOf(svg); // Matar todo pendiente
-  resetPaths(); // Resetear a estado inicial
+  resetDoodlePaths(svg, preparedPaths); // Resetear paths a estado inicial
   // ... redibujar
 }
 ```
 
 Antes: flag `isAnimating` se corrompía con hover rápido.
 Solución: `gsap.killTweensOf()` es determinista.
+
+Usa `useDoodleDraw.resetPaths()` en vez de lógica inline. Ver [03 - Composables](./03-composables.md).
 
 ---
 
@@ -255,7 +257,7 @@ const canScrollLeft = scrollLeft > 10;
 const canScrollRight = scrollLeft < scrollWidth - clientWidth - 10;
 ```
 
-### Dibujo/erase
+### Dibujo/erase + cleanup
 
 ```typescript
 watch(canScrollLeft, (can) => {
@@ -263,7 +265,9 @@ watch(canScrollLeft, (can) => {
 });
 ```
 
-Usa `gsap.killTweensOf()` — mismo patrón que CloseButton.
+Usa `useDoodleDraw.resetPaths()` y `erasePaths()` para el ciclo draw/erase de las flechas. En `onUnmounted`, hace cleanup de los tweens GSAP pendientes con `resetPaths()` para evitar memory leaks.
+
+Ver [03 - Composables](./03-composables.md).
 
 ---
 

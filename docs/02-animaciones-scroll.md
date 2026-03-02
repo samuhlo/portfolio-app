@@ -176,14 +176,24 @@ Con scroll rápido (fling), si matas el trigger inmediatamente, hay conflicto en
 
 ```typescript
 onLeave: (self) => {
-  const attemptKill = () => {
-    const velocity = lenis?.velocity || 0;
-    const isTouching = (window as any).__isTouching;
+  const pinSpacerHeight = self.end - self.start;
+  const MAX_ATTEMPTS = 300; // ~5s a 60fps
 
-    if (Math.abs(velocity) < 0.1 && !isTouching) {
-      // Safe: inercia terminada + usuario no toca
-      self.kill();
-      lenis?.scrollTo(targetScroll, { immediate: true });
+  const killAndCompensate = () => {
+    const targetScroll = self.scroll() - pinSpacerHeight;
+    self.kill();
+    lenis?.scrollTo(targetScroll, { immediate: true });
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+  };
+
+  const attemptKill = () => {
+    attempts++;
+    const velocity = lenis?.velocity || 0;
+
+    if (Math.abs(velocity) < 0.1) {
+      killAndCompensate(); // Safe: inercia terminada
+    } else if (attempts > MAX_ATTEMPTS) {
+      killAndCompensate(); // Forzar: evitar pin-spacer huérfano
     } else {
       requestAnimationFrame(attemptKill); // Reintentar
     }
@@ -210,20 +220,20 @@ onLeave: (self) => {
 | Scroll atado a timeline | Auto-play en intersection |
 
 ```typescript
-const isMobile = ref(false);
+const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
+```
 
-onMounted(() => {
-  isMobile.value = window.innerWidth < 768;
-});
+La detección de móvil usa `BREAKPOINTS.mobile` desde `config/site.ts` (centralizado) en lugar de un `768` hardcoded.
 
+```typescript
 createPinnedScroll({
   trigger: element,
   start: 'top top',
   end: '+=2500',
-  phases: phases.map((p) => ({
-    ...p,
-    timeline: isMobile.value ? p.timeline.tweenTo(p.timeline.duration()) : p.timeline,
-  })),
+  phases: [
+    { timeline: titleTl, start: 0, end: 0.6 },
+    { timeline: subtitleTl, start: 0.6, end: 1 },
+  ],
 });
 ```
 
@@ -233,4 +243,5 @@ createPinnedScroll({
 
 - [01 - Arquitectura General](./01-arquitectura-general.md) — Visión global
 - [03 - Composables](./03-composables.md) — useDoodleDraw, useCursorLabel, usePhysicsLetters
-- [07 - Problemas Resueltos](./07-problemas-resueltos.md) — Las 13 lecciones
+- [07 - Problemas Resueltos](./07-problemas-resueltos.md) — Las 16 lecciones
+- [08 - Refactor Audit](./08-refactor-audit.md) — Changelog del refactor

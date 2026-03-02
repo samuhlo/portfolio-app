@@ -11,6 +11,7 @@
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
 
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths } = useDoodleDraw();
@@ -45,10 +46,6 @@ const ANIMATION_CONFIG = {
 const containerRef = ref<HTMLElement | null>(null);
 const dotRef = ref<HTMLElement | null>(null);
 
-// Ref al componente DoodleH (expone { svg: Ref<SVGSVGElement> })
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
 const doodleHRef = ref<DoodleExposed | null>(null);
 const hWrapRef = ref<HTMLElement | null>(null);
 

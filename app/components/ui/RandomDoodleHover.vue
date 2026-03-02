@@ -11,17 +11,14 @@ import type { ComponentPublicInstance } from 'vue';
 import { ref, onMounted } from 'vue';
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import type { DoodleExposed } from '~/types/doodle';
 
 // [NOTE] En dispositivos táctiles no hay hover real → no animar doodles
 const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
 
-interface DoodleExposed {
-  svg: SVGSVGElement | null;
-}
-
 const DOODLE_COUNT = 2;
 
-const { preparePaths, addDrawAnimation } = useDoodleDraw();
+const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
 
 const doodleRefs = ref<(DoodleExposed | null)[]>([]);
 
@@ -85,23 +82,22 @@ const erase = () => {
   if (!doodle?.svg || !paths?.length) return;
 
   // [NOTE] Fadeout rápido y luego resetear strokeDashoffset para re-animar
-  gsap.to(doodle.svg, {
-    opacity: 0,
-    duration: 0.2,
-    ease: 'power1.in',
-    onComplete: () => {
-      paths.forEach((path) => {
-        const length = path.getTotalLength() + 20;
-        gsap.set(path, {
-          strokeDashoffset: length,
-          visibility: 'hidden',
-        });
-      });
-      activeIndex = -1;
-      isAnimating = false;
-    },
-  });
+  erasePaths(doodle.svg, paths);
+  activeIndex = -1;
+  isAnimating = false;
 };
+
+// [FIX] Cleanup GSAP tweens al desmontar para evitar memory leaks
+onUnmounted(() => {
+  for (let i = 0; i < DOODLE_COUNT; i++) {
+    const doodle = doodleRefs.value[i];
+    const paths = allPreparedPaths.value[i];
+    if (doodle?.svg && paths?.length) {
+      gsap.killTweensOf(doodle.svg);
+      paths.forEach((p) => gsap.killTweensOf(p));
+    }
+  }
+});
 </script>
 
 <template>
