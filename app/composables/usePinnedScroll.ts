@@ -116,11 +116,8 @@ export const usePinnedScroll = () => {
           const raw = (progress - phase.start) / (phase.end - phase.start);
           const phaseProgress = Math.max(0, Math.min(raw, 1));
 
-          gsap.to(phase.timeline, {
+          gsap.set(phase.timeline, {
             progress: phaseProgress,
-            duration: tweenDuration,
-            ease: tweenEase,
-            overwrite: 'auto',
           });
 
           if (phaseProgress >= 1) completed[i] = true;
@@ -145,7 +142,7 @@ export const usePinnedScroll = () => {
         const attemptKill = () => {
           attempts++;
 
-          if (!self.isActive && self.progress === 1) {
+          if (!self.isActive && self.progress >= 0.95) {
             const velocity = lenis?.velocity || 0;
             if (Math.abs(velocity) < 0.1) {
               killAndCompensate();
