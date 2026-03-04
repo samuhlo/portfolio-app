@@ -73,13 +73,23 @@ function selectCategory(category: BlogCategory | 'all') {
       <button
         @click="selectCategory(cat.id)"
         class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300 cursor-pointer"
-        :class="[selectedCategory === cat.id ? 'opacity-100' : 'opacity-40 hover:opacity-70']"
+        :class="[
+          selectedCategory === cat.id ? 'opacity-100 font-bold' : 'opacity-40 hover:opacity-70',
+        ]"
       >
-        <CategoryCircle :is-active="selectedCategory === cat.id">
+        <CategoryCircle
+          v-if="cat.id !== 'all'"
+          :is-active="selectedCategory === cat.id"
+          :color="getCategoryColor(cat.id)"
+        >
           <span class="text-sm md:text-base font-sans tracking-wide">
             {{ cat.label }}
           </span>
         </CategoryCircle>
+
+        <span v-else class="text-sm md:text-base font-sans tracking-wide">
+          {{ cat.label }}
+        </span>
         <span class="text-xs tracking-[0.15em] opacity-50 font-mono">
           {{ cat.count }}
         </span>

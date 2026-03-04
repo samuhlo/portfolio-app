@@ -15,6 +15,7 @@ import DoodleCircleGeneral from '~/components/ui/doodles/general/DoodleCircleGen
 
 const props = defineProps<{
   isActive: boolean;
+  color: string;
 }>();
 
 const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
@@ -72,7 +73,12 @@ watch(
       :class="isActive ? 'opacity-100' : 'opacity-0'"
       style="width: 140px; height: 36px; margin-left: -12px"
     >
-      <DoodleCircleGeneral ref="circleRef" class="w-full h-full" />
+      <DoodleCircleGeneral
+        ref="circleRef"
+        class="w-full h-full"
+        :stroke-color="color"
+        :stroke-width="2"
+      />
     </div>
 
     <!-- Content -->
