@@ -71,7 +71,7 @@ function selectCategory(category: BlogCategory | 'all') {
       v-for="cat in categories"
       :key="cat.id"
       @click="selectCategory(cat.id)"
-      class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300"
+      class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300 cursor-pointer"
       :class="[selectedCategory === cat.id ? 'opacity-100' : 'opacity-40 hover:opacity-70']"
     >
       <span

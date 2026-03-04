@@ -51,6 +51,22 @@ const postRefs = ref<Record<string, HTMLElement | null>>({});
 const arrowRefs = ref<Record<string, { svg: SVGSVGElement | null } | null>>({});
 const arrowPaths = ref<Record<string, SVGPathElement[]>>({});
 
+// Se ejecuta cada vez que el componente del doodle se monta o actualiza en la lista
+const setArrowRef = (slug: string) => (el: any) => {
+  if (el) {
+    arrowRefs.value[slug] = el;
+    // Si todavía no tenemos los paths preparados o el componente cambió, lo preparamos.
+    // getBoundingClientRect no cuesta nada y aseguras que ya está en el DOM.
+    if (!arrowPaths.value[slug] && el.svg) {
+      arrowPaths.value[slug] = preparePaths(el.svg);
+    }
+  } else {
+    // Limpieza si el componente se desmonta (al cambiar de categoría)
+    delete arrowRefs.value[slug];
+    delete arrowPaths.value[slug];
+  }
+};
+
 function onMouseEnter(slug: string) {
   const postEl = postRefs.value[slug];
   if (postEl) {
@@ -76,8 +92,9 @@ function onMouseEnter(slug: string) {
     addDrawAnimation(tl, {
       svg: arrowComponent.svg,
       paths: arrowPaths.value[slug],
-      duration: 0.6,
-      ease: 'power2.out',
+      duration: 0.17,
+      stagger: 0.2, // El retraso perfecto para que termine la línea y haga la punta (o que se solapen un poquito, queda guay)
+      ease: 'power1.inOut',
     });
   }
 }
@@ -112,13 +129,9 @@ function onMouseLeave(slug: string) {
       <article
         v-for="(post, index) in filteredPosts"
         :key="post.slug"
-        class="post-item group relative py-6 md:py-8"
+        class="post-item group relative py-6 md:py-8 cursor-pointer"
       >
         <!-- Timeline dot -->
-        <div
-          class="absolute left-0 top-8 w-1.5 h-1.5 rounded-full transition-colors duration-300"
-          :style="{ backgroundColor: getCategoryColor(post.category) }"
-        />
 
         <NuxtLink
           :to="`/blog/${post.slug}`"
@@ -161,13 +174,7 @@ function onMouseLeave(slug: string) {
             <!-- Arrow Doodle -->
             <div class="mt-3 h-5 overflow-visible">
               <div class="w-14">
-                <DoodleArrowRightGeneral
-                  :ref="
-                    (el) => {
-                      if (el) arrowRefs[post.slug] = el as any;
-                    }
-                  "
-                />
+                <DoodleArrowRightGeneral :ref="setArrowRef(post.slug)" />
               </div>
             </div>
           </div>
