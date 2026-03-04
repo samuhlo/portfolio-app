@@ -13,6 +13,17 @@ import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import type { DoodleExposed } from '~/types/doodle';
 
+withDefaults(
+  defineProps<{
+    strokeWidth?: number;
+    strokeColor?: string;
+  }>(),
+  {
+    strokeWidth: 4,
+    strokeColor: '#ffca40',
+  },
+);
+
 // [NOTE] En dispositivos táctiles no hay hover real → no animar doodles
 const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
 
@@ -113,10 +124,14 @@ onUnmounted(() => {
       style="transform: translateY(40%)"
     >
       <DoodleUnderlineGeneral
+        :stroke-width="strokeWidth"
+        :stroke-color="strokeColor"
         :ref="setDoodleRef(0)"
         class="absolute left-0 top-0 w-full opacity-0"
       />
       <DoodleUnderlineGeneral2
+        :stroke-width="strokeWidth"
+        :stroke-color="strokeColor"
         :ref="setDoodleRef(1)"
         class="absolute left-0 top-0 w-full opacity-0"
       />
