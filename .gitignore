@@ -19,7 +19,7 @@ node_modules
 eslint.config.mjs
 
 # Logs
-logs
+#logs
 *.log
 
 # Misc

@@ -20,6 +20,7 @@ defineExpose({ svg: svgRef });
         stroke-width="4"
         stroke-linecap="round"
         stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
       />
     </g>
   </svg>
