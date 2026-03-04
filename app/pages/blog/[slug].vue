@@ -21,7 +21,8 @@ import { useGSAP } from '~/composables/useGSAP';
 import BlogPostLayout from '~/components/blog/BlogPostLayout.vue';
 import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
-import RandomDoodleHover from '~/components/ui/RandomDoodleHover.vue';
+import DoodleArrowRightGeneral from '~/components/ui/doodles/general/DoodleArrowRightGeneral.vue';
+import DoodleArrowLeftGeneral from '~/components/ui/doodles/general/DoodleArrowLeftGeneral.vue';
 
 const route = useRoute();
 const { gsap, initGSAP } = useGSAP();
@@ -139,29 +140,48 @@ onMounted(() => {
         <nav class="mt-16 pt-8 border-t border-foreground/10">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <!-- Next Post (newer) -->
-            <div v-if="nextPost">
-              <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30">← Next</span>
-              <NuxtLink :to="`/blog/${nextPost.slug}`" class="block mt-2 group">
-                <RandomDoodleHover>
-                  <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
-                    {{ nextPost.title }}
-                  </h3>
-                </RandomDoodleHover>
-              </NuxtLink>
+            <div v-if="nextPost" @mouseenter="onNextHover" @mouseleave="onNextLeave">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-10 flex-shrink-0 arrow-doodle opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <DoodleArrowLeftGeneral :ref="nextArrowRef" />
+                </div>
+                <div>
+                  <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30">Next</span>
+                  <NuxtLink :to="`/blog/${nextPost.slug}`" class="block mt-1 group">
+                    <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
+                      {{ nextPost.title }}
+                    </h3>
+                  </NuxtLink>
+                </div>
+              </div>
             </div>
 
             <!-- Prev Post (older) -->
-            <div v-if="prevPost" class="md:text-right md:ml-auto">
-              <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30"
-                >Previous →</span
-              >
-              <NuxtLink :to="`/blog/${prevPost.slug}`" class="block mt-2 group">
-                <RandomDoodleHover>
-                  <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
-                    {{ prevPost.title }}
-                  </h3>
-                </RandomDoodleHover>
-              </NuxtLink>
+            <div
+              v-if="prevPost"
+              class="md:text-right md:ml-auto"
+              @mouseenter="onPrevHover"
+              @mouseleave="onPrevLeave"
+            >
+              <div class="flex items-center gap-3 md:flex-row-reverse">
+                <div
+                  class="w-10 flex-shrink-0 arrow-doodle opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  <DoodleArrowRightGeneral :ref="prevArrowRef" />
+                </div>
+                <div>
+                  <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30"
+                    >Previous</span
+                  >
+                  <NuxtLink :to="`/blog/${prevPost.slug}`" class="block mt-1 group">
+                    <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
+                      {{ prevPost.title }}
+                    </h3>
+                  </NuxtLink>
+                </div>
+              </div>
             </div>
           </div>
         </nav>

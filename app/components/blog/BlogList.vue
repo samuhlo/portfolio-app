@@ -174,7 +174,10 @@ function onMouseLeave(slug: string) {
             <!-- Arrow Doodle -->
             <div class="mt-3 h-5 overflow-visible">
               <div class="w-14">
-                <DoodleArrowRightGeneral :ref="setArrowRef(post.slug)" />
+                <DoodleArrowRightGeneral
+                  :ref="setArrowRef(post.slug)"
+                  :stroke-color="getCategoryColor(post.category)"
+                />
               </div>
             </div>
           </div>
@@ -218,9 +221,5 @@ function onMouseLeave(slug: string) {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.arrow-doodle {
-  color: var(--color-accent, #ffca40);
 }
 </style>

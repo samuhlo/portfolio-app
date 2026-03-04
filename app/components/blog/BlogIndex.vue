@@ -4,6 +4,7 @@
  * =====================================================================
  * DESC:   Lista de categorías del blog con contador de posts.
  *         Permite filtrar los posts por categoría.
+ *         CategoryCircle rodea la categoría activa.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -11,6 +12,7 @@
 import { computed } from 'vue';
 import { BLOG_POSTS } from '~/data/blog-posts';
 import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory } from '~/types/blog';
+import CategoryCircle from './CategoryCircle.vue';
 
 const props = defineProps<{
   selectedCategory: BlogCategory | 'all';
@@ -37,7 +39,7 @@ const categoryCounts = computed(() => {
 });
 
 const categories = computed(() => [
-  { id: 'all' as const, label: 'All', count: categoryCounts.value.all },
+  { id: 'all' as const, label: 'All Posts', count: categoryCounts.value.all },
   {
     id: 'weekly-update' as const,
     label: CATEGORY_LABELS['weekly-update'],
@@ -67,22 +69,21 @@ function selectCategory(category: BlogCategory | 'all') {
 
 <template>
   <nav class="blog-index flex flex-col gap-1">
-    <button
-      v-for="cat in categories"
-      :key="cat.id"
-      @click="selectCategory(cat.id)"
-      class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300 cursor-pointer"
-      :class="[selectedCategory === cat.id ? 'opacity-100' : 'opacity-40 hover:opacity-70']"
-    >
-      <span
-        class="text-sm md:text-base font-sans tracking-wide"
-        :style="{ color: selectedCategory === cat.id ? getCategoryColor(cat.id) : undefined }"
+    <div v-for="cat in categories" :key="cat.id" class="category-wrapper">
+      <button
+        @click="selectCategory(cat.id)"
+        class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300 cursor-pointer"
+        :class="[selectedCategory === cat.id ? 'opacity-100' : 'opacity-40 hover:opacity-70']"
       >
-        {{ cat.label }}
-      </span>
-      <span class="text-xs tracking-[0.15em] opacity-50 font-mono">
-        {{ cat.count }}
-      </span>
-    </button>
+        <CategoryCircle :is-active="selectedCategory === cat.id">
+          <span class="text-sm md:text-base font-sans tracking-wide">
+            {{ cat.label }}
+          </span>
+        </CategoryCircle>
+        <span class="text-xs tracking-[0.15em] opacity-50 font-mono">
+          {{ cat.count }}
+        </span>
+      </button>
+    </div>
   </nav>
 </template>
