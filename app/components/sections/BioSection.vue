@@ -64,12 +64,24 @@ onMounted(() => {
       },
     });
 
-    // ── DOODLES: Timeline pausado para el pinned scroll ──
-    const doodleTl = gsap.timeline({ paused: true });
+    // ── DOODLES ──────────────────────────────────────────────────────────────
+    //
+    // Separamos en dos grupos:
+    //
+    //  · Grupo A — "early doodles": se dibujan con un ScrollTrigger propio
+    //    en cuanto la sección entra en pantalla (~top 85%), al mismo tiempo
+    //    que el texto aparece. El usuario los ve mientras lee.
+    //
+    //  · Grupo B — "pin doodles": el resto, controlados por el pinned scroll.
+    //    Cuando el pin empieza (top top), los doodles del grupo A ya están
+    //    dibujados, así que el pin solo necesita animar los que quedan.
+    //
+    // De este modo nunca hay un estado de "texto visible sin doodles".
 
-    // [NOTE] Config data-driven: cada entrada mapea un ref a sus parámetros de animación.
-    // Evita 7 bloques if/addDrawAnimation repetitivos.
-    const doodleConfigs: {
+    // ── GRUPO A: early doodles (con el texto) ──
+    const earlyTl = gsap.timeline({ paused: true });
+
+    const earlyConfigs: {
       ref: typeof quotesOpenRef;
       duration: number;
       stagger?: number;
@@ -78,13 +90,43 @@ onMounted(() => {
       { ref: quotesOpenRef, duration: 0.5 },
       { ref: crossFunRef, duration: 0.4, position: '+=0.1' },
       { ref: funRef, duration: 0.5, stagger: 0.1, position: '-=0.1' },
-      { ref: waveRef, duration: 0.6, position: '+=0.1' },
+    ];
+
+    for (const cfg of earlyConfigs) {
+      if (!cfg.ref.value?.svg) continue;
+      addDrawAnimation(earlyTl, {
+        svg: cfg.ref.value.svg,
+        paths: getPaths(cfg.ref),
+        duration: cfg.duration,
+        ...(cfg.stagger != null && { stagger: cfg.stagger }),
+        ...(cfg.position != null && { position: cfg.position }),
+      });
+    }
+
+    // Se dispara con el texto, una sola vez
+    ScrollTrigger.create({
+      trigger: textContainerRef.value,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => earlyTl.play(),
+    });
+
+    // ── GRUPO B: pin doodles (wave, heart, circle, quotesClose) ──
+    const doodleTl = gsap.timeline({ paused: true });
+
+    const pinConfigs: {
+      ref: typeof quotesOpenRef;
+      duration: number;
+      stagger?: number;
+      position?: string;
+    }[] = [
+      { ref: waveRef, duration: 0.6 },
       { ref: heartRef, duration: 0.5, stagger: 0.1, position: '+=0.1' },
       { ref: circleRef, duration: 0.6, position: '+=0.1' },
       { ref: quotesCloseRef, duration: 0.5, position: '+=0.1' },
     ];
 
-    for (const cfg of doodleConfigs) {
+    for (const cfg of pinConfigs) {
       if (!cfg.ref.value?.svg) continue;
       addDrawAnimation(doodleTl, {
         svg: cfg.ref.value.svg,
@@ -95,7 +137,7 @@ onMounted(() => {
       });
     }
 
-    // ── PINNED SCROLL: Solo doodles ──
+    // ── PINNED SCROLL: solo grupo B ──
     if (!sectionRef.value) return;
 
     createPinnedScroll({
@@ -111,7 +153,6 @@ onMounted(() => {
       let doodlesComplete = false;
       const heartbeatTl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, paused: true });
 
-      // [NOTE] Doble pulso (bum-bum) como un corazón real
       gsap.set(heartSvg, { transformOrigin: 'center center' });
       heartbeatTl
         .to(heartSvg, { scale: 1.25, duration: 0.12, ease: 'power2.out' })
@@ -119,13 +160,11 @@ onMounted(() => {
         .to(heartSvg, { scale: 1.15, duration: 0.1, ease: 'power2.out' }, '+=0.08')
         .to(heartSvg, { scale: 1, duration: 0.2, ease: 'power2.in' });
 
-      // Primera vez: arranca cuando TODOS los doodles terminan de dibujarse
       doodleTl.eventCallback('onComplete', () => {
         doodlesComplete = true;
         setTimeout(() => heartbeatTl.play(0), HEARTBEAT_DELAY_MS);
       });
 
-      // Posteriores: re-arranca al volver a entrar en viewport
       ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top 80%',
@@ -162,7 +201,7 @@ onMounted(() => {
             :style="LAYOUT.quotesOpen"
           />
         </span>
-        Hi, I’m Samuel. I work as a <b>Product Architect</b>, which is just a
+        Hi, I'm Samuel. I work as a <b>Product Architect</b>, which is just a
         <span class="relative inline-block">
           formal
           <DoodleCrossFunBio
