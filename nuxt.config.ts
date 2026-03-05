@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   ssr: true,
   future: { compatibilityVersion: 4 },
   srcDir: 'app/',
-  serverDir: 'server/',
+  // serverDir configurado por defecto en raíz
   css: ['~/assets/styles/main.css'],
   vite: {
     plugins: [tailwindcss() as any],
