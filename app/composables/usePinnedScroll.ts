@@ -124,38 +124,31 @@ export const usePinnedScroll = () => {
         });
       },
       onLeave: (self) => {
-        // [NOTE] En tablets/portátiles táctiles, eliminar el pin-spacer
-        // para que no queden 2000px de scroll vacío al volver arriba.
-        // Esperamos a que Lenis deje de moverse para que el salto de
-        // posición sea imperceptible. Si tarda demasiado, forzamos el kill.
         const pinSpacerHeight = self.end - self.start;
-        const MAX_ATTEMPTS = 300; // ~5s a 60fps — margen amplio para Lenis momentum
-        let attempts = 0;
 
-        const killAndCompensate = () => {
-          const targetScroll = self.scroll() - pinSpacerHeight;
-          self.kill();
-          lenis?.scrollTo(targetScroll, { immediate: true });
-          requestAnimationFrame(() => ScrollTrigger.refresh());
-        };
+        ScrollTrigger.create({
+          trigger: document.body,
+          start: 'top top',
+          end: 'bottom 20%',
+          onUpdate: (st) => {
+            if (st.progress > 0.8) {
+              lenis?.stop();
 
-        const attemptKill = () => {
-          attempts++;
+              const targetScroll = window.scrollY - pinSpacerHeight;
 
-          if (!self.isActive && self.progress >= 0.95) {
-            const velocity = lenis?.velocity || 0;
-            if (Math.abs(velocity) < 0.1) {
-              killAndCompensate();
-            } else if (attempts > MAX_ATTEMPTS) {
-              // Bailout: forzar kill para evitar pin-spacer huérfano
-              killAndCompensate();
-            } else {
-              requestAnimationFrame(attemptKill);
+              self.kill();
+
+              window.scrollTo(0, targetScroll);
+
+              ScrollTrigger.refresh();
+
+              lenis?.scrollTo(targetScroll, { immediate: true });
+              lenis?.start();
+
+              st.kill();
             }
-          }
-        };
-
-        requestAnimationFrame(attemptKill);
+          },
+        });
       },
     });
   };
