@@ -24,6 +24,8 @@
 | 14  | Física de ContactSection consume CPU offscreen               | `IntersectionObserver` con `pause()`/`resume()` + settle detection             |
 | 15  | Pin-spacer huérfano tras bailout de delayed kill             | `MAX_ATTEMPTS = 300` + `killAndCompensate()` forzado en bailout                |
 | 16  | Build fail: esbuild EPIPE por xattr macOS                    | Reinstalar esbuild (`bun pm rm esbuild && bun pm add esbuild`)                 |
+| 17  | Micro-salto visible al terminar pin en desktop               | Deferred Kill: matar cuando scroll > triggerEnd + 1 viewport                   |
+| 18  | Bio: texto sin doodles mientras se hace scroll               | Split doodles: early (con texto) + pin (resto)                                 |
 
 ---
 
@@ -609,6 +611,112 @@ bun pm rm esbuild && bun pm add esbuild
 ```
 
 Esto limpia el binario cacheado y descarga una versión limpia.
+
+---
+
+## 17. Micro-salto visible al terminar pin en desktop
+
+### El problema
+
+El kill del pin-spacer se hacía en `onLeave` cuando la sección acababa de salir del viewport. El problema era doble:
+
+1. **La sección estaba "caliente"**: Salía justo por arriba, el usuario todavía podía percibir el cambio
+2. **La compensación deshacía animaciones**: Al recalcular ScrollTrigger, las animaciones volvían a su estado inicial
+
+### Por qué pasaba
+
+```
+onLeave → kill inmediato → ScrollTrigger.refresh() → POSICIÓN CAMBIA
+                                                              ↓
+                                              El usuario ve el "salto" porque
+                                              la sección todavía está cerca
+```
+
+### La solución: Deferred Kill (v4)
+
+**Principio**: No matar inmediatamente. Programar el kill para cuando el usuario haya scrolleado al menos un viewport más allá del final del pin.
+
+```typescript
+// El kill se dispara cuando el scroll supera triggerEnd + 1 viewport
+const safeKillPoint = self.end + window.innerHeight;
+
+const killTrigger = ScrollTrigger.create({
+  trigger: document.body,
+  start: () => `top+=${safeKillPoint}px top`,
+  once: true,
+  onEnter: () => {
+    // En este punto la sección está al menos 100vh por encima
+    // → completamente invisible → el reposicionado no se nota
+
+    const targetScroll = window.scrollY - pinSpacerHeight;
+
+    self.kill();
+    window.scrollTo(0, targetScroll); // Síncrono
+    ScrollTrigger.refresh(); // Recalcular layout
+    lenis?.scrollTo(targetScroll, { immediate: true }); // Sync
+  },
+});
+```
+
+### Por qué funciona
+
+1. Cuando `onLeave` se dispara, NO hacemos nada
+2. El usuario sigue scrollando...
+3. Cuando llega a `triggerEnd + 1 viewport`, la sección está ~100vh por encima del viewport 4.完全 invisible para el usuario
+4. El kill + reposicionado ocurre → el usuario no lo ve
+
+---
+
+## 18. Bio: texto sin doodles mientras se hace scroll
+
+### El problema
+
+Todos los doodles se animaban con el pinned scroll. Mientras el usuario leía el texto de la Bio, no había doodles visibles — se veían después, durante el pin.
+
+### Por qué pasaba
+
+Los doodles dependían 100% del pinned scroll. El usuario veía:
+
+1. Texto aparece
+   2.Hace scroll...
+2. Recién ahí aparecían los doodles
+
+### La solución: Split Doodles
+
+Dividir los doodles en dos grupos:
+
+| Grupo     | Doodles                          | Cuándo se animan         |
+| --------- | -------------------------------- | ------------------------ |
+| A (early) | quotesOpen, crossFun, fun        | Con el texto (`top 85%`) |
+| B (pin)   | wave, heart, circle, quotesClose | Con el pinned scroll     |
+
+```typescript
+// ── GRUPO A: early doodles (con el texto) ──
+const earlyTl = gsap.timeline({ paused: true });
+// ... configs para quotesOpen, crossFun, fun
+
+ScrollTrigger.create({
+  trigger: textContainerRef.value,
+  start: 'top 85%',
+  once: true,
+  onEnter: () => earlyTl.play(),
+});
+
+// ── GRUPO B: pin doodles ──
+const doodleTl = gsap.timeline({ paused: true });
+// ... configs para wave, heart, circle, quotesClose
+
+createPinnedScroll({
+  trigger: sectionRef.value,
+  phases: [{ timeline: doodleTl, start: 0, end: 1 }],
+});
+```
+
+### Resultado
+
+- El usuario ve los doodles "early" mientras lee
+- Los doodles "pin" aparecen durante el scroll
+- Nunca hay un estado de "texto sin doodles"
 
 ---
 

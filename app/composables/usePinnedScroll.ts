@@ -3,10 +3,23 @@
  * =====================================================================
  * DESC:   Crea una animación pineada vinculada al scroll con fases
  *         secuenciales de timeline. Cada fase solo avanza, nunca retrocede.
- *         Al salir del viewport, mata el trigger y compensa el scroll
- *         con Lenis — el tilt es invisible porque la sección ya no está
- *         en pantalla.
- * STATUS: STABLE
+ *
+ * ESTRATEGIA ANTI-SALTO (v4)
+ * ──────────────────────────
+ * El problema de las versiones anteriores: onLeave se dispara cuando la
+ * sección acaba de salir del viewport — demasiado cerca. El kill+reposicionado
+ * ocurría con la sección todavía "caliente" y causaba un micro-golpe visible.
+ *
+ * Solución: diferir el kill hasta que el usuario haya scrollado al menos
+ * un viewport entero MÁS ALLÁ del bloque pineado. En ese punto la sección
+ * está garantizadamente fuera de pantalla y el reposicionado es invisible.
+ *
+ * Flujo:
+ *   1. mainTrigger controla la animación pineada normalmente.
+ *   2. Un "deferred kill trigger" se activa solo cuando
+ *      scroll > triggerEnd + window.innerHeight.
+ *   3. En ese punto: kill → window.scrollTo síncrono → refresh → lenis sync.
+ *   4. Post-kill la sección es HTML estático, sin warps ni lógica extra.
  * =====================================================================
  */
 import gsap from 'gsap';
@@ -14,150 +27,110 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useLenis } from '~/composables/useLenis';
 import { BREAKPOINTS } from '~/config/site';
 
-/** Fase individual dentro de la animación pineada */
 interface ScrollPhase {
-  /** Timeline GSAP pausado que controla esta fase */
   timeline: gsap.core.Timeline;
-  /** Punto de inicio (0–1) dentro del progreso total del scroll */
   start: number;
-  /** Punto de fin (0–1) dentro del progreso total del scroll */
   end: number;
 }
 
 interface PinnedScrollOptions {
-  /** Elemento que actúa de trigger y se pinea */
   trigger: HTMLElement;
-  /** Punto de inicio del ScrollTrigger (default: 'top top') */
   start?: string;
-  /** Distancia total de scroll en px que dura la animación (default: '+=2000') */
   end?: string;
-  /** Fases secuenciales de la animación, cada una con su rango de progreso */
   phases: ScrollPhase[];
-  /** Duración del tween que suaviza el progreso del timeline (default: 0.5) */
-  tweenDuration?: number;
-  /** Easing del tween de suavizado (default: 'power3.out') */
-  tweenEase?: string;
-  /** Flag para identificar si es la primera sección (Hero) para lógicas móviles */
   isHero?: boolean;
 }
 
-/**
- * ◼️ USE PINNED SCROLL
- * ---------------------------------------------------------
- * Crea un ScrollTrigger con pin que controla N timelines pausados
- * mediante fases de progreso. Cada fase solo avanza, nunca retrocede.
- * Al salir del viewport (onLeave), mata el trigger y compensa scroll
- * con Lenis — el tilt es invisible porque la sección ya no está en pantalla.
- *
- * Patrón extraído de HeroSection y BioSection.
- */
 export const usePinnedScroll = () => {
   const lenis = useLenis();
 
   const createPinnedScroll = (options: PinnedScrollOptions): ScrollTrigger | undefined => {
-    const {
-      trigger,
-      start = 'top top',
-      end = '+=2000',
-      phases,
-      tweenDuration = 0.5,
-      tweenEase = 'power3.out',
-      isHero = false,
-    } = options;
+    const { trigger, start = 'top top', end = '+=2000', phases, isHero = false } = options;
 
     const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
 
-    // [PIVOT] En móvil, descartamos el pinning y el scroll largo.
-    // Queremos que las animaciones se reproduzcan solas, rápido y en secuencia
-    // al hacer el primer scroll.
+    // ── MOBILE ──────────────────────────────────────────────────────────────
     if (isMobile) {
       const masterTl = gsap.timeline({ paused: true });
-
-      // Encadenar las fases secuencialmente
-      phases.forEach((phase) => {
-        masterTl.add(phase.timeline.play(), '>');
-      });
-
-      // Acelerar la animación global en móvil para que no se quede atrás del scroll
+      phases.forEach((phase) => masterTl.add(phase.timeline.play(), '>'));
       masterTl.timeScale(1.8);
 
-      // Si es el Hero (isHero === true), queremos que se reproduzca solo tras un delay
       if (isHero) {
-        setTimeout(() => {
-          masterTl.play();
-        }, 1200);
+        setTimeout(() => masterTl.play(), 1200);
       } else {
-        // BioSection u otras secciones que están más abajo -> Intersection
         return ScrollTrigger.create({
           trigger,
-          start: 'top 60%', // Disparar cuando entra un poco en pantalla
+          start: 'top 60%',
           onEnter: () => masterTl.play(),
-          once: true, // Reproducir solo una vez
+          once: true,
         });
       }
       return;
     }
 
-    // ── DESKTOP: Comportamiento original pineado ──
-    // Flag por fase para que el progreso solo avance, nunca retroceda
+    // ── DESKTOP ──────────────────────────────────────────────────────────────
     const completed = phases.map(() => false);
+    let killScheduled = false;
 
-    return ScrollTrigger.create({
+    const mainTrigger = ScrollTrigger.create({
       trigger,
       start,
       end,
       pin: true,
+
       onUpdate: (self) => {
         const progress = self.progress;
 
         phases.forEach((phase, i) => {
           if (completed[i]) return;
-
           const raw = (progress - phase.start) / (phase.end - phase.start);
           const phaseProgress = Math.max(0, Math.min(raw, 1));
-
-          gsap.set(phase.timeline, {
-            progress: phaseProgress,
-          });
-
+          gsap.set(phase.timeline, { progress: phaseProgress });
           if (phaseProgress >= 1) completed[i] = true;
         });
       },
+
       onLeave: (self) => {
-        // [NOTE] En tablets/portátiles táctiles, eliminar el pin-spacer
-        // para que no queden 2000px de scroll vacío al volver arriba.
-        // Esperamos a que Lenis deje de moverse para que el salto de
-        // posición sea imperceptible. Si tarda demasiado, forzamos el kill.
+        // Animación completada, el usuario acaba de salir por abajo.
+        // NO matamos aquí — la sección aún está demasiado cerca del viewport.
+        // Programamos el kill diferido para cuando esté seguro fuera de pantalla.
+        if (killScheduled) return;
+        killScheduled = true;
+
         const pinSpacerHeight = self.end - self.start;
-        const MAX_ATTEMPTS = 300; // ~5s a 60fps — margen amplio para Lenis momentum
-        let attempts = 0;
 
-        const killAndCompensate = () => {
-          const targetScroll = self.scroll() - pinSpacerHeight;
-          self.kill();
-          lenis?.scrollTo(targetScroll, { immediate: true });
-          requestAnimationFrame(() => ScrollTrigger.refresh());
-        };
+        // El kill se dispara cuando el scroll supera triggerEnd + 1 viewport.
+        // En ese punto la sección está al menos 100vh por encima del viewport
+        // → completamente invisible → el reposicionado no se nota.
+        const safeKillPoint = self.end + window.innerHeight;
 
-        const attemptKill = () => {
-          attempts++;
+        const killTrigger = ScrollTrigger.create({
+          trigger: document.body,
+          start: () => `top+=${safeKillPoint}px top`,
+          once: true,
+          onEnter: () => {
+            const scrollNow = window.scrollY;
+            const targetScroll = scrollNow - pinSpacerHeight;
 
-          if (!self.isActive && self.progress >= 0.95) {
-            const velocity = lenis?.velocity || 0;
-            if (Math.abs(velocity) < 0.1) {
-              killAndCompensate();
-            } else if (attempts > MAX_ATTEMPTS) {
-              // Bailout: forzar kill para evitar pin-spacer huérfano
-              killAndCompensate();
-            } else {
-              requestAnimationFrame(attemptKill);
-            }
-          }
-        };
+            // Kill del trigger principal — pin-spacer desaparece del DOM
+            self.kill();
 
-        requestAnimationFrame(attemptKill);
+            // Reposicionar de forma síncrona en el mismo frame
+            window.scrollTo(0, targetScroll);
+
+            // Recalcular con DOM ya estable
+            ScrollTrigger.refresh();
+
+            // Sincronizar estado interno de Lenis sin animar
+            lenis?.scrollTo(targetScroll, { immediate: true });
+
+            killTrigger.kill();
+          },
+        });
       },
     });
+
+    return mainTrigger;
   };
 
   return { createPinnedScroll };

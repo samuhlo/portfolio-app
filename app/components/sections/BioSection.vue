@@ -14,6 +14,7 @@ import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import { usePinnedScroll } from '~/composables/usePinnedScroll';
 import { SplitText } from 'gsap/SplitText';
+import { BREAKPOINTS } from '~/config/site';
 import type { DoodleExposed } from '~/types/doodle';
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
@@ -21,7 +22,7 @@ const { preparePaths, addDrawAnimation } = useDoodleDraw();
 const { createPinnedScroll } = usePinnedScroll();
 
 const sectionRef = ref<HTMLElement | null>(null);
-
+const textContainerRef = ref<HTMLElement | null>(null);
 const quotesOpenRef = ref<DoodleExposed | null>(null);
 const crossFunRef = ref<DoodleExposed | null>(null);
 const funRef = ref<DoodleExposed | null>(null);
@@ -40,14 +41,22 @@ const LAYOUT = {
   quotesClose: { bottom: '-0.2em', left: '110%', width: '2em', transform: 'rotate(10deg)' },
 };
 
+// Orden canónico de todos los doodles — se usa tanto en móvil como en desktop
+type DoodleConfig = {
+  ref: typeof quotesOpenRef;
+  duration: number;
+  stagger?: number;
+  position?: string;
+};
+
 const HEARTBEAT_DELAY_MS = 600;
-const textContainerRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
   initGSAP(() => {
-    const getPaths = (refItem: typeof quotesOpenRef) => preparePaths(refItem.value?.svg ?? null);
+    const getPaths = (r: typeof quotesOpenRef) => preparePaths(r.value?.svg ?? null);
+    const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
 
-    // ── TEXTO: Se anima al entrar la sección en el viewport (antes del pin) ──
+    // ── TEXTO ────────────────────────────────────────────────────────────────
     const paragraphs = textContainerRef.value?.querySelectorAll('p') as NodeListOf<HTMLElement>;
     const split = new SplitText(paragraphs, { type: 'lines' });
 
@@ -64,17 +73,12 @@ onMounted(() => {
       },
     });
 
-    // ── DOODLES: Timeline pausado para el pinned scroll ──
-    const doodleTl = gsap.timeline({ paused: true });
+    // ── CONFIGS DE DOODLES ───────────────────────────────────────────────────
+    //
+    // En móvil: todos en un único timeline secuencial (sin división).
+    // En desktop: grupo A con el texto, grupo B con el pin.
 
-    // [NOTE] Config data-driven: cada entrada mapea un ref a sus parámetros de animación.
-    // Evita 7 bloques if/addDrawAnimation repetitivos.
-    const doodleConfigs: {
-      ref: typeof quotesOpenRef;
-      duration: number;
-      stagger?: number;
-      position?: string;
-    }[] = [
+    const allConfigs: DoodleConfig[] = [
       { ref: quotesOpenRef, duration: 0.5 },
       { ref: crossFunRef, duration: 0.4, position: '+=0.1' },
       { ref: funRef, duration: 0.5, stagger: 0.1, position: '-=0.1' },
@@ -84,34 +88,73 @@ onMounted(() => {
       { ref: quotesCloseRef, duration: 0.5, position: '+=0.1' },
     ];
 
-    for (const cfg of doodleConfigs) {
-      if (!cfg.ref.value?.svg) continue;
-      addDrawAnimation(doodleTl, {
-        svg: cfg.ref.value.svg,
-        paths: getPaths(cfg.ref),
-        duration: cfg.duration,
-        ...(cfg.stagger != null && { stagger: cfg.stagger }),
-        ...(cfg.position != null && { position: cfg.position }),
+    const buildTl = (configs: DoodleConfig[]) => {
+      const tl = gsap.timeline({ paused: true });
+      for (const cfg of configs) {
+        if (!cfg.ref.value?.svg) continue;
+        addDrawAnimation(tl, {
+          svg: cfg.ref.value.svg,
+          paths: getPaths(cfg.ref),
+          duration: cfg.duration,
+          ...(cfg.stagger != null && { stagger: cfg.stagger }),
+          ...(cfg.position != null && { position: cfg.position }),
+        });
+      }
+      return tl;
+    };
+
+    // ── MÓVIL: un solo timeline, un solo trigger ─────────────────────────────
+    if (isMobile) {
+      const mobileTl = buildTl(allConfigs);
+      mobileTl.timeScale(1.8);
+
+      ScrollTrigger.create({
+        trigger: textContainerRef.value,
+        start: 'top 60%',
+        once: true,
+        onEnter: () => mobileTl.play(),
       });
+
+      // Heartbeat móvil
+      setupHeartbeat(mobileTl);
+      return;
     }
 
-    // ── PINNED SCROLL: Solo doodles ──
+    // ── DESKTOP: grupo A (early) + grupo B (pin) ─────────────────────────────
+    //
+    // Grupo A — se dibuja con el texto al entrar en pantalla.
+    // Grupo B — controlado por el pinned scroll una vez centrado.
+    // Resultado: el usuario nunca ve texto sin doodles.
+
+    const earlyTl = buildTl(allConfigs.slice(0, 3)); // quotesOpen, crossFun, fun
+    const pinTl = buildTl(allConfigs.slice(3)); // wave, heart, circle, quotesClose
+
+    ScrollTrigger.create({
+      trigger: textContainerRef.value,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => earlyTl.play(),
+    });
+
     if (!sectionRef.value) return;
 
     createPinnedScroll({
       trigger: sectionRef.value,
       start: 'top top',
       end: '+=2000',
-      phases: [{ timeline: doodleTl, start: 0, end: 1 }],
+      phases: [{ timeline: pinTl, start: 0, end: 1 }],
     });
 
-    // ── HEARTBEAT: Latido en loop tras completar todos los doodles ──
-    const heartSvg = heartRef.value?.svg;
-    if (heartSvg) {
+    setupHeartbeat(pinTl);
+
+    // ── HEARTBEAT ────────────────────────────────────────────────────────────
+    function setupHeartbeat(doodleTl: gsap.core.Timeline) {
+      const heartSvg = heartRef.value?.svg;
+      if (!heartSvg) return;
+
       let doodlesComplete = false;
       const heartbeatTl = gsap.timeline({ repeat: -1, repeatDelay: 1.2, paused: true });
 
-      // [NOTE] Doble pulso (bum-bum) como un corazón real
       gsap.set(heartSvg, { transformOrigin: 'center center' });
       heartbeatTl
         .to(heartSvg, { scale: 1.25, duration: 0.12, ease: 'power2.out' })
@@ -119,13 +162,11 @@ onMounted(() => {
         .to(heartSvg, { scale: 1.15, duration: 0.1, ease: 'power2.out' }, '+=0.08')
         .to(heartSvg, { scale: 1, duration: 0.2, ease: 'power2.in' });
 
-      // Primera vez: arranca cuando TODOS los doodles terminan de dibujarse
       doodleTl.eventCallback('onComplete', () => {
         doodlesComplete = true;
         setTimeout(() => heartbeatTl.play(0), HEARTBEAT_DELAY_MS);
       });
 
-      // Posteriores: re-arranca al volver a entrar en viewport
       ScrollTrigger.create({
         trigger: sectionRef.value,
         start: 'top 80%',
@@ -162,7 +203,7 @@ onMounted(() => {
             :style="LAYOUT.quotesOpen"
           />
         </span>
-        Hi, I’m Samuel. I work as a <b>Product Architect</b>, which is just a
+        Hi, I'm Samuel. I work as a <b>Product Architect</b>, which is just a
         <span class="relative inline-block">
           formal
           <DoodleCrossFunBio
