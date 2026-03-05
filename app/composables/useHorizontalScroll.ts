@@ -8,7 +8,7 @@
  *         scroll sin crear pin-spacers verticales que causan saltos.
  * =====================================================================
  */
-import { ref, onMounted, onUnmounted, type Ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted, type Ref } from 'vue';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 
