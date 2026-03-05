@@ -70,7 +70,6 @@ export const usePinnedScroll = () => {
 
     // ── DESKTOP ──────────────────────────────────────────────────────────────
     const completed = phases.map(() => false);
-    let hasCompleted = false;
     let killScheduled = false;
 
     const mainTrigger = ScrollTrigger.create({
@@ -89,10 +88,6 @@ export const usePinnedScroll = () => {
           gsap.set(phase.timeline, { progress: phaseProgress });
           if (phaseProgress >= 1) completed[i] = true;
         });
-
-        if (progress >= 1 && !hasCompleted) {
-          hasCompleted = true;
-        }
       },
 
       onLeave: (self) => {
