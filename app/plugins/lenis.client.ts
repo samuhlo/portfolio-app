@@ -3,32 +3,42 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 /**
- * █ [PLUGIN] :: LENIS SCROLL
- * =====================================================================
- * DESC:   Inicializa smooth scrolling y sincroniza su tick con GSAP.
+ * ========================================================================
+ * [PLUGIN] :: LENIS SMOOTH SCROLL
+ * ========================================================================
+ * DESC:   Inicializa Lenis globalmente y sincroniza su tick con GSAP.
+ *         Inyecta instancia en nuxtApp para consumo en composables.
  * STATUS: STABLE
- * =====================================================================
+ * ========================================================================
+ */
+
+/**
+ * ◼️ LENIS PLUGIN
+ * ---------------------------------------------------------
+ * 1. Crea instancia Lenis (autoRaf = false)
+ * 2. Sincroniza ScrollTrigger a eventos de scroll de Lenis
+ * 3. Engancha Lenis.raf() al ticker de GSAP
+ * 4. Desactiva lag smoothing para máxima sincronía
+ * 5. Inyecta en nuxtApp.$lenis para uso global
  */
 export default defineNuxtPlugin((nuxtApp) => {
-  // Inicializamos Lenis con configuraciones recomendadas
+  // INSTANCIA LENIS -> autoRaf=false para usar el ticker GSAP
   const lenis = new Lenis({
-    autoRaf: false, // Vamos a usar el ticker de GSAP para sincronía perfecta
+    autoRaf: false,
   });
 
-  // GSAP: Sincronizar ScrollTrigger con Lenis cada vez que hagamos scroll
+  // SCROLL TRIGGER SYNC -> Actualizar triggers cada scroll de Lenis
   lenis.on('scroll', ScrollTrigger.update);
 
-  // Enganchar el RequestAnimationFrame de Lenis al ticker interno de GSAP
-  // para que todas las animaciones y scroll vayan al mismo frame rate.
+  // GSAP TICKER INTEGRATION -> Enganchar RAF de Lenis al clock principal
   gsap.ticker.add((time) => {
     lenis.raf(time * 1000);
   });
 
-  // Evitar que GSAP aplique smoothing extra que distorsione a Lenis si hay tirones
+  // LAG SMOOTHING OFF -> Sin interpolación extra de GSAP (máxima sincronía)
   gsap.ticker.lagSmoothing(0);
 
-  // Inyectamos lenis en Nuxt por si lo necesitamos en otros componentes
-  // (ejemplo: nuxtApp.$lenis.scrollTo('#target'))
+  // INYECTAR EN NUXT -> Disponible en composables via useNuxtApp().$lenis
   return {
     provide: {
       lenis,

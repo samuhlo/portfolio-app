@@ -1,13 +1,17 @@
 /**
- * █ [COMPOSABLE] :: PHYSICS LETTERS
- * =====================================================================
+ * ========================================================================
+ * [COMPOSABLE] :: PHYSICS LETTERS
+ * ========================================================================
  * DESC:   Motor de físicas 2D (Matter.js) para letras interactivas (v.g. Contacto).
+ *         Las letras caen, rebotan y pueden ser lanzadas al aire con slam().
  * STATUS: STABLE
- * =====================================================================
+ * ========================================================================
  */
 import { Engine, Runner, Bodies, World, Body } from 'matter-js';
 import { BREAKPOINTS, COLORS } from '~/config/site';
-import { destroyMatterEngine } from '~/utils/matter'; // =============================================================================
+import { destroyMatterEngine } from '~/utils/matter';
+
+// =============================================================================
 // █ CONSTANTS: FÍSICA Y RENDER
 // =============================================================================
 const FONT_WEIGHT = 900;
@@ -104,6 +108,12 @@ export const usePhysicsLetters = () => {
     });
   };
 
+  /**
+   * ◼️ INIT PHYSICS
+   * ---------------------------------------------------------
+   * Inicializa el motor Matter.js, spawns de letras y loop de render.
+   * Adapta comportamiento a mobile (2 filas) vs desktop (1 fila).
+   */
   const initPhysics = (
     canvas: HTMLCanvasElement,
     text: string,
@@ -226,10 +236,17 @@ export const usePhysicsLetters = () => {
     if (drawFn) rafId = requestAnimationFrame(drawFn);
   };
 
+  /**
+   * ◼️ SLAM
+   * ---------------------------------------------------------
+   * Impacta todas las letras hacia arriba con velocidad aleatoria.
+   * Si estaban pausadas (offscreen), se reanudan primero.
+   * Útil para reacción a interacción del usuario.
+   */
   const slam = (): void => {
     if (!isRunning) return;
 
-    // Si estaba pausado (offscreen), reanudar para que el slam sea visible
+    // REANUDAR SI PAUSADO -> El slam debe ser visible en pantalla
     if (paused) resume();
 
     for (const { body } of letterBodies) {
@@ -242,6 +259,11 @@ export const usePhysicsLetters = () => {
     }
   };
 
+  /**
+   * ◼️ DESTROY
+   * ---------------------------------------------------------
+   * Limpia el motor y todos los cuerpos. Libera recursos.
+   */
   const destroy = (): void => {
     const reset = destroyMatterEngine({ engine, runner, rafId });
     engine = reset.engine;

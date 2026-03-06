@@ -8,6 +8,7 @@ dist
 .agents
 skills
 skills-lock.json
+docs/backend
 # Node dependencies
 node_modules
 

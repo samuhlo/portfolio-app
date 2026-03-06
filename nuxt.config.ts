@@ -4,12 +4,12 @@ export default defineNuxtConfig({
   ssr: true,
   future: { compatibilityVersion: 4 },
   srcDir: 'app/',
-  serverDir: 'server/',
+  // serverDir configurado por defecto en raíz
   css: ['~/assets/styles/main.css'],
   vite: {
     plugins: [tailwindcss() as any],
   },
-  modules: ['@nuxt/image', '@nuxt/fonts'],
+  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt'],
   fonts: {
     families: [{ name: 'Space Mono', provider: 'google' }],
   },
