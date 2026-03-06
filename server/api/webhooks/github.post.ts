@@ -5,16 +5,15 @@
  * DESC:   Receptor de webhooks de GitHub para actualización automática.
  *         Flujo:
  *         1. Verificar método POST
- *         2. Verificar firma HMAC
- *         3. Parsear y validar payload con Zod
- *         4. Detectar cambios en README
- *         5. Trigger ingestión
+ *         2. Parsear y validar payload con Zod
+ *         3. Detectar cambios en README
+ *         4. Trigger ingestión
  * ========================================================================
  */
-import { createHmac } from 'crypto';
 import { Octokit } from 'octokit';
 import { z } from 'zod';
 import { ingestProject } from '../../utils/ingest';
+import { invalidateAllProjectCaches } from '../../utils/cache';
 import { logger } from '../../utils/logger';
 
 const GitHubPushPayloadSchema = z.object({
@@ -34,18 +33,6 @@ const GitHubPushPayloadSchema = z.object({
 
 type GitHubPushPayload = z.infer<typeof GitHubPushPayloadSchema>;
 
-function verifySignature(body: string, signature: string | undefined, secret: string): boolean {
-  if (!signature) {
-    logger.webhook.skipped('no signature provided, skipping verification');
-    return true;
-  }
-
-  const hmac = createHmac('sha256', secret);
-  const digest = 'sha256=' + hmac.update(body).digest('hex');
-
-  return signature === digest;
-}
-
 export default defineEventHandler(async (event) => {
   const method = event.method;
 
@@ -56,7 +43,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const signature = getHeader(event, 'x-hub-signature-256');
   const githubEvent = getHeader(event, 'x-github-event');
 
   logger.webhook.received(githubEvent || 'unknown', 'github');
@@ -66,28 +52,16 @@ export default defineEventHandler(async (event) => {
     return { status: 'ignored', reason: `Event ${githubEvent} not supported` };
   }
 
-  const webhookSecret = process.env.NUXT_GITHUB_WEBHOOK_SECRET || process.env.GITHUB_WEBHOOK_SECRET;
-
   const body = await readRawBody(event);
   if (!body) {
+    logger.webhook.error('no body provided');
     throw createError({
       statusCode: 400,
       message: 'Request body is required',
     });
   }
 
-  if (webhookSecret) {
-    const isValid = verifySignature(body, signature, webhookSecret);
-    logger.webhook.verified(isValid);
-    if (!isValid) {
-      throw createError({
-        statusCode: 401,
-        message: 'Invalid signature',
-      });
-    }
-  } else {
-    logger.webhook.skipped('no webhook secret configured, skipping verification');
-  }
+  logger.webhook.received('PUSH', 'body received, parsing...');
 
   let payload: GitHubPushPayload;
   try {
@@ -123,6 +97,7 @@ export default defineEventHandler(async (event) => {
 
   const token = process.env.GITHUB_SEED_TOKEN || process.env.GITHUB_TOKEN;
   const octokit = token ? new Octokit({ auth: token }) : undefined;
+  logger.webhook.received('PUSH', `octokit: ${!!octokit}`);
 
   try {
     const result = await ingestProject(repository.owner.login, repository.name, octokit);
@@ -131,6 +106,11 @@ export default defineEventHandler(async (event) => {
       'INGEST',
       `action: ${result.action} | id: ${result.projectId || 'N/A'}`,
     );
+
+    if (result.action === 'save') {
+      await invalidateAllProjectCaches();
+      logger.cache.invalidated('all projects');
+    }
 
     return {
       status: result.action,

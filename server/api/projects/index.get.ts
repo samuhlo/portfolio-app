@@ -20,10 +20,12 @@ export default defineCachedEventHandler(
     const primaryTech = validated.primary_tech;
     const limit = validated.limit;
 
+    // LOG ENTRADA -> Parámetros de query validados
     logger.api.start(`/api/projects | tech: ${primaryTech || 'all'} | limit: ${limit || 'all'}`);
 
     let results;
     try {
+      // CONSULTA CONDICIONAL -> Filtrar por tech si está presente
       if (primaryTech) {
         results = await db
           .select()

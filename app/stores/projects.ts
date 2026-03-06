@@ -1,12 +1,12 @@
 /**
- * █ [STORE] :: PROJECTS STORE
- * =====================================================================
+ * ========================================================================
+ * [STORE] :: PROJECTS PINIA
+ * ========================================================================
  * DESC:   Estado global para proyectos del portfolio.
  *         Gestiona fetching, cacheo y proyecto seleccionado.
  *         Compatible con SSR (Nuxt).
- * USAGE:  const store = useProjectsStore()
  * STATUS: STABLE
- * =====================================================================
+ * ========================================================================
  */
 
 import { defineStore } from 'pinia';
@@ -38,6 +38,12 @@ export const useProjectsStore = defineStore('projects', {
   },
 
   actions: {
+    /**
+     * ◼️ FETCH PROJECTS
+     * ---------------------------------------------------------
+     * Obtiene la lista de proyectos con filtros opcionales.
+     * Construye query params solo si están presentes.
+     */
     async fetchProjects(options: { primaryTech?: string; limit?: number } = {}) {
       this.isLoading = true;
       this.error = null;
@@ -54,12 +60,17 @@ export const useProjectsStore = defineStore('projects', {
         this.projects = response.data;
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch projects';
-        console.error('[ProjectsStore] Error fetching projects:', err);
+        console.error('[STORE] ERROR :: PROJECTS_FETCH | error: ' + (err instanceof Error ? err.message : String(err)));
       } finally {
         this.isLoading = false;
       }
     },
 
+    /**
+     * ◼️ FETCH PROJECT BY SLUG
+     * ---------------------------------------------------------
+     * Obtiene un proyecto específico y lo marca como seleccionado.
+     */
     async fetchProjectBySlug(slug: string) {
       this.isLoading = true;
       this.error = null;
@@ -69,21 +80,36 @@ export const useProjectsStore = defineStore('projects', {
         this.selectedProject = response.data;
       } catch (err) {
         this.error = err instanceof Error ? err.message : 'Failed to fetch project';
-        console.error('[ProjectsStore] Error fetching project:', err);
+        console.error('[STORE] ERROR :: PROJECT_DETAIL | slug: ' + slug + ' | error: ' + (err instanceof Error ? err.message : String(err)));
         this.selectedProject = null;
       } finally {
         this.isLoading = false;
       }
     },
 
+    /**
+     * ◼️ SET SELECTED PROJECT
+     * ---------------------------------------------------------
+     * Actualiza el proyecto seleccionado en el estado global.
+     */
     setSelectedProject(project: Project | null) {
       this.selectedProject = project;
     },
 
+    /**
+     * ◼️ CLEAR SELECTED PROJECT
+     * ---------------------------------------------------------
+     * Limpia la selección actual (ej: al navegar fuera de detalle).
+     */
     clearSelectedProject() {
       this.selectedProject = null;
     },
 
+    /**
+     * ◼️ CLEAR ERROR
+     * ---------------------------------------------------------
+     * Resetea el mensaje de error.
+     */
     clearError() {
       this.error = null;
     },

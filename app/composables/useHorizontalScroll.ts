@@ -31,23 +31,29 @@ export function useHorizontalScroll(options: UseHorizontalScrollOptions) {
     lenis?.raf(time * 1000);
   };
 
+  /**
+   * Inicializa el contenedor y la instancia de Lenis.
+   * Busca [data-scroll-content] para dimensionarlo correctamente.
+   */
   const init = () => {
     const container = containerRef.value;
     if (!container) return;
 
     const content = container.querySelector('[data-scroll-content]') as HTMLElement;
     if (!content) {
-      console.warn('[useHorizontalScroll] No se encontró contenido con data-scroll-content');
+      console.warn('[HORIZ]   :: INIT :: No [data-scroll-content] element found');
       return;
     }
 
     const viewportWidth = window.innerWidth;
     const contentWidth = viewportWidth * widthMultiplier;
 
+    // CONFIGURAR CONTENEDOR -> ancho del contenido + overflow horizontal
     content.style.width = `${contentWidth}px`;
     container.style.overflowX = 'auto';
     container.style.overflowY = 'hidden';
 
+    // LENIS HORIZONTAL -> Convierte wheel vertical en scroll X
     lenis = new Lenis({
       wrapper: container,
       content: container,
@@ -66,6 +72,9 @@ export function useHorizontalScroll(options: UseHorizontalScrollOptions) {
     isActive.value = true;
   };
 
+  /**
+   * Destruye la instancia de Lenis y limpia el ticker.
+   */
   const destroy = () => {
     if (lenis) {
       gsap.ticker.remove(gsapTickerFn);
@@ -75,6 +84,9 @@ export function useHorizontalScroll(options: UseHorizontalScrollOptions) {
     }
   };
 
+  /**
+   * Navega a un objetivo dentro del scroll horizontal.
+   */
   const scrollTo = (target: number | string, options?: { immediate?: boolean }) => {
     lenis?.scrollTo(target, options);
   };

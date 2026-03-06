@@ -16,20 +16,23 @@ export default defineCachedEventHandler(
     const id = getRouterParam(event, 'id');
     const validated = ProjectParamsSchema.parse({ id });
 
-    console.log(`[API] Fetching project ${validated.id}`);
+    // LOG ENTRADA -> Tracking de qué proyecto se solicita
+    console.log(`[API]    >> GET_PROJECT   :: id: ${validated.id}`);
 
     const result = await db.select().from(projects).where(eq(projects.id, validated.id)).limit(1);
 
     if (result.length === 0) {
+      console.log(`[API]    !! NOT_FOUND    :: id: ${validated.id}`);
       throw createError({
         statusCode: 404,
         message: `Project ${validated.id} not found`,
       });
     }
 
-    const project = result[0];
+    const project = result[0]!;
 
-    console.log(`[API] Returning project ${validated.id}`);
+    // LOG SALIDA -> Proyecto encontrado y retornado exitosamente
+    console.log(`[API]    ++ PROJECT_FOUND :: id: ${validated.id}`);
 
     return {
       data: {

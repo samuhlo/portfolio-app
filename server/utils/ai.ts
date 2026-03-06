@@ -11,6 +11,14 @@ import { ProjectSchema, type Project } from '../../shared/types';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 
+/**
+ * ◼️ GET OPENAI CLIENT
+ * ---------------------------------------------------------
+ * Crea cliente OpenAI compatible configurado para DeepSeek API.
+ * DeepSeek soporta la API de OpenAI con base URL personalizada.
+ *
+ * [CRITICAL]: API key es requerida. Sin él, no se pueden extraer datos.
+ */
 function getOpenAIClient(): OpenAI {
   const apiKey = process.env.NUXT_DEEPSEEK_API_KEY || process.env.DEEPSEEK_API_KEY;
   if (!apiKey) {
@@ -32,6 +40,17 @@ interface ExtractOptions {
   };
 }
 
+/**
+ * ◼️ EXTRACT PROJECT DATA
+ * ---------------------------------------------------------
+ * Llamada a DeepSeek API para extraer metadatos de proyectos.
+ * 1. Prepara prompt con instrucciones detalladas
+ * 2. Trunca README a 15k chars para evitar limite de tokens
+ * 3. Valida respuesta contra ProjectSchema
+ *
+ * [NOTE]: Temperature baja (0.1) para máxima consistencia.
+ * [NOTE]: response_format: json_object para output estructurado.
+ */
 export async function extractProjectData({
   repoUrl,
   readmeContent,
@@ -39,6 +58,7 @@ export async function extractProjectData({
 }: ExtractOptions): Promise<Project> {
   const client = getOpenAIClient();
 
+  // TRUNCAR README -> Evitar exceso de tokens (límite típico 4k-8k)
   const readmeTruncated = readmeContent.slice(0, 15000);
   const jsonSchema = ProjectSchema.toJSONSchema();
 
@@ -68,12 +88,16 @@ Extract technical metadata from the provided README content and convert it to th
    - Return as { "en": "...", "es": "..." } or null if not found
    - Example: { "en": "Built in 48h for a hackathon", "es": "Hecho en 48h para un hackathon" }
 
-6. **projectColor**: Look for accent_color in README metadata (often in a YAML frontmatter or a comment)
-   - Format: hex color like #ff5500, #3b82f6, etc.
+6. **projectColor**: Look for accent_color in README metadata
+   - CRITICAL: Search specifically in HTML comments at the start or end of the README
+   - Example format: <!-- accent_color: #ff5500 --> or <!-- accent_color:#ff5500 -->
+   - Also check YAML frontmatter like: accent_color: #ff5500
+   - Format: hex color like #ff5500, #3b82f6, #ffffff, etc.
    - Return as string or null if not found
 
 7. **hoverTextCard**: Look for hover_text_card in README metadata
-   - Short text that appears when hovering over the project card
+   - CRITICAL: Search specifically in HTML comments
+   - Example format: <!-- hover_text_card: My text --> or <!-- hover_text_card:Some text -->
    - Return as string or null if not found
 
 8. **techStack**: Array of specific technologies used
@@ -146,7 +170,8 @@ ${repoUrl}
 
 Extract the project data now. Return ONLY valid JSON.`;
 
-  console.log('[AI] Calling DeepSeek API for extraction...');
+  // LLAMADA A DEEPSEEK -> Extracción con JSON response format
+  console.log('[AI]    >> EXTRACT_DATA  :: calling deepseek-chat...');
 
   const response = await client.chat.completions.create({
     model: 'deepseek-chat',
@@ -161,18 +186,19 @@ Extract the project data now. Return ONLY valid JSON.`;
 
   const content = response.choices[0]?.message?.content;
   if (!content) {
+    console.log('[AI]    !! NO_CONTENT    :: deepseek returned empty response');
     throw new Error('[AI] No content returned from DeepSeek API');
   }
 
-  console.log('[AI] Raw response received, parsing...');
+  console.log('[AI]    >> PARSE_JSON    :: validating response...');
 
   try {
     const rawData = JSON.parse(content);
     const validated = ProjectSchema.parse(rawData);
-    console.log('[AI] Project data validated successfully');
+    console.log('[AI]    ++ VALIDATED    :: schema check passed');
     return validated;
   } catch (error) {
-    console.error('[AI] Validation failed:', error);
+    console.error('[AI]    !! INVALID      :: ' + (error instanceof Error ? error.message : String(error)));
     throw new Error(`[AI] Failed to validate project data: ${error}`);
   }
 }
