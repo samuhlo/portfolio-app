@@ -3,11 +3,14 @@
  * █ [UI_MOLECULE] :: MODAL PROJECT INFO
  * =====================================================================
  * DESC:   Bloque de información del proyecto: [INFO], [MAIN TECHS], [LINKS].
+ *         Usa el store de Pinia para obtener datos del proyecto seleccionado.
  *         Reutilizado en layouts mobile y desktop con variantes de tamaño.
  * USAGE:  <ModalProjectInfo size="lg" layout="row" />
  * STATUS: STABLE
  * =====================================================================
  */
+
+import { storeToRefs } from 'pinia';
 
 interface Props {
   /** Controla el tamaño de tipografía */
@@ -23,62 +26,74 @@ const props = withDefaults(defineProps<Props>(), {
 
 const textSize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-base'));
 const bodySize = computed(() => (props.size === 'sm' ? 'text-sm' : 'text-base'));
+
+const projectsStore = useProjectsStore();
+const { selectedProject } = storeToRefs(projectsStore);
+
+const description = computed(() => {
+  if (!selectedProject.value?.description) return '';
+  return selectedProject.value.description.en || selectedProject.value.description.es || '';
+});
+
+const techStack = computed(() => (selectedProject.value?.techStack || []).slice(0, 6));
+
+const liveUrl = computed(() => selectedProject.value?.liveUrl);
+const repoUrl = computed(() => selectedProject.value?.repoUrl);
+const postUrl = computed(() => selectedProject.value?.postUrl);
+const blogUrl = computed(() => selectedProject.value?.blogUrl);
+
+const hasLinks = computed(() => liveUrl.value || repoUrl.value || postUrl.value || blogUrl.value);
 </script>
 
 <template>
-  <div class="flex flex-col gap-10">
+  <div class="flex flex-col h-full gap-20">
     <!-- INFO -->
     <div class="font-mono space-y-4">
       <h3 :class="['font-bold uppercase tracking-wider mb-2', textSize]">[INFO]</h3>
-      <p :class="['opacity-80 leading-relaxed max-w-sm', bodySize]">
-        TinyShow es un motor de visualización de proyectos que se alimenta directamente de tus
-        repositorios de GitHub. Escanea los README de tus repos, extrae la información relevante
-        usando IA (DeepSeek), y genera fichas de proyecto con traducciones automáticas a inglés y
-        español. Sin entrada manual de datos. Actualiza un README, el proyecto se actualiza solo.
+      <p v-if="description" :class="['opacity-85 leading-relaxed max-w-xl', bodySize]">
+        {{ description }}
       </p>
+      <p v-else :class="['opacity-50 italic', bodySize]">No description available</p>
     </div>
 
     <!-- TECHS & LINKS -->
     <div
       :class="[
-        'flex gap-8 font-mono uppercase',
-        layout === 'column' ? 'flex-col sm:flex-row' : 'justify-between flex-wrap',
+        'flex font-mono uppercase',
+        layout === 'column' ? 'flex-col sm:flex-row gap-10' : 'justify-between flex-wrap gap-8',
       ]"
     >
-      <div>
+      <!-- Tech Stack -->
+      <div v-if="techStack.length > 0">
         <h3 :class="['font-bold tracking-wider mb-2', textSize]">[MAIN TECHS]</h3>
         <ul :class="['space-y-1 opacity-80', bodySize]">
-          <li>NUXTJS</li>
-          <li>PINIA</li>
-          <li>TAILWIND</li>
-          <li>GSAP</li>
+          <li v-for="tech in techStack" :key="tech">{{ tech }}</li>
         </ul>
       </div>
-      <div :class="layout === 'row' ? 'text-right' : ''">
+
+      <!-- Links -->
+      <div v-if="hasLinks" :class="layout === 'row' ? 'text-right' : ''">
         <h3 :class="['font-bold tracking-wider mb-2', textSize]">[LINKS]</h3>
         <ul :class="['space-y-2 opacity-80', bodySize]">
-          <li>
-            <RandomDoodleHover
-              ><NuxtLink to="https://tinyshow.vercel.app/" target="_blank"
-                >LIVE DEMO</NuxtLink
-              ></RandomDoodleHover
-            >
+          <li v-if="liveUrl">
+            <RandomDoodleHover>
+              <NuxtLink :to="liveUrl" target="_blank">LIVE DEMO</NuxtLink>
+            </RandomDoodleHover>
           </li>
-          <li>
-            <RandomDoodleHover
-              ><NuxtLink to="https://github.com/samuhlo/tinyshow" target="_blank"
-                >GITHUB</NuxtLink
-              ></RandomDoodleHover
-            >
+          <li v-if="repoUrl">
+            <RandomDoodleHover>
+              <NuxtLink :to="repoUrl" target="_blank">GITHUB</NuxtLink>
+            </RandomDoodleHover>
           </li>
-          <li>
-            <RandomDoodleHover
-              ><NuxtLink
-                to="https://www.linkedin.com/feed/update/urn:li:activity:7415770262341955584/"
-                target="_blank"
-                >POST</NuxtLink
-              ></RandomDoodleHover
-            >
+          <li v-if="postUrl">
+            <RandomDoodleHover>
+              <NuxtLink :to="postUrl" target="_blank">POST</NuxtLink>
+            </RandomDoodleHover>
+          </li>
+          <li v-if="blogUrl">
+            <RandomDoodleHover>
+              <NuxtLink :to="blogUrl" target="_blank">BLOG</NuxtLink>
+            </RandomDoodleHover>
           </li>
         </ul>
       </div>

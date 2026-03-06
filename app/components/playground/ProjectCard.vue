@@ -24,6 +24,7 @@ interface Props {
   avatarSize?: string;
   avatarStroke?: string;
   gridClass?: string;
+  slug?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -83,7 +84,8 @@ function handleMouseLeave() {
 
 const router = useRouter();
 function openProject() {
-  router.push({ query: { project: props.name.toLowerCase() } });
+  const projectSlug = props.slug || props.name.toLowerCase();
+  router.push({ query: { project: projectSlug } });
 }
 </script>
 

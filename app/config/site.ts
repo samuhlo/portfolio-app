@@ -1,7 +1,11 @@
 /**
- * Constantes globales del sitio.
- * Centraliza valores que se repiten en múltiples archivos para evitar
- * inconsistencias y facilitar cambios futuros.
+ * ========================================================================
+ * [CONFIG] :: SITE CONSTANTS
+ * ========================================================================
+ * DESC:   Constantes globales centralizadas: URLs, breakpoints, colores.
+ *         Fuente única de verdad para evitar duplicación en el codebase.
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 export const SITE = {

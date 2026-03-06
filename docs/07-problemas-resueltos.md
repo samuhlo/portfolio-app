@@ -26,6 +26,7 @@
 | 16  | Build fail: esbuild EPIPE por xattr macOS                    | Reinstalar esbuild (`bun pm rm esbuild && bun pm add esbuild`)                 |
 | 17  | Micro-salto visible al terminar pin en desktop               | Deferred Kill: matar cuando scroll > triggerEnd + 1 viewport                   |
 | 18  | Bio: texto sin doodles mientras se hace scroll               | Split doodles: early (con texto) + pin (resto)                                 |
+| 19  | Scroll horizontal del ProjectModal no funciona (desktop)     | Esperar a que termine el loading antes de iniciar Lenis                        |
 
 ---
 
@@ -717,6 +718,68 @@ createPinnedScroll({
 - El usuario ve los doodles "early" mientras lee
 - Los doodles "pin" aparecen durante el scroll
 - Nunca hay un estado de "texto sin doodles"
+
+---
+
+## 19. Scroll horizontal del ProjectModal no funciona (desktop)
+
+### El problema
+
+El scroll horizontal del ProjectModal (wheel y drag) dejó de funcionar al integrar datos dinámicos desde el backend (Pinia store). En mobile seguía funcionando.
+
+### Por qué pasaba
+
+El flujo original:
+
+1. Se abría el modal
+2. Se ejecutaba `initLenis()` inmediatamente
+3. El layout ya estaba renderizado → Lenis funcionaba
+
+Al agregar datos dinámicos:
+
+1. Se abría el modal
+2. Se ejecutaba `initLenis()` inmediatamente
+3. **El layout NO estaba renderizado** → tenía estado de `loading`
+4. Lenis buscaba los refs del container pero eran `null` → no funcionaba
+
+```typescript
+// ❌ Antes (fallaba con datos dinámicos)
+watch(isOpen, async (open) => {
+  if (open) {
+    await nextTick();
+    await initLenis(); // Se ejecuta antes de que el layout se renderice
+  }
+});
+```
+
+### La solución
+
+Esperar a que `projectLoading` sea `false` antes de iniciar Lenis:
+
+```typescript
+// ✅ Después (funciona)
+watch(isOpen, async (open) => {
+  if (open) {
+    if (projectLoading.value) {
+      // Esperar a que los datos lleguen
+      const stopWatching = watch(projectLoading, async (loading) => {
+        if (!loading) {
+          stopWatching();
+          await nextTick();
+          await initLenis();
+        }
+      });
+    } else {
+      await nextTick();
+      await initLenis();
+    }
+  } else {
+    destroyLenis();
+  }
+});
+```
+
+> **Lección**: Cuando un componente depende de datos asíncronos, cualquier lógica que dependa de los refs del DOM debe ejecutarse DESPUÉS de que los datos lleguen y el template se actualice.
 
 ---
 

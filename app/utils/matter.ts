@@ -1,6 +1,11 @@
 /**
- * Utilidad compartida para limpieza de recursos Matter.js.
- * Evita duplicación entre useErrorPhysics y usePhysicsLetters.
+ * ========================================================================
+ * [UTIL] :: MATTER ENGINE CLEANUP
+ * ========================================================================
+ * DESC:   Utilidad compartida para destruir y limpiar motores Matter.js.
+ *         Reutilizada por useErrorPhysics y usePhysicsLetters.
+ * STATUS: STABLE
+ * ========================================================================
  */
 import { Engine, Runner, World } from 'matter-js';
 
@@ -11,9 +16,16 @@ interface MatterState {
 }
 
 /**
- * Destruye un motor Matter.js y sus recursos asociados de forma segura.
- * Cancela el rAF, detiene el Runner, limpia el World y el Engine.
- * Retorna el estado reseteado para reasignación.
+ * ◼️ DESTROY MATTER ENGINE
+ * ---------------------------------------------------------
+ * Limpia un motor Matter.js de forma segura:
+ * 1. Cancela rAF en ejecución
+ * 2. Detiene el Runner (tick loop)
+ * 3. Limpia el World (bodies, constraints)
+ * 4. Limpia el Engine
+ * Retorna estado reseteado para reasignación.
+ *
+ * [CRITICAL]: Evitar memory leaks en Canvas + Physics.
  */
 export function destroyMatterEngine(state: MatterState): MatterState {
   if (state.rafId !== null) {

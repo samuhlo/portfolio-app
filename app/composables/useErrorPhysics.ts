@@ -1,3 +1,12 @@
+/**
+ * ========================================================================
+ * [COMPOSABLE] :: ERROR PHYSICS
+ * ========================================================================
+ * DESC:   Motor físico 2D (Matter.js) para animación de 404.
+ *         El "404" cae con gravedad, rebota y se asienta en pantalla.
+ * STATUS: STABLE
+ * ========================================================================
+ */
 import { onMounted, onUnmounted, type Ref } from 'vue';
 import { Engine, Runner, Bodies, World, Body } from 'matter-js';
 import { BREAKPOINTS, COLORS } from '~/config/site';
@@ -18,6 +27,12 @@ const WALL_THICKNESS = 200;
 const SETTLE_SPEED_THRESHOLD = 0.05; // Velocidad lineal + angular mínima
 const SETTLE_FRAMES_REQUIRED = 60; // ~1s a 60fps
 
+/**
+ * ◼️ USE ERROR PHYSICS
+ * ---------------------------------------------------------
+ * Inicializa y gestiona el simulador de física para la página 404.
+ * Maneja redraws, eventos de resize y limpieza de recursos.
+ */
 export function useErrorPhysics(
   containerRef: Ref<HTMLElement | null>,
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -27,6 +42,9 @@ export function useErrorPhysics(
   let rafId: number | null = null;
   let textBody: Matter.Body | null = null;
 
+  /**
+   * Sincroniza el canvas con el tamaño actual del contenedor.
+   */
   const syncCanvasSize = (): void => {
     const container = containerRef.value;
     const canvas = canvasRef.value;
@@ -35,6 +53,9 @@ export function useErrorPhysics(
     canvas.height = container.clientHeight;
   };
 
+  /**
+   * Inicializa el motor Matter.js, cuerpos de colisión y el loop de render.
+   */
   const initPhysics = (): void => {
     const canvas = canvasRef.value;
     if (!canvas) return;
@@ -140,6 +161,10 @@ export function useErrorPhysics(
   let prevCanvasWidth = 0;
   const RESIZE_DEBOUNCE_MS = 300;
 
+  /**
+   * Maneja resize del viewport con debounce.
+   * Reinicializa física solo si el ancho cambió significativamente.
+   */
   const handleResize = (): void => {
     if (resizeTimer) clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
@@ -155,6 +180,9 @@ export function useErrorPhysics(
     }, RESIZE_DEBOUNCE_MS);
   };
 
+  /**
+   * Destruye el motor y libera todos los recursos.
+   */
   const destroyPhysics = (): void => {
     const reset = destroyMatterEngine({ engine, runner, rafId });
     engine = reset.engine;
