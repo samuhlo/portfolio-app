@@ -13,15 +13,33 @@
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import { useWindowSize, onKeyStroke } from '@vueuse/core';
+import { storeToRefs } from 'pinia';
 
-// =============================================================================
-// █ 1. Estado del Modal (source of truth: query param)
-// =============================================================================
 const route = useRoute();
 const router = useRouter();
+const projectsStore = useProjectsStore();
+const { selectedProject, isLoading: projectLoading } = storeToRefs(projectsStore);
 
 const isOpen = computed(() => !!route.query.project);
-const currentProject = computed(() => route.query.project as string);
+const currentProjectSlug = computed(() => route.query.project as string);
+
+onMounted(async () => {
+  if (currentProjectSlug.value && isOpen.value) {
+    await projectsStore.fetchProjectBySlug(currentProjectSlug.value);
+  }
+});
+
+watch(currentProjectSlug, async (newSlug) => {
+  if (newSlug && isOpen.value) {
+    await projectsStore.fetchProjectBySlug(newSlug);
+  }
+});
+
+watch(isOpen, async (open) => {
+  if (!open) {
+    projectsStore.clearSelectedProject();
+  }
+});
 
 function closeModal() {
   const query = { ...route.query };
@@ -72,7 +90,6 @@ function onLeave(_el: Element, done: () => void) {
   const bg = bgRef.value;
   const content = contentRef.value;
 
-  // [FIX] Si los refs son null (edge case), llamar done() directamente
   if (!bg || !content) {
     $lenis?.start();
     done();
@@ -117,7 +134,6 @@ interface ScrollExposed {
 const layoutRef = ref<ScrollExposed | null>(null);
 let localLenis: Lenis | null = null;
 
-// [NOTE] Ref intermedio para drag scroll — apunta al container expuesto por el layout
 const dragTargetRef = ref<HTMLElement | null>(null);
 const { bind: bindDrag, unbind: unbindDrag } = useDragScroll(dragTargetRef);
 
@@ -142,7 +158,6 @@ async function initLenis() {
   const content = layoutRef.value?.scrollContentRef;
   if (!container || !content) return;
 
-  // Vincular drag scroll al container expuesto
   dragTargetRef.value = container;
   bindDrag();
 
@@ -160,17 +175,31 @@ async function initLenis() {
   gsap.ticker.add(gsapTickerFn);
 }
 
+// [FIX] Bug: initLenis se ejecutaba antes de que el layout se renderice porque hay estado de loading.
+// El layout (ModalDesktopLayout/ModalMobileLayout) solo se monta cuando selectedProject tiene datos.
+// Por eso necesitamos esperar a que projectLoading sea false antes de iniciar Lenis.
 watch(isOpen, async (open) => {
   if (open) {
-    await initLenis();
+    if (projectLoading.value) {
+      const stopWatching = watch(projectLoading, async (loading) => {
+        if (!loading) {
+          stopWatching();
+          await nextTick();
+          await initLenis();
+        }
+      });
+    } else {
+      await nextTick();
+      await initLenis();
+    }
   } else {
     destroyLenis();
   }
 });
 
-// [NOTE] Re-init Lenis cuando cambia de layout (mobile <-> desktop) con modal abierto
 watch(isMobile, async () => {
-  if (isOpen.value) {
+  if (isOpen.value && !projectLoading.value) {
+    await nextTick();
     await initLenis();
   }
 });
@@ -181,15 +210,23 @@ onUnmounted(() => {
 });
 
 // =============================================================================
-// █ 4. Datos
+// █ 4. Datos del proyecto
 // =============================================================================
-const images = [
-  '/images/projects/tinyshow_main.webp',
-  '/images/projects/tinyshowcaptures/tinyshow_1.webp',
-  '/images/projects/tinyshowcaptures/tinyshow_3.webp',
-  '/images/projects/tinyshowcaptures/tinyshow_4.webp',
-  '/images/projects/tinyshowcaptures/tinyshow_5.webp',
-];
+const images = computed<string[]>(() => {
+  if (!selectedProject.value?.imagesUrl || selectedProject.value.imagesUrl.length === 0) {
+    if (selectedProject.value?.mainImgUrl) {
+      return [selectedProject.value.mainImgUrl];
+    }
+    return ['/images/projects/tinyshow_main.webp'];
+  }
+  return selectedProject.value.imagesUrl;
+});
+
+const projectTitle = computed(
+  () => selectedProject.value?.title || currentProjectSlug.value || 'Project',
+);
+
+const projectYear = computed(() => selectedProject.value?.year || new Date().getFullYear());
 </script>
 
 <template>
@@ -209,30 +246,41 @@ const images = [
             class="absolute inset-0 w-full h-full flex justify-center"
             :class="isMobile ? 'overflow-y-auto items-start' : 'items-center'"
           >
-            <!--
-              [FIX] Wrapper único con contentRef — GSAP siempre tiene un nodo
-              real que animar, independientemente de qué layout esté montado.
-            -->
             <div
               ref="contentRef"
               class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
               :class="isMobile ? 'min-h-dvh h-auto pb-12' : 'h-[75vh] py-16'"
             >
-              <ModalDesktopLayout
-                v-if="!isMobile"
-                ref="layoutRef"
-                :project-name="currentProject"
-                :images="images"
-                @close="closeModal"
-              />
+              <!-- Loading State -->
+              <div v-if="projectLoading" class="flex items-center justify-center h-full">
+                <p class="font-mono text-sm opacity-60">Loading project...</p>
+              </div>
 
-              <ModalMobileLayout
-                v-else
-                ref="layoutRef"
-                :project-name="currentProject"
-                :images="images"
-                @close="closeModal"
-              />
+              <!-- Project Content -->
+              <template v-else-if="selectedProject">
+                <ModalDesktopLayout
+                  v-if="!isMobile"
+                  ref="layoutRef"
+                  :project-name="projectTitle"
+                  :project-year="projectYear"
+                  :images="images"
+                  @close="closeModal"
+                />
+
+                <ModalMobileLayout
+                  v-else
+                  ref="layoutRef"
+                  :project-name="projectTitle"
+                  :project-year="projectYear"
+                  :images="images"
+                  @close="closeModal"
+                />
+              </template>
+
+              <!-- Error State -->
+              <div v-else class="flex items-center justify-center h-full">
+                <p class="font-mono text-sm text-red-500">Project not found</p>
+              </div>
             </div>
           </div>
         </div>

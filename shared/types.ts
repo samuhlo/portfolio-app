@@ -20,6 +20,12 @@ export const ProjectSchema = z.object({
   title: z.string().describe('Project title'),
   tagline: LocalizedText.describe('Short tagline (2-3 words)'),
   description: LocalizedText.describe('Full description (150-200 chars)'),
+  vNote: LocalizedText.nullable().describe('Vandal Note section from README {en, es}'),
+  projectColor: z
+    .string()
+    .nullable()
+    .describe('Accent color from README metadata (hex, e.g. #ff5500)'),
+  hoverTextCard: z.string().nullable().describe('Hover text for project card from metadata'),
   techStack: z.array(z.string()).describe('Array of technologies'),
   primaryTech: z.string().describe('Main technology (no versions, e.g. Vue not Vue 3)'),
   mainImgUrl: z.string().url().nullable().describe('Main image URL'),

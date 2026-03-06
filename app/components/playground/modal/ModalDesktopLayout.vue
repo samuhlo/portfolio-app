@@ -12,10 +12,11 @@
 
 interface Props {
   projectName: string;
+  projectYear: number;
   images: string[];
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
 
 const emit = defineEmits<{
   close: [];
@@ -48,7 +49,9 @@ defineExpose({
               class="text-[7vw] font-black uppercase leading-none tracking-tight wrap-break-word pr-4"
             >
               {{ projectName }}
-              <span class="text-base font-mono font-normal opacity-60 align-top ml-2">2025</span>
+              <span class="text-base font-mono font-normal opacity-60 align-top ml-2">{{
+                projectYear
+              }}</span>
             </h1>
 
             <!-- Project Info (INFO + TECHS + LINKS) -->

@@ -8,6 +8,20 @@
       "when": 1772709385955,
       "tag": "0000_wooden_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772783639470,
+      "tag": "0001_warm_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772786964505,
+      "tag": "0002_narrow_roxanne_simpson",
+      "breakpoints": true
     }
   ]
 }

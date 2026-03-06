@@ -10,6 +10,7 @@ import { db } from '../../db';
 import { projects } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { ProjectQuerySchema } from '../../validators/project.schema';
+import { logger } from '../../utils/logger';
 
 export default defineCachedEventHandler(
   async (event) => {
@@ -19,28 +20,34 @@ export default defineCachedEventHandler(
     const primaryTech = validated.primary_tech;
     const limit = validated.limit;
 
-    console.log(
-      `[API] Fetching projects (primaryTech: ${primaryTech || 'all'}, limit: ${limit || 'all'})`,
-    );
+    logger.api.start(`/api/projects | tech: ${primaryTech || 'all'} | limit: ${limit || 'all'}`);
 
     let results;
-    if (primaryTech) {
-      results = await db
-        .select()
-        .from(projects)
-        .where(eq(projects.primaryTech, primaryTech))
-        .limit(limit ?? 50);
-    } else {
-      results = await db
-        .select()
-        .from(projects)
-        .limit(limit ?? 50);
+    try {
+      if (primaryTech) {
+        results = await db
+          .select()
+          .from(projects)
+          .where(eq(projects.primaryTech, primaryTech))
+          .limit(limit ?? 50);
+      } else {
+        results = await db
+          .select()
+          .from(projects)
+          .limit(limit ?? 50);
+      }
+    } catch (err) {
+      logger.db.error('SELECT_PROJECTS', err instanceof Error ? err.message : 'unknown');
+      throw err;
     }
 
     const mapped = results.map((p) => ({
       id: p.id,
       title: p.title,
       tagline: p.tagline,
+      vNote: p.vNote,
+      projectColor: p.projectColor,
+      hoverTextCard: p.hoverTextCard,
       techStack: p.techStack,
       primaryTech: p.primaryTech,
       mainImgUrl: p.mainImgUrl,
@@ -51,7 +58,7 @@ export default defineCachedEventHandler(
       updatedAt: p.updatedAt,
     }));
 
-    console.log(`[API] Returning ${mapped.length} projects`);
+    logger.api.success('/api/projects', mapped.length);
 
     return { data: mapped };
   },

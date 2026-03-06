@@ -15,6 +15,7 @@ import { createHmac } from 'crypto';
 import { Octokit } from 'octokit';
 import { z } from 'zod';
 import { ingestProject } from '../../utils/ingest';
+import { logger } from '../../utils/logger';
 
 const GitHubPushPayloadSchema = z.object({
   ref: z.string(),
@@ -35,7 +36,7 @@ type GitHubPushPayload = z.infer<typeof GitHubPushPayloadSchema>;
 
 function verifySignature(body: string, signature: string | undefined, secret: string): boolean {
   if (!signature) {
-    console.log('[WEBHOOK] No signature provided, skipping verification');
+    logger.webhook.skipped('no signature provided, skipping verification');
     return true;
   }
 
@@ -58,9 +59,10 @@ export default defineEventHandler(async (event) => {
   const signature = getHeader(event, 'x-hub-signature-256');
   const githubEvent = getHeader(event, 'x-github-event');
 
-  console.log(`[WEBHOOK] Received ${githubEvent} event`);
+  logger.webhook.received(githubEvent || 'unknown', 'github');
 
   if (githubEvent !== 'push') {
+    logger.webhook.skipped(`event not supported: ${githubEvent}`);
     return { status: 'ignored', reason: `Event ${githubEvent} not supported` };
   }
 
@@ -76,6 +78,7 @@ export default defineEventHandler(async (event) => {
 
   if (webhookSecret) {
     const isValid = verifySignature(body, signature, webhookSecret);
+    logger.webhook.verified(isValid);
     if (!isValid) {
       throw createError({
         statusCode: 401,
@@ -83,7 +86,7 @@ export default defineEventHandler(async (event) => {
       });
     }
   } else {
-    console.log('[WEBHOOK] No webhook secret configured, skipping signature verification');
+    logger.webhook.skipped('no webhook secret configured, skipping verification');
   }
 
   let payload: GitHubPushPayload;
@@ -91,15 +94,18 @@ export default defineEventHandler(async (event) => {
     const parsed = JSON.parse(body);
     payload = GitHubPushPayloadSchema.parse(parsed);
   } catch (error) {
+    const errMsg = error instanceof Error ? error.message : 'unknown';
+    logger.validation.error('PAYLOAD', errMsg);
     throw createError({
       statusCode: 400,
-      message: `Invalid payload: ${error}`,
+      message: `Invalid payload: ${errMsg}`,
     });
   }
 
   const { repository, commits } = payload;
 
   if (!commits || commits.length === 0) {
+    logger.webhook.skipped('no commits in payload');
     return { status: 'skipped', reason: 'No commits in payload' };
   }
 
@@ -109,11 +115,11 @@ export default defineEventHandler(async (event) => {
   });
 
   if (!readmeChanges) {
-    console.log('[WEBHOOK] No README changes detected, skipping');
+    logger.webhook.skipped('no README changes detected');
     return { status: 'skipped', reason: 'No README changes' };
   }
 
-  console.log(`[WEBHOOK] README changed in ${repository.owner.login}/${repository.name}`);
+  logger.webhook.received('PUSH', `${repository.owner.login}/${repository.name}`);
 
   const token = process.env.GITHUB_SEED_TOKEN || process.env.GITHUB_TOKEN;
   const octokit = token ? new Octokit({ auth: token }) : undefined;
@@ -121,7 +127,10 @@ export default defineEventHandler(async (event) => {
   try {
     const result = await ingestProject(repository.owner.login, repository.name, octokit);
 
-    console.log(`[WEBHOOK] Ingest result: ${result.action}`, result.reason || '');
+    logger.webhook.received(
+      'INGEST',
+      `action: ${result.action} | id: ${result.projectId || 'N/A'}`,
+    );
 
     return {
       status: result.action,
@@ -129,10 +138,11 @@ export default defineEventHandler(async (event) => {
       reason: result.reason,
     };
   } catch (error) {
-    console.error('[WEBHOOK] Ingestion failed:', error);
+    const errMsg = error instanceof Error ? error.message : 'unknown';
+    logger.webhook.error(`ingestion failed: ${errMsg}`);
     throw createError({
       statusCode: 500,
-      message: `Ingestion failed: ${error}`,
+      message: `Ingestion failed: ${errMsg}`,
     });
   }
 });

@@ -11,6 +11,7 @@ import { Octokit } from 'octokit';
 import { db } from '../server/db';
 import { projects } from '../server/db/schema';
 import { extractProjectData } from '../server/utils/ai';
+import { logger } from '../server/utils/logger';
 import type { Project } from '../shared/types';
 
 const HIDDEN_MARKER = '<!-- portfolio:hidden -->';
@@ -49,6 +50,8 @@ async function fetchReadme(octokit: Octokit, owner: string, repo: string) {
 }
 
 async function saveProject(project: Project) {
+  logger.seed.saving(project.id);
+
   await db
     .insert(projects)
     .values({
@@ -56,6 +59,9 @@ async function saveProject(project: Project) {
       title: project.title,
       tagline: project.tagline,
       description: project.description,
+      vNote: project.vNote,
+      projectColor: project.projectColor,
+      hoverTextCard: project.hoverTextCard,
       techStack: project.techStack,
       primaryTech: project.primaryTech,
       mainImgUrl: project.mainImgUrl,
@@ -73,6 +79,9 @@ async function saveProject(project: Project) {
         title: project.title,
         tagline: project.tagline,
         description: project.description,
+        vNote: project.vNote,
+        projectColor: project.projectColor,
+        hoverTextCard: project.hoverTextCard,
         techStack: project.techStack,
         primaryTech: project.primaryTech,
         mainImgUrl: project.mainImgUrl,
@@ -86,60 +95,59 @@ async function saveProject(project: Project) {
       },
     });
 
-  console.log(
-    `[SEED] Project ${project.id} saved successfully (cache will be invalidated on next webhook)`,
-  );
+  logger.seed.saved(project.id);
 }
 
 async function main() {
   const repoUrl = process.argv[2];
 
   if (!repoUrl) {
-    console.error('Usage: bun run seed/seed-single.ts <repo-url>');
-    console.error('Example: bun run seed/seed-single.ts https://github.com/username/my-project');
+    logger.seed.error('usage: bun run seed/seed-single.ts <repo-url>');
     process.exit(1);
   }
 
   const match = repoUrl.match(/github\.com\/([^\/]+)\/([^\/]+)/);
   if (!match) {
-    console.error('Invalid GitHub URL format');
+    logger.seed.error('invalid GitHub URL format');
     process.exit(1);
   }
 
   const [, owner, repo] = match;
   const repoName = repo.replace(/\.git$/, '');
 
-  console.log(`[SEED] Starting seed for ${owner}/${repoName}`);
+  logger.seed.start(`${owner}/${repoName}`);
 
   const token = process.env.GITHUB_SEED_TOKEN || process.env.GITHUB_TOKEN;
   if (!token) {
-    console.error('[SEED] GITHUB_SEED_TOKEN is required');
+    logger.seed.error('GITHUB_SEED_TOKEN is required');
     process.exit(1);
   }
 
   const octokit = new Octokit({ auth: token });
   const fullRepoUrl = `https://github.com/${owner}/${repoName}`;
 
+  logger.seed.start(`fetching README from ${owner}/${repoName}`);
+
   const readmeContent = await fetchReadme(octokit, owner, repoName);
   if (!readmeContent) {
-    console.error('[SEED] README not found');
+    logger.seed.error('README not found');
     process.exit(1);
   }
 
   if (readmeContent.includes(HIDDEN_MARKER)) {
-    console.log('[SEED] Hidden marker detected, skipping');
+    logger.seed.skipped('hidden marker detected');
     process.exit(0);
   }
 
   if (readmeContent.length < MIN_README_LENGTH) {
-    console.error(`[SEED] README too short (${readmeContent.length} chars)`);
+    logger.seed.error(`README too short (${readmeContent.length} chars)`);
     process.exit(1);
   }
 
   const hiddenData = parseHiddenData(readmeContent);
   const strictMode = process.env.NUXT_STRICT_MODE !== 'false';
 
-  console.log(`[SEED] Extracting with IA (strictMode: ${strictMode})`);
+  logger.seed.start(`extracting with IA (strictMode: ${strictMode})`);
 
   let project: Project;
   try {
@@ -149,7 +157,8 @@ async function main() {
       hiddenData,
     });
   } catch (error) {
-    console.error('[SEED] Extraction failed:', error);
+    const errMsg = error instanceof Error ? error.message : 'unknown';
+    logger.seed.error(`extraction failed: ${errMsg}`);
     process.exit(1);
   }
 
@@ -160,13 +169,12 @@ async function main() {
     if (!project.liveUrl) missing.push('liveUrl');
 
     if (missing.length > 0) {
-      console.error(`[SEED] Strict mode: missing ${missing.join(', ')}`);
+      logger.seed.error(`strict mode: missing ${missing.join(', ')}`);
       process.exit(1);
     }
   }
 
   await saveProject(project);
-  console.log(`[SEED] Project ${project.id} saved successfully`);
 }
 
 main();

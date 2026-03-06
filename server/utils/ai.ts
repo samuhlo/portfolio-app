@@ -62,29 +62,43 @@ Extract technical metadata from the provided README content and convert it to th
    - English (en) and Spanish (es)
    - Must be compelling and descriptive
 
-5. **techStack**: Array of specific technologies used
+5. **vNote**: Look for a section called "Vandal Note" or "## Vandal Note" in the README
+   - This is personal notes/remarks about the project
+   - Extract in both English and Spanish if available
+   - Return as { "en": "...", "es": "..." } or null if not found
+   - Example: { "en": "Built in 48h for a hackathon", "es": "Hecho en 48h para un hackathon" }
+
+6. **projectColor**: Look for accent_color in README metadata (often in a YAML frontmatter or a comment)
+   - Format: hex color like #ff5500, #3b82f6, etc.
+   - Return as string or null if not found
+
+7. **hoverTextCard**: Look for hover_text_card in README metadata
+   - Short text that appears when hovering over the project card
+   - Return as string or null if not found
+
+8. **techStack**: Array of specific technologies used
    - No versions (use "Vue" not "Vue 3")
    - Include framework, language, key libraries
 
-6. **primaryTech**: Main technology (framework > language)
+7. **primaryTech**: Main technology (framework > language)
    - NO versions
    - Example: "Vue", "React", "Node.js", "Python"
 
-7. **mainImgUrl**: Main screenshot/image URL
+8. **mainImgUrl**: Main screenshot/image URL
    - Convert relative paths to raw GitHub URLs
    - Example: "./screenshot.png" → "https://raw.githubusercontent.com/owner/repo/main/screenshot.png"
 
-8. **imagesUrl**: Additional images array (convert relative paths to raw URLs)
+9. **imagesUrl**: Additional images array (convert relative paths to raw URLs)
 
-9. **repoUrl**: The GitHub repository URL (provided)
+10. **repoUrl**: The GitHub repository URL (provided)
 
-10. **liveUrl**: Live demo URL if available in the README
+11. **liveUrl**: Live demo URL if available in the README
 
-11. **year**: Current year or year of creation (4 digits)
+12. **year**: Current year or year of creation (4 digits)
 
-12. **postUrl**: Blog post or article about the project (from hidden metadata)
+13. **postUrl**: Blog post or article about the project (from hidden metadata)
 
-13. **blogUrl**: Additional blog or documentation URL (from hidden metadata)
+14. **blogUrl**: Additional blog or documentation URL (from hidden metadata)
 
 ## HIDDEN METADATA
 The following data was extracted from hidden comments in the README:
@@ -108,6 +122,9 @@ ${JSON.stringify(jsonSchema, null, 2)}
   "title": "TinyShow",
   "tagline": { "en": "Portfolio Generator", "es": "Generador de Portfolio" },
   "description": { "en": "Automated portfolio generator...", "es": "Generador automático de portfolio..." },
+  "vNote": { "en": "Built for personal portfolio showcase", "es": "Hecho para mi portfolio personal" },
+  "projectColor": "#ff5500",
+  "hoverTextCard": "Check it out!",
   "techStack": ["Vue", "TypeScript", "Drizzle", "Neon"],
   "primaryTech": "Vue",
   "mainImgUrl": "https://raw.githubusercontent.com/owner/tinyshow/main/screenshot.png",
