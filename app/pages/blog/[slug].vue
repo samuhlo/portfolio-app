@@ -3,8 +3,8 @@
  * █ [PAGE] :: BLOG POST DETAIL
  * =====================================================================
  * DESC:   Página individual de un post del blog.
- *         Usa BlogPostLayout con BlogPostInfo (sidebar) y BlogPostBody.
- *         Layout específico sin footer de contact.
+ *         Timeline GSAP: sidebar stagger → title clip reveal → excerpt
+ *         → line scaleX → content fade.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -28,6 +28,7 @@ const route = useRoute();
 const { gsap, initGSAP } = useGSAP();
 
 const containerRef = ref<HTMLElement | null>(null);
+const postBodyRef = ref<InstanceType<typeof BlogPostBody> | null>(null);
 
 // Get slug from route
 const slug = computed(() => route.params.slug as string);
@@ -100,26 +101,94 @@ const nextPost = computed(() =>
   currentIndex.value > 0 ? BLOG_POSTS[currentIndex.value - 1] : null,
 );
 
+function onNextHover() {}
+function onNextLeave() {}
+function onPrevHover() {}
+function onPrevLeave() {}
+
 onMounted(() => {
   initGSAP(() => {
     if (!containerRef.value) return;
 
-    // Info sidebar animation
-    gsap.from('.post-info', {
-      x: -30,
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // =================================================================
+    // FASE 1 — SIDEBAR: info sections entran con stagger desde izquierda
+    // =================================================================
+    tl.from('.info-section-anim', {
+      x: -24,
       opacity: 0,
-      duration: 0.8,
-      ease: 'power3.out',
+      duration: 0.6,
+      stagger: 0.09,
     });
 
-    // Body animation
-    gsap.from('.post-body', {
-      x: 30,
-      opacity: 0,
-      duration: 0.8,
-      ease: 'power3.out',
-      delay: 0.2,
-    });
+    // =================================================================
+    // FASE 2 — POST EYEBROW (category label): fade desde arriba
+    // =================================================================
+    tl.from(
+      '.post-body-eyebrow',
+      {
+        y: -10,
+        opacity: 0,
+        duration: 0.5,
+      },
+      '-=0.3',
+    );
+
+    // =================================================================
+    // FASE 3 — POST TITLE: clip reveal desde abajo
+    // El overflow-hidden del wrapper hace el efecto de máscara.
+    // =================================================================
+    tl.from(
+      '.post-body-title',
+      {
+        yPercent: 105,
+        opacity: 0,
+        duration: 1,
+        ease: 'power4.out',
+      },
+      '-=0.2',
+    );
+
+    // =================================================================
+    // FASE 4 — EXCERPT: fade + slide
+    // =================================================================
+    tl.from(
+      '.post-body-excerpt',
+      {
+        y: 16,
+        opacity: 0,
+        duration: 0.7,
+      },
+      '-=0.5',
+    );
+
+    // =================================================================
+    // FASE 5 — LÍNEA SEPARADORA: scaleX de izquierda a derecha
+    // =================================================================
+    tl.from(
+      '.post-body-line',
+      {
+        scaleX: 0,
+        duration: 0.8,
+        ease: 'power2.inOut',
+      },
+      '-=0.4',
+    );
+
+    // =================================================================
+    // FASE 6 — CONTENIDO DEL POST: fade general del bloque
+    // No animamos elementos individuales del v-html (muy costoso).
+    // =================================================================
+    tl.from(
+      '.post-content',
+      {
+        y: 20,
+        opacity: 0,
+        duration: 0.8,
+      },
+      '-=0.3',
+    );
   }, containerRef.value);
 });
 </script>
@@ -134,7 +203,7 @@ onMounted(() => {
 
       <!-- Right: Body Content -->
       <template #body>
-        <BlogPostBody :post="post" :content="renderedContent" />
+        <BlogPostBody ref="postBodyRef" :post="post" :content="renderedContent" />
 
         <!-- Post Navigation -->
         <nav class="mt-16 pt-8 border-t border-foreground/10">
@@ -145,7 +214,7 @@ onMounted(() => {
                 <div
                   class="w-10 flex-shrink-0 arrow-doodle opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
-                  <DoodleArrowLeftGeneral :ref="nextArrowRef" />
+                  <DoodleArrowLeftGeneral />
                 </div>
                 <div>
                   <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30">Next</span>
@@ -169,7 +238,7 @@ onMounted(() => {
                 <div
                   class="w-10 flex-shrink-0 arrow-doodle opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
-                  <DoodleArrowRightGeneral :ref="prevArrowRef" />
+                  <DoodleArrowRightGeneral />
                 </div>
                 <div>
                   <span class="text-xs font-mono uppercase tracking-[0.15em] opacity-30"

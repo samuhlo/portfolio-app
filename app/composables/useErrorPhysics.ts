@@ -37,6 +37,8 @@ export function useErrorPhysics(
   containerRef: Ref<HTMLElement | null>,
   canvasRef: Ref<HTMLCanvasElement | null>,
 ) {
+  const textWidthPx = ref(0); // Ancho interactivo del bloque 404 devuelto a la UI
+
   let engine: Matter.Engine | null = null;
   let runner: Matter.Runner | null = null;
   let rafId: number | null = null;
@@ -75,6 +77,8 @@ export function useErrorPhysics(
 
     // En móvil ocupa el 90% del ancho, en escritorio el 60%
     const targetTextWidth = isMobile ? W * 0.9 : W * 0.6;
+    textWidthPx.value = targetTextWidth; // Emitimos este valor
+
     const fontSize = Math.floor((targetTextWidth / baseWidth) * 100);
 
     ctx.font = `${FONT_WEIGHT} ${fontSize}px ${fontFamily}`;
@@ -212,4 +216,8 @@ export function useErrorPhysics(
     if (resizeTimer) clearTimeout(resizeTimer);
     destroyPhysics();
   });
+
+  return {
+    textWidthPx,
+  };
 }

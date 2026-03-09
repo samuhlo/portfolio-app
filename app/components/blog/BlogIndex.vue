@@ -68,13 +68,13 @@ function selectCategory(category: BlogCategory | 'all') {
 </script>
 
 <template>
-  <nav class="blog-index flex flex-col gap-1">
+  <nav class="blog-index flex flex-col gap-0">
     <div v-for="cat in categories" :key="cat.id" class="category-wrapper">
       <button
         @click="selectCategory(cat.id)"
-        class="category-item group flex items-center justify-between w-full py-3 px-0 text-left transition-all duration-300 cursor-pointer"
+        class="category-item-anim group flex items-center justify-between w-full py-3 px-0 text-left cursor-pointer relative"
         :class="[
-          selectedCategory === cat.id ? 'opacity-100 font-bold' : 'opacity-40 hover:opacity-70',
+          selectedCategory === cat.id ? 'opacity-100 font-bold' : 'opacity-90 hover:opacity-100',
         ]"
       >
         <CategoryCircle
@@ -82,12 +82,12 @@ function selectCategory(category: BlogCategory | 'all') {
           :is-active="selectedCategory === cat.id"
           :color="getCategoryColor(cat.id)"
         >
-          <span class="text-sm md:text-base font-sans tracking-wide">
+          <span class="text-sm md:text-base font-sans tracking-wide pl-3">
             {{ cat.label }}
           </span>
         </CategoryCircle>
 
-        <span v-else class="text-sm md:text-base font-sans tracking-wide">
+        <span v-else class="text-sm md:text-base font-sans tracking-wide pl-3">
           {{ cat.label }}
         </span>
         <span class="text-xs tracking-[0.15em] opacity-50 font-mono">

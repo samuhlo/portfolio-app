@@ -46,6 +46,11 @@ function getCategoryColor(category: BlogCategory): string {
   return CATEGORY_COLORS[category];
 }
 
+// Formatear índice del post como _01, _02, etc.
+function formatIndex(index: number): string {
+  return `_${String(index + 1).padStart(2, '0')}`;
+}
+
 // GSAP hover handlers
 const postRefs = ref<Record<string, HTMLElement | null>>({});
 const arrowRefs = ref<Record<string, { svg: SVGSVGElement | null } | null>>({});
@@ -55,13 +60,10 @@ const arrowPaths = ref<Record<string, SVGPathElement[]>>({});
 const setArrowRef = (slug: string) => (el: any) => {
   if (el) {
     arrowRefs.value[slug] = el;
-    // Si todavía no tenemos los paths preparados o el componente cambió, lo preparamos.
-    // getBoundingClientRect no cuesta nada y aseguras que ya está en el DOM.
     if (!arrowPaths.value[slug] && el.svg) {
       arrowPaths.value[slug] = preparePaths(el.svg);
     }
   } else {
-    // Limpieza si el componente se desmonta (al cambiar de categoría)
     delete arrowRefs.value[slug];
     delete arrowPaths.value[slug];
   }
@@ -71,20 +73,18 @@ function onMouseEnter(slug: string) {
   const postEl = postRefs.value[slug];
   if (postEl) {
     gsap.to(postEl, {
-      x: 12,
+      x: 14,
       duration: 0.4,
       ease: 'power2.out',
     });
   }
 
-  // Animar doodle
   const arrowComponent = arrowRefs.value[slug];
   if (arrowComponent?.svg) {
     if (!arrowPaths.value[slug]) {
       arrowPaths.value[slug] = preparePaths(arrowComponent.svg);
     }
 
-    // Matar animaciones previas
     gsap.killTweensOf(arrowComponent.svg);
     arrowPaths.value[slug].forEach((p) => gsap.killTweensOf(p));
 
@@ -93,7 +93,7 @@ function onMouseEnter(slug: string) {
       svg: arrowComponent.svg,
       paths: arrowPaths.value[slug],
       duration: 0.17,
-      stagger: 0.2, // El retraso perfecto para que termine la línea y haga la punta (o que se solapen un poquito, queda guay)
+      stagger: 0.2,
       ease: 'power1.inOut',
     });
   }
@@ -109,7 +109,6 @@ function onMouseLeave(slug: string) {
     });
   }
 
-  // Borrar doodle
   const arrowComponent = arrowRefs.value[slug];
   if (arrowComponent?.svg && arrowPaths.value[slug]) {
     erasePaths(arrowComponent.svg, arrowPaths.value[slug], {
@@ -122,20 +121,17 @@ function onMouseLeave(slug: string) {
 
 <template>
   <div class="blog-list-container h-full">
-    <!-- Scrollable list -->
     <div
       class="blog-list space-y-0 max-h-[60vh] overflow-x-hidden overflow-y-auto pr-4 custom-scrollbar"
     >
       <article
         v-for="(post, index) in filteredPosts"
         :key="post.slug"
-        class="post-item group relative py-6 md:py-8 cursor-pointer"
+        class="post-item-anim group relative cursor-pointer"
       >
-        <!-- Timeline dot -->
-
         <NuxtLink
           :to="`/blog/${post.slug}`"
-          class="block"
+          class="block py-6 md:py-8"
           @mouseenter="onMouseEnter(post.slug)"
           @mouseleave="onMouseLeave(post.slug)"
         >
@@ -148,16 +144,22 @@ function onMouseLeave(slug: string) {
             class="pl-5 md:pl-6"
           >
             <!-- Meta -->
-            <div class="flex items-center gap-3 mb-2">
-              <span
-                class="text-[0.6rem] uppercase tracking-[0.2em] font-bold font-mono"
-                :style="{ color: getCategoryColor(post.category) }"
-              >
-                {{ CATEGORY_LABELS[post.category] }}
-              </span>
-              <span class="text-[0.6rem] font-mono tracking-widest opacity-25">•</span>
-              <span class="text-[0.6rem] font-mono tracking-widest opacity-40">
-                {{ formatDate(post.publishedAt) }}
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-3">
+                <span
+                  class="text-[0.6rem] uppercase tracking-[0.2em] font-bold font-mono"
+                  :style="{ color: getCategoryColor(post.category) }"
+                >
+                  {{ CATEGORY_LABELS[post.category] }}
+                </span>
+                <span class="text-[0.6rem] font-mono tracking-widest opacity-25">•</span>
+                <span class="text-[0.6rem] font-mono tracking-widest opacity-40">
+                  {{ formatDate(post.publishedAt) }}
+                </span>
+              </div>
+              <!-- Índice del post: _01, _02, etc. -->
+              <span class="text-[0.55rem] font-mono tracking-[0.2em] opacity-15 select-none">
+                {{ formatIndex(index) }}
               </span>
             </div>
 
@@ -183,10 +185,10 @@ function onMouseLeave(slug: string) {
           </div>
         </NuxtLink>
 
-        <!-- Divider -->
+        <!-- Divider: clase blog-divider para animación GSAP con scaleX -->
         <div
           v-if="index < filteredPosts.length - 1"
-          class="mt-6 md:mt-8 border-t border-foreground/5"
+          class="blog-divider border-t border-foreground/8 origin-left"
         />
       </article>
 

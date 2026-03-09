@@ -111,6 +111,23 @@ html.lenis body {
   opacity: 0.5;
 }
 
+/* Tag bordered — variante con borde visible, usado en BlogPostInfo */
+.tag-bordered {
+  font-size: 0.6rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid rgba(12, 0, 17, 0.15);
+  border-radius: 0.125rem;
+  opacity: 0.6;
+}
+
+/* Blog divider: transform-origin left, animado con scaleX por GSAP */
+.blog-divider {
+  transform-origin: left center;
+}
+
 /* Navigation links */
 .nav-link {
   font-size: 0.65rem;

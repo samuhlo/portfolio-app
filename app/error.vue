@@ -19,18 +19,18 @@ defineProps({
 });
 
 // =============================================================================
-// █ CONSTANTS: POSICIONAMIENTO (ajustables en "em")
-// =============================================================================
-/** Ancho del doodle wrapper en mobile / desktop (em) */
-const DOODLE_WIDTH_MOBILE = 17.5;
-const DOODLE_WIDTH_DESKTOP = 25;
-
-// =============================================================================
 // █ REFS Y STATE
 // =============================================================================
 const containerRef = ref<HTMLElement | null>(null);
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 const doodleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
+
+// Tiempos para un efecto de escritura perfecto
+const TIMING = {
+  duracion: 0.2,
+  stagger: 0.06,
+  ease: 'power3.out',
+};
 
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
 let doodleTimeline: gsap.core.Timeline | null = null;
@@ -40,7 +40,7 @@ let doodleTimeline: gsap.core.Timeline | null = null;
 // =============================================================================
 // [NOTE] La física de Matter.js ha sido extraída a un composable dedicado para
 // mantener la vista limpia y mejorar la mantenibilidad.
-useErrorPhysics(containerRef, canvasRef);
+const { textWidthPx } = useErrorPhysics(containerRef, canvasRef);
 
 // =============================================================================
 // █ NAVIGATION
@@ -60,9 +60,9 @@ onMounted(() => {
     addDrawAnimation(doodleTimeline, {
       svg: doodleRef.value.svg,
       paths,
-      duration: 0.8,
-      stagger: 0.02,
-      ease: 'power2.out',
+      duration: TIMING.duracion,
+      stagger: TIMING.stagger,
+      ease: TIMING.ease,
     });
   }
 });
@@ -87,13 +87,11 @@ onUnmounted(() => {
       style="color: var(--color-foreground, #0c0011)"
     />
 
-    <!-- Doodle animado independiente centrado -->
+    <!-- Doodle animado independiente centrado (escala con el texto 404) -->
     <div
-      class="absolute pointer-events-none md:w-(--w-desktop)"
+      class="absolute pointer-events-none"
       :style="{
-        '--w-mobile': `${DOODLE_WIDTH_MOBILE}em`,
-        '--w-desktop': `${DOODLE_WIDTH_DESKTOP}em`,
-        width: 'var(--w-mobile)',
+        width: `${textWidthPx}px`,
         left: '50%',
         top: '50%',
         transform: 'translate(-50%, -50%)',
