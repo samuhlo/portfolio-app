@@ -19,6 +19,13 @@ import BlogList from '~/components/blog/BlogList.vue';
 
 definePageMeta({
   layout: 'blog',
+  middleware(to, from) {
+    // [NOTE] Animar header solo en primera carga o desde fuera del blog.
+    // Si vienes de un post (/blog/xxx), no reanimar.
+    const isFromBlogPost =
+      from.name !== undefined && from.path.startsWith('/blog/') && from.path !== '/blog/';
+    to.meta.skipHeaderAnimation = isFromBlogPost;
+  },
 });
 
 const { gsap, initGSAP } = useGSAP();
@@ -58,10 +65,10 @@ onMounted(() => {
       {
         x: -20,
         opacity: 0,
-        duration: 0.5,
-        stagger: 0.08,
+        duration: 0.35,
+        stagger: 0.05,
       },
-      '+=0.6',
+      '+=0.3',
     );
 
     // =================================================================
@@ -70,12 +77,12 @@ onMounted(() => {
     tl.from(
       '.post-item-anim',
       {
-        y: 30,
+        y: 20,
         opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
+        duration: 0.4,
+        stagger: 0.06,
       },
-      '-=0.2',
+      '-=0.15',
     );
 
     // =================================================================
@@ -86,11 +93,11 @@ onMounted(() => {
       '.blog-divider',
       {
         scaleX: 0,
-        duration: 0.5,
-        stagger: 0.1,
+        duration: 0.35,
+        stagger: 0.06,
         ease: 'power2.inOut',
       },
-      '<0.05',
+      '<0.03',
     );
   }, containerRef.value);
 });

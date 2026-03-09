@@ -49,6 +49,10 @@ const DOODLE_TIMING = {
   ease: 'power3.out',
   proportional: true,
 };
+// =============================================================================
+// █ NAVIGATION: detectar si venimos de un post para skip de animación
+// =============================================================================
+const route = useRoute();
 
 onMounted(() => {
   initGSAP(() => {
@@ -67,6 +71,33 @@ onMounted(() => {
 
     // [NOTE] Capturar ancho de la "B" antes de animar para calcular el slide final
     const bWidth = letterB.getBoundingClientRect().width;
+    const fontSize = parseFloat(getComputedStyle(wordLogs).fontSize);
+    const bWidthInEm = bWidth / fontSize;
+
+    // =================================================================
+    // GUARD: Si venimos de un blog post, aplicar estado final directo
+    // con un fade-in sutil para que no quede estático.
+    // =================================================================
+    if (route.meta.skipHeaderAnimation) {
+      gsap.set(letterB, { opacity: 0 });
+      wordLogs.style.marginLeft = `-${bWidthInEm}em`;
+      titleContainer.style.overflow = 'visible';
+
+      // Doodle visible con paths dibujados
+      if (doodleSvg) {
+        gsap.set(doodleSvg, { opacity: 1 });
+        doodlePaths.forEach((p) => gsap.set(p, { strokeDashoffset: 0, visibility: 'visible' }));
+      }
+
+      // Fade-in sutil del header completo
+      gsap.from(headerRef.value, {
+        opacity: 0,
+        y: 20,
+        duration: 0.6,
+        ease: 'power3.out',
+      });
+      return;
+    }
 
     // =================================================================
     // TIMELINE PRINCIPAL — Entrance del header completo
@@ -146,13 +177,13 @@ onMounted(() => {
         const containerRect = titleContainer.getBoundingClientRect();
 
         const computedStyle = getComputedStyle(letterB);
-        const fontSize = parseFloat(computedStyle.fontSize);
+        const impactFontSize = parseFloat(computedStyle.fontSize);
         const fontFamily = computedStyle.fontFamily;
         const fontWeight = computedStyle.fontWeight;
 
         launchBPhysics(canvas, {
           text: 'B',
-          font: `${fontWeight} ${fontSize}px ${fontFamily}`,
+          font: `${fontWeight} ${impactFontSize}px ${fontFamily}`,
           startX: bRect.left - containerRect.left + bRect.width / 2,
           startY: bRect.top - containerRect.top + bRect.height / 2,
           charWidth: bRect.width,
@@ -177,8 +208,6 @@ onMounted(() => {
       duration: SLIDE_TO_ORIGIN_DURATION,
       ease: 'power3.inOut',
       onComplete: () => {
-        const fontSize = parseFloat(getComputedStyle(wordLogs).fontSize);
-        const bWidthInEm = bWidth / fontSize;
         gsap.set(wordLogs, { clearProps: 'x' });
         wordLogs.style.marginLeft = `-${bWidthInEm}em`;
       },
