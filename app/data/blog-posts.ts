@@ -41,7 +41,7 @@ The best design systems aren't the ones that constrain—they're the ones that g
 
 *Next week: diving deeper into the intersection of code and design.*
     `,
-    category: 'weekly-update',
+    category: 'weekly-log',
     publishedAt: '2026-02-07',
     readTime: 5,
     featured: true,
@@ -95,7 +95,7 @@ With great power comes great responsibility. Motion should enhance, not distract
 
 *Motion is meaning. Use it wisely.*
     `,
-    category: 'design-article',
+    category: 'find',
     publishedAt: '2026-01-28',
     readTime: 8,
     featured: true,
@@ -128,7 +128,7 @@ Coming back to Vue felt different after this exercise. I appreciated the reactiv
 
 *Next week: applying these lessons to a new project.*
     `,
-    category: 'weekly-update',
+    category: 'weekly-log',
     publishedAt: '2026-01-31',
     readTime: 4,
   },

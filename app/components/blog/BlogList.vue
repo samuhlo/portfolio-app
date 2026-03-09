@@ -131,7 +131,7 @@ function onMouseLeave(slug: string) {
       >
         <NuxtLink
           :to="`/blog/${post.slug}`"
-          class="block py-6 md:py-8"
+          class="block py-3 md:py-8"
           @mouseenter="onMouseEnter(post.slug)"
           @mouseleave="onMouseLeave(post.slug)"
         >

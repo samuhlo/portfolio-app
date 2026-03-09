@@ -13,7 +13,7 @@ definePageMeta({
   layout: 'blog',
 });
 
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute, createError } from '#app';
 import { getBlogPostBySlug, BLOG_POSTS } from '~/data/blog-posts';
 import { type BlogPost } from '~/types/blog';
@@ -25,10 +25,43 @@ import DoodleArrowRightGeneral from '~/components/ui/doodles/general/DoodleArrow
 import DoodleArrowLeftGeneral from '~/components/ui/doodles/general/DoodleArrowLeftGeneral.vue';
 
 const route = useRoute();
-const { gsap, initGSAP } = useGSAP();
+const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 
 const containerRef = ref<HTMLElement | null>(null);
 const postBodyRef = ref<InstanceType<typeof BlogPostBody> | null>(null);
+
+// SIDEBAR TITLE: aparece cuando el título del post deja de ser visible
+const showTitleInSidebar = ref(false);
+
+// =============================================================================
+// █ SCROLL PERSISTENCE: mantener posición de lectura entre recargas
+// =============================================================================
+const SCROLL_STORAGE_PREFIX = 'blog-scroll-';
+let scrollSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+function getScrollKey(): string {
+  return `${SCROLL_STORAGE_PREFIX}${slug.value}`;
+}
+
+function saveScrollPosition() {
+  if (scrollSaveTimer) clearTimeout(scrollSaveTimer);
+  scrollSaveTimer = setTimeout(() => {
+    sessionStorage.setItem(getScrollKey(), String(window.scrollY));
+  }, 300);
+}
+
+function restoreScrollPosition() {
+  const saved = sessionStorage.getItem(getScrollKey());
+  if (!saved) return;
+
+  const y = parseInt(saved, 10);
+  if (isNaN(y) || y <= 0) return;
+
+  window.scrollTo({ top: y, behavior: 'instant' });
+  // [NOTE]: ScrollTrigger.refresh() re-evalúa todos los triggers
+  // -> el sidebar title se mostrará si corresponde a esta posición
+  ScrollTrigger.refresh();
+}
 
 // Get slug from route
 const slug = computed(() => route.params.slug as string);
@@ -110,86 +143,132 @@ onMounted(() => {
   initGSAP(() => {
     if (!containerRef.value) return;
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    // =================================================================
+    // DETECTAR SI HAY SCROLL GUARDADO -> skip de animaciones de entrada
+    // =================================================================
+    const savedScroll = sessionStorage.getItem(getScrollKey());
+    const hasRestoredScroll = savedScroll && parseInt(savedScroll, 10) > 0;
 
-    // =================================================================
-    // FASE 1 — SIDEBAR: info sections entran con stagger desde izquierda
-    // =================================================================
-    tl.from('.info-section-anim', {
-      x: -24,
-      opacity: 0,
-      duration: 0.6,
-      stagger: 0.09,
-    });
+    if (hasRestoredScroll) {
+      // SCROLL RESTORE: restaurar posición sin animaciones
+      const y = parseInt(savedScroll, 10);
+      window.scrollTo({ top: y, behavior: 'instant' });
+    } else {
+      // PRIMERA VISITA: ejecutar timeline de entrada completa
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-    // =================================================================
-    // FASE 2 — POST EYEBROW (category label): fade desde arriba
-    // =================================================================
-    tl.from(
-      '.post-body-eyebrow',
-      {
-        y: -10,
+      // =================================================================
+      // FASE 1 — SIDEBAR: info sections entran con stagger desde izquierda
+      // =================================================================
+      tl.from('.info-section-anim', {
+        x: -24,
         opacity: 0,
-        duration: 0.5,
-      },
-      '-=0.3',
-    );
+        duration: 0.6,
+        stagger: 0.09,
+      });
+
+      // =================================================================
+      // FASE 2 — POST EYEBROW (category label): fade desde arriba
+      // =================================================================
+      tl.from(
+        '.post-body-eyebrow',
+        {
+          y: -10,
+          opacity: 0,
+          duration: 0.5,
+        },
+        '-=0.3',
+      );
+
+      // =================================================================
+      // FASE 3 — POST TITLE: clip reveal desde abajo
+      // El overflow-hidden del wrapper hace el efecto de máscara.
+      // =================================================================
+      tl.from(
+        '.post-body-title',
+        {
+          yPercent: 105,
+          opacity: 0,
+          duration: 1,
+          ease: 'power4.out',
+        },
+        '-=0.2',
+      );
+
+      // =================================================================
+      // FASE 4 — EXCERPT: fade + slide
+      // =================================================================
+      tl.from(
+        '.post-body-excerpt',
+        {
+          y: 16,
+          opacity: 0,
+          duration: 0.7,
+        },
+        '-=0.5',
+      );
+
+      // =================================================================
+      // FASE 5 — LÍNEA SEPARADORA: scaleX de izquierda a derecha
+      // =================================================================
+      tl.from(
+        '.post-body-line',
+        {
+          scaleX: 0,
+          duration: 0.8,
+          ease: 'power2.inOut',
+        },
+        '-=0.4',
+      );
+
+      // =================================================================
+      // FASE 6 — CONTENIDO DEL POST: fade general del bloque
+      // No animamos elementos individuales del v-html (muy costoso).
+      // =================================================================
+      tl.from(
+        '.post-content',
+        {
+          y: 20,
+          opacity: 0,
+          duration: 0.8,
+        },
+        '-=0.3',
+      );
+    }
 
     // =================================================================
-    // FASE 3 — POST TITLE: clip reveal desde abajo
-    // El overflow-hidden del wrapper hace el efecto de máscara.
+    // SCROLL TRIGGER — Título en sidebar cuando .post-body-title
+    // desaparece del viewport (scrollea arriba del viewport).
+    // Se crea SIEMPRE, tanto en primera visita como en restore.
     // =================================================================
-    tl.from(
-      '.post-body-title',
-      {
-        yPercent: 105,
-        opacity: 0,
-        duration: 1,
-        ease: 'power4.out',
-      },
-      '-=0.2',
-    );
+    const titleEl = containerRef.value.querySelector('.post-body-title');
+    if (titleEl) {
+      ScrollTrigger.create({
+        trigger: titleEl,
+        start: 'bottom top',
+        onEnter: () => {
+          showTitleInSidebar.value = true;
+        },
+        onLeaveBack: () => {
+          showTitleInSidebar.value = false;
+        },
+      });
 
-    // =================================================================
-    // FASE 4 — EXCERPT: fade + slide
-    // =================================================================
-    tl.from(
-      '.post-body-excerpt',
-      {
-        y: 16,
-        opacity: 0,
-        duration: 0.7,
-      },
-      '-=0.5',
-    );
-
-    // =================================================================
-    // FASE 5 — LÍNEA SEPARADORA: scaleX de izquierda a derecha
-    // =================================================================
-    tl.from(
-      '.post-body-line',
-      {
-        scaleX: 0,
-        duration: 0.8,
-        ease: 'power2.inOut',
-      },
-      '-=0.4',
-    );
-
-    // =================================================================
-    // FASE 6 — CONTENIDO DEL POST: fade general del bloque
-    // No animamos elementos individuales del v-html (muy costoso).
-    // =================================================================
-    tl.from(
-      '.post-content',
-      {
-        y: 20,
-        opacity: 0,
-        duration: 0.8,
-      },
-      '-=0.3',
-    );
+      // [NOTE]: Si restauramos scroll, refrescar ScrollTrigger para que
+      // evalúe la posición actual y muestre el sidebar title si corresponde
+      if (hasRestoredScroll) {
+        ScrollTrigger.refresh();
+      }
+    }
   }, containerRef.value);
+
+  // Guardar posición de scroll al navegar
+  window.addEventListener('scroll', saveScrollPosition, { passive: true });
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', saveScrollPosition);
+  if (scrollSaveTimer) clearTimeout(scrollSaveTimer);
 });
 </script>
 
@@ -198,7 +277,7 @@ onMounted(() => {
     <BlogPostLayout>
       <!-- Left: Info Sidebar -->
       <template #info>
-        <BlogPostInfo :post="post" />
+        <BlogPostInfo :post="post" :show-title="showTitleInSidebar" />
       </template>
 
       <!-- Right: Body Content -->

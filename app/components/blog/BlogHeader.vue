@@ -12,7 +12,7 @@
 </script>
 
 <template>
-  <header class="blog-header max-w-3xl mb-16 md:mb-20">
+  <header class="blog-header max-w-3xl mb-8 md:mb-12">
     <div class="blog-header-breadcrumb flex items-baseline gap-4 mb-6">
       <span class="text-xs font-mono uppercase tracking-[0.3em] opacity-40">Blog</span>
       <span class="text-xs font-mono uppercase tracking-[0.3em] opacity-20">/</span>
@@ -43,8 +43,7 @@
     <p
       class="blog-header-desc mt-8 text-base font-mono md:text-lg tracking-wide opacity-50 max-w-lg leading-relaxed"
     >
-      A collection of weekly updates, design explorations, and thoughts on building digital
-      products.
+      Thoughts, discoveries and updates from a mind that collects everything.
     </p>
   </header>
 </template>

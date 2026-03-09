@@ -5,7 +5,7 @@
  * =====================================================================
  */
 
-export type BlogCategory = 'weekly-update' | 'design-article' | 'thoughts';
+export type BlogCategory = 'weekly-log' | 'find' | 'breakdown' | 'outside';
 
 export interface BlogPost {
   slug: string;
@@ -19,13 +19,15 @@ export interface BlogPost {
 }
 
 export const CATEGORY_LABELS: Record<BlogCategory, string> = {
-  'weekly-update': 'Weekly Update',
-  'design-article': 'Design Article',
-  thoughts: 'Thoughts',
+  'weekly-log': 'weekly_log',
+  find: 'find',
+  breakdown: 'breakdown',
+  outside: 'outside',
 };
 
 export const CATEGORY_COLORS: Record<BlogCategory, string> = {
-  'weekly-update': '#ff6b6b',
-  'design-article': '#4ecdc4',
-  thoughts: '#ffca40',
+  'weekly-log': '#ff6b6b',
+  find: '#4ecdc4',
+  breakdown: '#ffca40',
+  outside: '#b8e986',
 };

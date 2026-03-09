@@ -26,9 +26,10 @@ const emit = defineEmits<{
 const categoryCounts = computed(() => {
   const counts: Record<BlogCategory | 'all', number> = {
     all: BLOG_POSTS.length,
-    'weekly-update': 0,
-    'design-article': 0,
-    thoughts: 0,
+    'weekly-log': 0,
+    find: 0,
+    breakdown: 0,
+    outside: 0,
   };
 
   BLOG_POSTS.forEach((post) => {
@@ -39,21 +40,26 @@ const categoryCounts = computed(() => {
 });
 
 const categories = computed(() => [
-  { id: 'all' as const, label: 'All Posts', count: categoryCounts.value.all },
+  { id: 'all' as const, label: 'all', count: categoryCounts.value.all },
   {
-    id: 'weekly-update' as const,
-    label: CATEGORY_LABELS['weekly-update'],
-    count: categoryCounts.value['weekly-update'],
+    id: 'weekly-log' as const,
+    label: CATEGORY_LABELS['weekly-log'],
+    count: categoryCounts.value['weekly-log'],
   },
   {
-    id: 'design-article' as const,
-    label: CATEGORY_LABELS['design-article'],
-    count: categoryCounts.value['design-article'],
+    id: 'find' as const,
+    label: CATEGORY_LABELS['find'],
+    count: categoryCounts.value['find'],
   },
   {
-    id: 'thoughts' as const,
-    label: CATEGORY_LABELS['thoughts'],
-    count: categoryCounts.value['thoughts'],
+    id: 'breakdown' as const,
+    label: CATEGORY_LABELS['breakdown'],
+    count: categoryCounts.value['breakdown'],
+  },
+  {
+    id: 'outside' as const,
+    label: CATEGORY_LABELS['outside'],
+    count: categoryCounts.value['outside'],
   },
 ]);
 
@@ -68,11 +74,11 @@ function selectCategory(category: BlogCategory | 'all') {
 </script>
 
 <template>
-  <nav class="blog-index flex flex-col gap-0">
+  <nav class="blog-index flex flex-col gap-0 py-7">
     <div v-for="cat in categories" :key="cat.id" class="category-wrapper">
       <button
         @click="selectCategory(cat.id)"
-        class="category-item-anim group flex items-center justify-between w-full py-3 px-0 text-left cursor-pointer relative"
+        class="category-item-anim group flex items-center justify-between w-full py-1.5 md:py-2 px-0 text-left cursor-pointer relative"
         :class="[
           selectedCategory === cat.id ? 'opacity-100 font-bold' : 'opacity-90 hover:opacity-100',
         ]"
@@ -82,12 +88,12 @@ function selectCategory(category: BlogCategory | 'all') {
           :is-active="selectedCategory === cat.id"
           :color="getCategoryColor(cat.id)"
         >
-          <span class="text-sm md:text-base font-sans tracking-wide pl-3">
+          <span class="text-xs md:text-sm font-mono uppercase tracking-wide pl-3">
             {{ cat.label }}
           </span>
         </CategoryCircle>
 
-        <span v-else class="text-sm md:text-base font-sans tracking-wide pl-3">
+        <span v-else class="text-xs md:text-sm font-mono uppercase tracking-wide pl-3">
           {{ cat.label }}
         </span>
         <span class="text-xs tracking-[0.15em] opacity-50 font-mono">
