@@ -11,7 +11,8 @@
     "lint": "eslint . --fix",
     "format": "prettier --write .",
     "lint:check": "eslint .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "doodle": "bun run scripts/generate-doodle.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
