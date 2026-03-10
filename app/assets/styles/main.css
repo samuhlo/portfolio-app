@@ -83,20 +83,22 @@ html.lenis body {
    BLOG / LAYOUT SEMANTIC CLASSES
    ============================================ */
 
-/* Metadata labels (Category, Published, etc.) */
+/* Metadata labels (Category, Published, etc.)
+   El tamaño 0.6rem + uppercase + tracking ya hacen la jerarquía —
+   no hace falta opacity tan baja. 0.5 es el mínimo legible. */
 .meta-label {
   font-size: 0.6rem;
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 /* Metadata values (dates, read time, etc.) */
 .meta-value {
   font-size: 0.875rem;
   font-family: var(--font-mono);
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 /* Tag styles */
@@ -106,21 +108,21 @@ html.lenis body {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0.25rem 0.5rem;
-  background-color: rgba(12, 0, 17, 0.05);
+  background-color: rgba(12, 0, 17, 0.06);
   border-radius: 0.125rem;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
-/* Tag bordered — variante con borde visible, usado en BlogPostInfo */
+/* Tag bordered */
 .tag-bordered {
   font-size: 0.6rem;
   font-family: var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   padding: 0.2rem 0.5rem;
-  border: 1px solid rgba(12, 0, 17, 0.15);
+  border: 1px solid rgba(12, 0, 17, 0.2);
   border-radius: 0.125rem;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 /* Blog divider: transform-origin left, animado con scaleX por GSAP */
@@ -133,8 +135,8 @@ html.lenis body {
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  opacity: 0.4;
-  transition: opacity 0.3s ease;
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
 }
 .nav-link:hover {
   opacity: 1;
@@ -176,7 +178,7 @@ html.lenis body {
 .prose .post-p {
   font-size: clamp(1rem, 2vw, 1.0625rem);
   line-height: 1.85;
-  opacity: 0.75;
+  opacity: 0.85;
   margin-bottom: 1.75rem;
 }
 
@@ -184,7 +186,7 @@ html.lenis body {
 .prose > p:first-of-type,
 .prose > .post-p:first-of-type {
   font-size: clamp(1.0625rem, 2vw, 1.125rem);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .prose ul,
@@ -198,7 +200,7 @@ html.lenis body {
 .prose .post-li {
   font-size: clamp(1rem, 2vw, 1.0625rem);
   line-height: 1.85;
-  opacity: 0.75;
+  opacity: 0.85;
   margin-bottom: 0.625rem;
   padding-left: 1.25rem;
   position: relative;
@@ -210,7 +212,7 @@ html.lenis body {
   content: '—';
   position: absolute;
   left: 0;
-  opacity: 0.25;
+  opacity: 0.35;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   top: 0.35em;
@@ -233,7 +235,7 @@ html.lenis body {
 }
 
 .prose blockquote p {
-  opacity: 0.6;
+  opacity: 0.8;
   font-style: italic;
 }
 

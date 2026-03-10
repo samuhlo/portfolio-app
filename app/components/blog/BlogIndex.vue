@@ -55,7 +55,7 @@ function selectCategory(category: BlogCategory | 'all') {
         <span v-else class="text-xs md:text-sm font-mono uppercase tracking-wide pl-3">
           {{ cat.label }}
         </span>
-        <span class="text-xs tracking-[0.15em] opacity-50 font-mono">
+        <span class="text-xs tracking-[0.15em] opacity-60 font-mono">
           {{ cat.count }}
         </span>
       </button>

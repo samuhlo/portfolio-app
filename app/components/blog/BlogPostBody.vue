@@ -66,7 +66,7 @@ const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
 
       <!-- Description -->
       <p
-        class="post-body-excerpt text-base md:text-lg opacity-50 leading-[1.75] font-mono max-w-xl"
+        class="post-body-excerpt text-base md:text-lg opacity-70 leading-[1.75] font-mono max-w-xl"
       >
         {{ post.description }}
       </p>

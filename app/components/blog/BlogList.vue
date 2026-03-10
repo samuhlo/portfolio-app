@@ -167,13 +167,13 @@ function onMouseLeave(slug: string) {
                 >
                   {{ CATEGORY_LABELS[post.category] }}
                 </span>
-                <span class="text-[0.6rem] font-mono tracking-widest opacity-25">•</span>
-                <span class="text-[0.6rem] font-mono tracking-widest opacity-40">
+                <span class="text-[0.6rem] font-mono tracking-widest opacity-30">·</span>
+                <span class="text-[0.6rem] font-mono tracking-widest opacity-55">
                   {{ formatDate(post.date) }}
                 </span>
               </div>
               <!-- Índice del post: _01, _02, etc. -->
-              <span class="text-[0.55rem] font-mono tracking-[0.2em] opacity-15 select-none">
+              <span class="text-[0.55rem] font-mono tracking-[0.2em] opacity-25 select-none">
                 {{ formatIndex(index) }}
               </span>
             </div>
@@ -184,7 +184,7 @@ function onMouseLeave(slug: string) {
             </h3>
 
             <!-- Description -->
-            <p class="mt-2 text-sm font-mono opacity-40 leading-relaxed line-clamp-2">
+            <p class="mt-2 text-sm font-mono opacity-65 leading-relaxed line-clamp-2">
               {{ post.description }}
             </p>
 
@@ -207,7 +207,7 @@ function onMouseLeave(slug: string) {
       </article>
 
       <!-- Empty state -->
-      <div v-if="filteredPosts.length === 0" class="py-12 text-center opacity-40">
+      <div v-if="filteredPosts.length === 0" class="py-12 text-center opacity-55">
         <p class="text-sm font-mono tracking-wide">No posts in this category</p>
       </div>
     </div>

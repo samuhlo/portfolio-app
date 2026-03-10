@@ -114,15 +114,15 @@ async function copyLink() {
       <!-- Published -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-2">Published</p>
-        <p class="text-xs font-mono opacity-60">{{ formatDate(post.date) }}</p>
+        <p class="text-xs font-mono opacity-75">{{ formatDate(post.date) }}</p>
       </div>
 
       <!-- Read time -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-2">Read time</p>
         <p class="text-xs font-mono opacity-60">
-          <span class="font-bold text-sm opacity-100">{{ post.time_to_read }}</span>
-          <span class="opacity-40"> min</span>
+          <span class="font-bold text-sm">{{ post.time_to_read }}</span>
+          <span class="opacity-60"> min</span>
         </p>
       </div>
 
@@ -133,7 +133,7 @@ async function copyLink() {
           <span
             v-for="topic in post.topics"
             :key="topic"
-            class="text-[0.6rem] font-mono uppercase tracking-[0.12em] opacity-40"
+            class="text-[0.6rem] font-mono uppercase tracking-[0.12em] opacity-65"
           >
             {{ topic }}
           </span>
@@ -144,7 +144,7 @@ async function copyLink() {
       <div class="info-section-anim pt-4">
         <button class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
           <span
-            class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-25 group-hover:opacity-70 transition-opacity duration-200"
+            class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
           >
             Copy link
           </span>
