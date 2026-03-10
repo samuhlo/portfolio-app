@@ -136,7 +136,8 @@ function onMouseLeave(slug: string) {
 <template>
   <div class="blog-list-container h-full">
     <div
-      class="blog-list space-y-0 max-h-[60vh] overflow-x-hidden overflow-y-auto pr-4 custom-scrollbar"
+      class="blog-list space-y-0 max-h-[60vh] overflow-y-auto no-scrollbar pr-4"
+      data-lenis-prevent
     >
       <article
         v-for="(post, index) in filteredPosts"
@@ -214,23 +215,6 @@ function onMouseLeave(slug: string) {
 </template>
 
 <style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(12, 0, 17, 0.1);
-  border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(12, 0, 17, 0.2);
-}
-
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
