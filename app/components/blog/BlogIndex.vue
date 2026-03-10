@@ -3,48 +3,24 @@
  * █ [COMPONENT] :: BLOG INDEX
  * =====================================================================
  * DESC:   Lista de categorías del blog con contador de posts.
- *         Recibe posts desde el padre para calcular contadores.
+ *         Puramente presentacional — recibe categorías pre-computadas
+ *         desde useBlogCategories() a través del padre.
  *         CategoryCircle rodea la categoría activa.
  * STATUS: STABLE
  * =====================================================================
  */
 
-import { computed } from 'vue';
-import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory, type BlogPost } from '~/types/blog';
+import { CATEGORY_COLORS, type BlogCategory, type CategoryItem } from '~/types/blog';
 import CategoryCircle from './CategoryCircle.vue';
 
 const props = defineProps<{
   selectedCategory: BlogCategory | 'all';
-  posts: BlogPost[];
+  categories: CategoryItem[];
 }>();
 
 const emit = defineEmits<{
   (e: 'select', category: BlogCategory | 'all'): void;
 }>();
-
-const categories = computed(() => [
-  { id: 'all' as const, label: 'all', count: props.posts.length },
-  {
-    id: 'weekly_log' as const,
-    label: CATEGORY_LABELS['weekly_log'],
-    count: props.posts.filter((p) => p.category === 'weekly_log').length,
-  },
-  {
-    id: 'find' as const,
-    label: CATEGORY_LABELS['find'],
-    count: props.posts.filter((p) => p.category === 'find').length,
-  },
-  {
-    id: 'breakdown' as const,
-    label: CATEGORY_LABELS['breakdown'],
-    count: props.posts.filter((p) => p.category === 'breakdown').length,
-  },
-  {
-    id: 'outside' as const,
-    label: CATEGORY_LABELS['outside'],
-    count: props.posts.filter((p) => p.category === 'outside').length,
-  },
-]);
 
 function getCategoryColor(category: BlogCategory | 'all'): string {
   if (category === 'all') return 'currentColor';

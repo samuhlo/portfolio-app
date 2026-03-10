@@ -23,6 +23,13 @@ export type BlogPost = {
   body?: unknown;
 };
 
+// Ítem de categoría con conteo — usado por useBlogCategories y BlogIndex
+export type CategoryItem = {
+  id: BlogCategory | 'all';
+  label: string;
+  count: number;
+};
+
 export const CATEGORY_LABELS: Record<BlogCategory, string> = {
   weekly_log: 'weekly_log',
   find: 'find',
