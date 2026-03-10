@@ -13,7 +13,7 @@
 
 definePageMeta({ layout: 'blog' });
 
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
@@ -54,7 +54,32 @@ useSeoMeta({
   ogType: 'article',
 });
 
-onMounted(() => {
+// =============================================================================
+// █ ANIMATION CONSTANTS — editar aquí para ajustar velocidad y tipo
+// =============================================================================
+const ANIM = {
+  // Ease por defecto del timeline
+  defaultEase: 'power3.out',
+
+  sidebar: { x: -24, duration: 0.4, stagger: 0.06 },
+  eyebrow:  { y: -10,  duration: 0.35, overlap: '-=0.2' },
+  title:    { duration: 0.6, ease: 'power4.out', overlap: '-=0.15' },
+  excerpt:  { y: 12,   duration: 0.45, overlap: '-=0.35' },
+  line:     { duration: 0.5, ease: 'power2.inOut', overlap: '-=0.3' },
+  content:  { y: 16,   duration: 0.5, overlap: '-=0.2' },
+} as const;
+
+// =============================================================================
+// █ GSAP SETUP: se inicia cuando post está disponible y el DOM renderizado.
+//   Usa watch + nextTick para garantizar que funciona tanto en SSR como
+//   en navegación client-side (donde post puede llegar tras onMounted).
+// =============================================================================
+let gsapInitialized = false;
+
+function setupGSAP() {
+  if (gsapInitialized || !containerRef.value) return;
+  gsapInitialized = true;
+
   initGSAP(() => {
     if (!containerRef.value) return;
 
@@ -64,36 +89,46 @@ onMounted(() => {
     if (hasRestoredScroll) {
       window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
     } else {
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      const tl = gsap.timeline({ defaults: { ease: ANIM.defaultEase } });
 
-      tl.from('.info-section-anim', { x: -24, opacity: 0, duration: 0.6, stagger: 0.09 });
-      tl.from('.post-body-eyebrow', { y: -10, opacity: 0, duration: 0.5 }, '-=0.3');
-      tl.from(
-        '.post-body-title',
-        { yPercent: 105, opacity: 0, duration: 1, ease: 'power4.out' },
-        '-=0.2',
-      );
-      tl.from('.post-body-excerpt', { y: 16, opacity: 0, duration: 0.7 }, '-=0.5');
-      tl.from('.post-body-line', { scaleX: 0, duration: 0.8, ease: 'power2.inOut' }, '-=0.4');
-      tl.from('.post-content', { y: 20, opacity: 0, duration: 0.8 }, '-=0.3');
+      tl.from('.info-section-anim', { x: ANIM.sidebar.x, opacity: 0, duration: ANIM.sidebar.duration, stagger: ANIM.sidebar.stagger });
+      tl.from('.post-body-eyebrow', { y: ANIM.eyebrow.y, opacity: 0, duration: ANIM.eyebrow.duration }, ANIM.eyebrow.overlap);
+      tl.from('.post-body-title',   { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease }, ANIM.title.overlap);
+      tl.from('.post-body-excerpt', { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration }, ANIM.excerpt.overlap);
+      tl.from('.post-body-line',    { scaleX: 0, duration: ANIM.line.duration, ease: ANIM.line.ease }, ANIM.line.overlap);
+      tl.from('.post-content',      { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration }, ANIM.content.overlap);
     }
 
+    // ScrollTrigger: muestra el título en la sidebar cuando el h1 sale del viewport
     const titleEl = containerRef.value.querySelector('.post-body-title');
     if (titleEl) {
       ScrollTrigger.create({
         trigger: titleEl,
         start: 'bottom top',
-        onEnter: () => {
-          showTitleInSidebar.value = true;
-        },
-        onLeaveBack: () => {
-          showTitleInSidebar.value = false;
-        },
+        onEnter: () => { showTitleInSidebar.value = true; },
+        onLeaveBack: () => { showTitleInSidebar.value = false; },
       });
 
-      if (hasRestoredScroll) ScrollTrigger.refresh();
+      if (sessionStorage.getItem(SCROLL_KEY) && parseInt(sessionStorage.getItem(SCROLL_KEY)!, 10) > 0) {
+        ScrollTrigger.refresh();
+      }
     }
   }, containerRef.value);
+}
+
+onMounted(() => {
+  // Si post ya está disponible, iniciar GSAP en el siguiente tick (DOM listo).
+  // Si aún no está disponible (client-side navigation), esperar al watch.
+  if (post.value) {
+    nextTick(setupGSAP);
+  } else {
+    const stop = watch(post, (val) => {
+      if (val) {
+        nextTick(setupGSAP);
+        stop();
+      }
+    });
+  }
 
   window.addEventListener('scroll', saveScrollPosition, { passive: true });
 });

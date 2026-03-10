@@ -2,9 +2,9 @@
 /**
  * █ [COMPONENT] :: BLOG POST BODY
  * =====================================================================
- * DESC:   Cuerpo del post. El header (título, categoría, descripción)
- *         se renderiza manualmente; el contenido markdown vía <ContentRenderer>.
- *         Exposé refs para animaciones GSAP desde la página padre.
+ * DESC:   Cuerpo del post. Header con firma visual de categoría (left
+ *         accent line en color de categoría). ContentRenderer para el
+ *         markdown. Refs expuestos para GSAP desde [slug].vue.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -17,57 +17,69 @@ const props = defineProps<{
   post: BlogPost;
 }>();
 
-// Refs expuestos para targeting GSAP desde [slug].vue
 const postHeaderRef = ref<HTMLElement | null>(null);
 const postContentRef = ref<HTMLElement | null>(null);
 
 defineExpose({ postHeaderRef, postContentRef });
+
+const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
 </script>
 
 <template>
   <div class="blog-post-body">
-    <!-- Post Header -->
-    <header ref="postHeaderRef" class="post-body-header mb-12 md:mb-16">
-      <!-- Eyebrow: label de categoría con color -->
-      <div class="post-body-eyebrow flex items-center gap-3 mb-5">
+    <!-- ================================================================
+         POST HEADER
+         La línea izquierda (gradient del color de categoría) es la
+         "firma visual" del post. El único elemento de color en la página.
+         ================================================================ -->
+    <header ref="postHeaderRef" class="post-body-header relative pl-7 mb-14 md:mb-20">
+      <!-- Accent line: gradiente color → transparente, sólo en el header -->
+      <div
+        class="absolute left-0 top-0 h-full w-[2.5px] rounded-full"
+        :style="{
+          background: `linear-gradient(to bottom, ${categoryColor} 0%, ${categoryColor}00 100%)`,
+        }"
+      />
+
+      <!-- Eyebrow
+      <div class="post-body-eyebrow flex items-center gap-3 mb-7">
         <span
-          class="text-[0.6rem] font-mono uppercase tracking-[0.25em] font-bold"
-          :style="{ color: CATEGORY_COLORS[post.category] }"
+          class="text-[0.6rem] font-mono uppercase tracking-[0.28em] font-bold"
+          :style="{ color: categoryColor }"
         >
           {{ CATEGORY_LABELS[post.category] }}
         </span>
-        <span class="text-[0.6rem] font-mono tracking-widest opacity-20">·</span>
-        <span class="text-[0.6rem] font-mono uppercase tracking-[0.25em] opacity-30">
+        <span class="text-[0.55rem] font-mono opacity-15">—</span>
+        <span class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-25">
           {{ post.time_to_read }} min read
         </span>
-      </div>
+      </div> -->
 
-      <!-- [NOTE]: overflow-hidden en el wrapper para el clip-path reveal del título -->
+      <!-- [NOTE] overflow-hidden crítico para clip-path reveal de GSAP -->
       <div class="overflow-hidden">
         <h1
-          class="post-body-title text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-[1.1] mb-6"
+          class="post-body-title text-[clamp(2.25rem,6vw,4rem)] font-black tracking-[-0.035em] leading-[1.0] mb-7"
         >
           {{ post.title }}
         </h1>
       </div>
 
       <!-- Description -->
-      <p class="post-body-excerpt text-lg md:text-xl opacity-60 leading-relaxed">
+      <p
+        class="post-body-excerpt text-base md:text-lg opacity-50 leading-[1.75] font-mono max-w-xl"
+      >
         {{ post.description }}
       </p>
-
-      <!-- Línea separadora: animada con scaleX desde [slug].vue -->
-      <div class="post-body-line mt-8 h-px bg-foreground/10 origin-left" />
     </header>
 
-    <!-- Post Content — Nuxt Content renderiza el markdown del body -->
+    <!-- Divider: animado con scaleX desde [slug].vue -->
+    <div class="post-body-line mb-14 h-px bg-foreground/8 origin-left" />
+
+    <!-- Post Content -->
     <div ref="postContentRef" class="post-content prose">
-      <ContentRenderer :value="(post as any)" />
+      <ContentRenderer :value="post as any" />
     </div>
 
-    <!-- Post Footer -->
-    <footer class="mt-16 pt-8 border-t border-foreground/10">
-      <!-- Espacio para author info, related posts, etc. -->
-    </footer>
+    <footer class="mt-20 pt-8 border-t border-foreground/8" />
   </div>
 </template>

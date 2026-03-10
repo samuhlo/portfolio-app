@@ -143,67 +143,108 @@ html.lenis body {
 /* Blog prose content */
 .prose h1,
 .prose .post-h1 {
-  font-size: clamp(1.875rem, 5vw, 2.25rem);
+  font-size: clamp(1.75rem, 4vw, 2.125rem);
   font-weight: 900;
-  letter-spacing: -0.025em;
-  margin-top: 3rem;
-  margin-bottom: 1.5rem;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-top: 3.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .prose h2,
 .prose .post-h2 {
-  font-size: clamp(1.5rem, 4vw, 1.875rem);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  margin-top: 2.5rem;
-  margin-bottom: 1.25rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-top: 3rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(12, 0, 17, 0.07);
 }
 
 .prose h3,
 .prose .post-h3 {
-  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-size: clamp(1.0625rem, 2.5vw, 1.1875rem);
   font-weight: 700;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
+  letter-spacing: -0.01em;
+  margin-top: 2.5rem;
+  margin-bottom: 0.875rem;
 }
 
 .prose p,
 .prose .post-p {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  line-height: 1.75;
+  font-size: clamp(1rem, 2vw, 1.0625rem);
+  line-height: 1.85;
+  opacity: 0.75;
+  margin-bottom: 1.75rem;
+}
+
+/* Lead: primer párrafo ligeramente más prominente */
+.prose > p:first-of-type,
+.prose > .post-p:first-of-type {
+  font-size: clamp(1.0625rem, 2vw, 1.125rem);
   opacity: 0.8;
-  margin-bottom: 1.5rem;
 }
 
 .prose ul,
 .prose .post-ul {
-  list-style-type: disc;
-  list-style-position: inside;
-  margin-bottom: 1.5rem;
+  list-style: none;
+  margin-bottom: 1.75rem;
+  padding-left: 0;
 }
 
 .prose li,
 .prose .post-li {
-  font-size: clamp(1rem, 2vw, 1.125rem);
-  line-height: 1.75;
-  opacity: 0.8;
-  margin-bottom: 0.5rem;
+  font-size: clamp(1rem, 2vw, 1.0625rem);
+  line-height: 1.85;
+  opacity: 0.75;
+  margin-bottom: 0.625rem;
+  padding-left: 1.25rem;
+  position: relative;
+}
+
+/* Bullet custom: guión largo */
+.prose li::before,
+.prose .post-li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  opacity: 0.25;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  top: 0.35em;
 }
 
 .prose hr,
 .prose .post-hr {
   border: none;
   height: 1px;
-  background-color: rgba(12, 0, 17, 0.1);
-  margin: 3rem 0;
+  background-color: rgba(12, 0, 17, 0.08);
+  margin: 3.5rem 0;
 }
 
+/* Blockquote */
+.prose blockquote {
+  border-left: 2px solid var(--color-accent);
+  margin-left: 0;
+  padding-left: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.prose blockquote p {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+/* Code blocks */
 .prose pre,
 .prose .code-block {
-  background-color: rgba(12, 0, 17, 0.05);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+  background-color: rgba(12, 0, 17, 0.04);
+  border: 1px solid rgba(12, 0, 17, 0.07);
+  border-radius: 2px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
   overflow-x: auto;
 }
 
@@ -211,12 +252,16 @@ html.lenis body {
 .prose .code-block code,
 .prose .inline-code {
   font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.625;
+  font-size: 0.8125rem;
+  line-height: 1.7;
 }
 
+/* Inline code */
+.prose :not(pre) > code,
 .prose .inline-code {
   background-color: rgba(12, 0, 17, 0.05);
-  padding: 0.125rem 0.375rem;
-  border-radius: 0.25rem;
+  border: 1px solid rgba(12, 0, 17, 0.08);
+  padding: 0.1em 0.4em;
+  border-radius: 2px;
+  font-size: 0.8125rem;
 }

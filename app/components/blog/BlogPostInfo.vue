@@ -2,10 +2,9 @@
 /**
  * █ [COMPONENT] :: BLOG POST INFO
  * =====================================================================
- * DESC:   Sidebar con metadata del post: categoría, fecha,
- *         tiempo de lectura, topics, etc.
- *         Clases .info-section-anim para stagger de entrada GSAP.
- *         Título sticky que aparece al hacer scroll (showTitle prop).
+ * DESC:   Sidebar de metadata. Estética: vertical strip minimalista
+ *         con la categoría como elemento de color primario.
+ *         Título sticky con GSAP al hacer scroll.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -24,9 +23,6 @@ const props = defineProps<{
 const { gsap } = useGSAP();
 const sidebarTitleRef = ref<HTMLElement | null>(null);
 
-// =============================================================================
-// █ SIDEBAR TITLE: aparece/desaparece al hacer scroll sobre el título del post
-// =============================================================================
 watch(
   () => props.showTitle,
   (show) => {
@@ -36,7 +32,6 @@ watch(
       gsap.set(sidebarTitleRef.value, { display: 'block', height: 'auto', opacity: 1 });
       const fullHeight = sidebarTitleRef.value.offsetHeight;
       gsap.set(sidebarTitleRef.value, { height: 0, opacity: 0 });
-
       gsap.to(sidebarTitleRef.value, {
         height: fullHeight,
         opacity: 1,
@@ -50,9 +45,7 @@ watch(
         duration: 0.3,
         ease: 'power2.in',
         onComplete: () => {
-          if (sidebarTitleRef.value) {
-            gsap.set(sidebarTitleRef.value, { display: 'none' });
-          }
+          if (sidebarTitleRef.value) gsap.set(sidebarTitleRef.value, { display: 'none' });
         },
       });
     }
@@ -61,17 +54,11 @@ watch(
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return 'Unknown date';
-  return date.toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  if (isNaN(date.getTime())) return '—';
+  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
-function getCategoryColor(category: BlogCategory): string {
-  return CATEGORY_COLORS[category];
-}
+const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
 
 async function copyLink() {
   if (import.meta.client) {
@@ -82,64 +69,71 @@ async function copyLink() {
 
 <template>
   <div class="blog-post-info sticky top-32">
-    <!-- Back Link -->
+    <!-- Back link -->
     <div class="info-section-anim mb-10">
-      <RandomDoodleHover>
+      <RandomDoodleHover :stroke-width="3">
         <NuxtLink to="/blog" class="nav-link inline-flex items-center gap-2">
           <span>←</span>
-          <span>Back to blog</span>
+          <span>Back</span>
         </NuxtLink>
       </RandomDoodleHover>
     </div>
 
-    <!-- Sidebar Title: aparece al hacer scroll -->
+    <!-- Sidebar title (scroll reveal) -->
     <div
       ref="sidebarTitleRef"
-      class="overflow-hidden mb-6"
+      class="overflow-hidden mb-8"
       style="display: none; height: 0; opacity: 0"
     >
-      <h2 class="text-xl font-bold tracking-tight leading-tight">
+      <p class="text-xl font-bold leading-snug tracking-tight">
         {{ post.title }}
-      </h2>
-      <div class="mt-3 h-px bg-foreground/10" />
+      </p>
+      <div class="mt-1 h-px bg-foreground/8" />
     </div>
 
-    <!-- Metadata Sections -->
-    <div class="flex flex-col gap-6">
-      <!-- Category -->
-      <div class="info-section-anim info-section">
-        <h3 class="meta-label">Category</h3>
-        <span class="font-bold text-sm" :style="{ color: getCategoryColor(post.category) }">
-          {{ CATEGORY_LABELS[post.category] }}
-        </span>
-      </div>
-
-      <!-- Published -->
-      <div class="info-section-anim info-section">
-        <h3 class="meta-label">Published</h3>
-        <span class="meta-value">
-          {{ formatDate(post.date) }}
-        </span>
-      </div>
-
-      <!-- Read Time -->
-      <div class="info-section-anim info-section">
-        <h3 class="meta-label">Read Time</h3>
-        <div class="flex items-baseline gap-1.5">
-          <span class="font-bold text-base">{{ post.time_to_read }}</span>
-          <span class="meta-value text-xs">min</span>
+    <!-- Metadata -->
+    <div class="flex flex-col">
+      <!-- Category — el elemento de color del sidebar -->
+      <div class="info-section-anim py-4 border-b border-foreground/8">
+        <p class="meta-label mb-2">Category</p>
+        <div class="flex items-center gap-2">
+          <!-- Dot en color de categoría -->
+          <span
+            class="inline-block w-1.5 h-1.5 rounded-full shrink-0"
+            :style="{ backgroundColor: categoryColor }"
+          />
+          <span
+            class="text-xs font-mono uppercase tracking-[0.15em] font-bold"
+            :style="{ color: categoryColor }"
+          >
+            {{ CATEGORY_LABELS[post.category] }}
+          </span>
         </div>
       </div>
 
+      <!-- Published -->
+      <div class="info-section-anim py-4 border-b border-foreground/8">
+        <p class="meta-label mb-2">Published</p>
+        <p class="text-xs font-mono opacity-60">{{ formatDate(post.date) }}</p>
+      </div>
+
+      <!-- Read time -->
+      <div class="info-section-anim py-4 border-b border-foreground/8">
+        <p class="meta-label mb-2">Read time</p>
+        <p class="text-xs font-mono opacity-60">
+          <span class="font-bold text-sm opacity-100">{{ post.time_to_read }}</span>
+          <span class="opacity-40"> min</span>
+        </p>
+      </div>
+
       <!-- Topics -->
-      <div class="info-section-anim info-section">
-        <h3 class="meta-label">Topics</h3>
-        <div class="flex flex-wrap gap-1.5 mt-2">
+      <div class="info-section-anim py-4 border-b border-foreground/8">
+        <p class="meta-label mb-3">Topics</p>
+        <div class="flex flex-col gap-1.5">
           <span
             v-for="topic in post.topics"
             :key="topic"
-            class="tag-bordered"
-            :style="{ borderColor: getCategoryColor(post.category) + '40' }"
+            class="text-[0.6rem] font-mono uppercase tracking-[0.12em] opacity-40"
           >
             {{ topic }}
           </span>
@@ -147,11 +141,10 @@ async function copyLink() {
       </div>
 
       <!-- Share -->
-      <div class="info-section-anim info-section pt-4 border-t border-foreground/8">
-        <h3 class="meta-label mb-3">Share</h3>
-        <button class="nav-link flex items-center gap-2 cursor-pointer" @click="copyLink">
+      <div class="info-section-anim pt-4">
+        <button class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
           <span
-            class="font-mono text-[0.6rem] tracking-[0.2em] uppercase opacity-40 hover:opacity-100 transition-opacity duration-200"
+            class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-25 group-hover:opacity-70 transition-opacity duration-200"
           >
             Copy link
           </span>
@@ -160,11 +153,3 @@ async function copyLink() {
     </div>
   </div>
 </template>
-
-<style scoped>
-.info-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-</style>
