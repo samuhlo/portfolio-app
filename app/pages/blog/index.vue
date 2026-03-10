@@ -4,6 +4,7 @@
  * =====================================================================
  * DESC:   Página principal del blog con componentes separados.
  *         BlogHeader + BlogIndex (categorías) + BlogList (posts).
+ *         Posts fetched desde Nuxt Content via queryCollection.
  *         Timeline GSAP: categorías stagger → posts stagger + dividers.
  *         Toda la animación del header vive en BlogHeader.vue.
  * STATUS: STABLE
@@ -12,7 +13,7 @@
 
 import { ref, onMounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
-import { type BlogCategory } from '~/types/blog';
+import { type BlogCategory, type BlogPost } from '~/types/blog';
 import BlogHeader from '~/components/blog/BlogHeader.vue';
 import BlogIndex from '~/components/blog/BlogIndex.vue';
 import BlogList from '~/components/blog/BlogList.vue';
@@ -27,6 +28,15 @@ definePageMeta({
     to.meta.skipHeaderAnimation = isFromBlogPost;
   },
 });
+
+// =============================================================================
+// █ DATA: fetch posts publicados desde Nuxt Content, ordenados por fecha desc
+// =============================================================================
+const { data: posts } = await useAsyncData('blog-posts', () =>
+  queryCollection('blog').where('published', '=', true).order('date', 'DESC').all(),
+);
+
+const typedPosts = computed<BlogPost[]>(() => (posts.value as BlogPost[]) ?? []);
 
 const { gsap, initGSAP } = useGSAP();
 
@@ -87,7 +97,6 @@ onMounted(() => {
 
     // =================================================================
     // DIVIDERS: scaleX desde la izquierda, sync con posts
-    // [NOTE]: Se overlap con el stagger de posts para sensación fluida
     // =================================================================
     tl.from(
       '.blog-divider',
@@ -112,12 +121,16 @@ onMounted(() => {
     <div class="blog-content grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
       <!-- Left: Categories Index -->
       <div class="md:col-span-3">
-        <BlogIndex :selected-category="selectedCategory" @select="handleCategorySelect" />
+        <BlogIndex
+          :selected-category="selectedCategory"
+          :posts="typedPosts"
+          @select="handleCategorySelect"
+        />
       </div>
 
       <!-- Right: Posts List -->
       <div class="md:col-span-9 md:pl-8">
-        <BlogList :selected-category="selectedCategory" />
+        <BlogList :selected-category="selectedCategory" :posts="typedPosts" />
       </div>
     </div>
   </div>

@@ -2,7 +2,8 @@
 /**
  * █ [COMPONENT] :: BLOG POST BODY
  * =====================================================================
- * DESC:   Cuerpo del post con el contenido renderizado.
+ * DESC:   Cuerpo del post. El header (título, categoría, descripción)
+ *         se renderiza manualmente; el contenido markdown vía <ContentRenderer>.
  *         Exposé refs para animaciones GSAP desde la página padre.
  * STATUS: STABLE
  * =====================================================================
@@ -14,7 +15,6 @@ import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 
 const props = defineProps<{
   post: BlogPost;
-  content: string;
 }>();
 
 // Refs expuestos para targeting GSAP desde [slug].vue
@@ -38,7 +38,7 @@ defineExpose({ postHeaderRef, postContentRef });
         </span>
         <span class="text-[0.6rem] font-mono tracking-widest opacity-20">·</span>
         <span class="text-[0.6rem] font-mono uppercase tracking-[0.25em] opacity-30">
-          {{ post.readTime }} min read
+          {{ post.time_to_read }} min read
         </span>
       </div>
 
@@ -51,18 +51,19 @@ defineExpose({ postHeaderRef, postContentRef });
         </h1>
       </div>
 
-      <!-- Excerpt -->
+      <!-- Description -->
       <p class="post-body-excerpt text-lg md:text-xl opacity-60 leading-relaxed">
-        {{ post.excerpt }}
+        {{ post.description }}
       </p>
 
       <!-- Línea separadora: animada con scaleX desde [slug].vue -->
       <div class="post-body-line mt-8 h-px bg-foreground/10 origin-left" />
     </header>
 
-    <!-- Post Content -->
-    <!-- Las clases .prose y .post-* están definidas en main.css -->
-    <div ref="postContentRef" class="post-content prose" v-html="content" />
+    <!-- Post Content — Nuxt Content renderiza el markdown del body -->
+    <div ref="postContentRef" class="post-content prose">
+      <ContentRenderer :value="(post as any)" />
+    </div>
 
     <!-- Post Footer -->
     <footer class="mt-16 pt-8 border-t border-foreground/10">

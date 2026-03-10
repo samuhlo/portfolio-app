@@ -3,14 +3,14 @@
  * █ [COMPONENT] :: BLOG POST INFO
  * =====================================================================
  * DESC:   Sidebar con metadata del post: categoría, fecha,
- *         tiempo de lectura, tags/tecnologías, etc.
+ *         tiempo de lectura, topics, etc.
  *         Clases .info-section-anim para stagger de entrada GSAP.
  *         Título sticky que aparece al hacer scroll (showTitle prop).
  * STATUS: STABLE
  * =====================================================================
  */
 
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import type { BlogPost, BlogCategory } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
@@ -33,7 +33,6 @@ watch(
     if (!sidebarTitleRef.value) return;
 
     if (show) {
-      // Medir la altura real antes de animar
       gsap.set(sidebarTitleRef.value, { display: 'block', height: 'auto', opacity: 1 });
       const fullHeight = sidebarTitleRef.value.offsetHeight;
       gsap.set(sidebarTitleRef.value, { height: 0, opacity: 0 });
@@ -60,12 +59,9 @@ watch(
   },
 );
 
-// Formatear fecha completa
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  if (isNaN(date.getTime())) {
-    return 'Unknown date';
-  }
+  if (isNaN(date.getTime())) return 'Unknown date';
   return date.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -73,32 +69,10 @@ function formatDate(dateStr: string): string {
   });
 }
 
-// Obtener color de categoría
 function getCategoryColor(category: BlogCategory): string {
   return CATEGORY_COLORS[category];
 }
 
-// Extraer tecnologías/tags del contenido del post (simulado)
-const extractedTags = computed(() => {
-  const content = props.post.content.toLowerCase();
-  const techKeywords = [
-    { name: 'Vue', pattern: /vue|nuxt|vite/g },
-    { name: 'TypeScript', pattern: /typescript|ts\b/g },
-    { name: 'GSAP', pattern: /gsap|animation/g },
-    { name: 'Design', pattern: /design|ui|ux/g },
-    { name: 'CSS', pattern: /css|tailwind|style/g },
-    { name: 'JavaScript', pattern: /javascript|js\b/g },
-    { name: 'Architecture', pattern: /architecture|system|pattern/g },
-  ];
-
-  const foundTags = techKeywords
-    .filter((tech) => tech.pattern.test(content))
-    .map((tech) => tech.name);
-
-  return foundTags.length > 0 ? foundTags : ['General'];
-});
-
-// Copy link handler
 async function copyLink() {
   if (import.meta.client) {
     await navigator.clipboard.writeText(window.location.href);
@@ -108,7 +82,7 @@ async function copyLink() {
 
 <template>
   <div class="blog-post-info sticky top-32">
-    <!-- Back Link — info-section-anim para stagger GSAP -->
+    <!-- Back Link -->
     <div class="info-section-anim mb-10">
       <RandomDoodleHover>
         <NuxtLink to="/blog" class="nav-link inline-flex items-center gap-2">
@@ -118,7 +92,7 @@ async function copyLink() {
       </RandomDoodleHover>
     </div>
 
-    <!-- Sidebar Title: aparece al hacer scroll, empuja el resto hacia abajo -->
+    <!-- Sidebar Title: aparece al hacer scroll -->
     <div
       ref="sidebarTitleRef"
       class="overflow-hidden mb-6"
@@ -144,7 +118,7 @@ async function copyLink() {
       <div class="info-section-anim info-section">
         <h3 class="meta-label">Published</h3>
         <span class="meta-value">
-          {{ formatDate(post.publishedAt) }}
+          {{ formatDate(post.date) }}
         </span>
       </div>
 
@@ -152,22 +126,22 @@ async function copyLink() {
       <div class="info-section-anim info-section">
         <h3 class="meta-label">Read Time</h3>
         <div class="flex items-baseline gap-1.5">
-          <span class="font-bold text-base">{{ post.readTime }}</span>
+          <span class="font-bold text-base">{{ post.time_to_read }}</span>
           <span class="meta-value text-xs">min</span>
         </div>
       </div>
 
-      <!-- Tags / Tech -->
+      <!-- Topics -->
       <div class="info-section-anim info-section">
         <h3 class="meta-label">Topics</h3>
         <div class="flex flex-wrap gap-1.5 mt-2">
           <span
-            v-for="tag in extractedTags"
-            :key="tag"
+            v-for="topic in post.topics"
+            :key="topic"
             class="tag-bordered"
             :style="{ borderColor: getCategoryColor(post.category) + '40' }"
           >
-            {{ tag }}
+            {{ topic }}
           </span>
         </div>
       </div>

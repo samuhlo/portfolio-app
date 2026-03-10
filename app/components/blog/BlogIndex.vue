@@ -3,63 +3,46 @@
  * █ [COMPONENT] :: BLOG INDEX
  * =====================================================================
  * DESC:   Lista de categorías del blog con contador de posts.
- *         Permite filtrar los posts por categoría.
+ *         Recibe posts desde el padre para calcular contadores.
  *         CategoryCircle rodea la categoría activa.
  * STATUS: STABLE
  * =====================================================================
  */
 
 import { computed } from 'vue';
-import { BLOG_POSTS } from '~/data/blog-posts';
-import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory } from '~/types/blog';
+import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory, type BlogPost } from '~/types/blog';
 import CategoryCircle from './CategoryCircle.vue';
 
 const props = defineProps<{
   selectedCategory: BlogCategory | 'all';
+  posts: BlogPost[];
 }>();
 
 const emit = defineEmits<{
   (e: 'select', category: BlogCategory | 'all'): void;
 }>();
 
-// Calcular posts por categoría
-const categoryCounts = computed(() => {
-  const counts: Record<BlogCategory | 'all', number> = {
-    all: BLOG_POSTS.length,
-    'weekly-log': 0,
-    find: 0,
-    breakdown: 0,
-    outside: 0,
-  };
-
-  BLOG_POSTS.forEach((post) => {
-    counts[post.category]++;
-  });
-
-  return counts;
-});
-
 const categories = computed(() => [
-  { id: 'all' as const, label: 'all', count: categoryCounts.value.all },
+  { id: 'all' as const, label: 'all', count: props.posts.length },
   {
-    id: 'weekly-log' as const,
-    label: CATEGORY_LABELS['weekly-log'],
-    count: categoryCounts.value['weekly-log'],
+    id: 'weekly_log' as const,
+    label: CATEGORY_LABELS['weekly_log'],
+    count: props.posts.filter((p) => p.category === 'weekly_log').length,
   },
   {
     id: 'find' as const,
     label: CATEGORY_LABELS['find'],
-    count: categoryCounts.value['find'],
+    count: props.posts.filter((p) => p.category === 'find').length,
   },
   {
     id: 'breakdown' as const,
     label: CATEGORY_LABELS['breakdown'],
-    count: categoryCounts.value['breakdown'],
+    count: props.posts.filter((p) => p.category === 'breakdown').length,
   },
   {
     id: 'outside' as const,
     label: CATEGORY_LABELS['outside'],
-    count: categoryCounts.value['outside'],
+    count: props.posts.filter((p) => p.category === 'outside').length,
   },
 ]);
 

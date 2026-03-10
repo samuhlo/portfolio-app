@@ -3,32 +3,48 @@
  * █ [COMPONENT] :: BLOG LIST
  * =====================================================================
  * DESC:   Lista de posts filtrados por categoría.
- *         Tiene scroll interno y muestra los posts de forma elegante.
+ *         Recibe posts desde el padre (blog/index.vue via queryCollection).
  *         Hover con movimiento GSAP y doodle de flecha.
  * STATUS: STABLE
  * =====================================================================
  */
 
 import { ref, computed } from 'vue';
-import { BLOG_POSTS } from '~/data/blog-posts';
-import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory } from '~/types/blog';
+import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory, type BlogPost } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import DoodleArrowRightGeneral from '~/components/ui/doodles/general/DoodleArrowRightGeneral.vue';
 
 const props = defineProps<{
   selectedCategory: BlogCategory | 'all';
+  posts: BlogPost[];
 }>();
 
 const { gsap } = useGSAP();
 const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
 
+// =============================================================================
+// █ CONSTANTS
+// =============================================================================
+const HOVER_ANIM_DURATION = 0.4;
+const HOVER_SHIFT_X = 14;
+
+const DOODLE_TIMING = {
+  duration: 0.17,
+  stagger: 0.2,
+  ease: 'power1.inOut',
+};
+
+const ARROW_STYLE = {
+  width: '3.5rem', // 14 x 0.25rem (w-14)
+};
+
 // Filtrar posts según categoría
 const filteredPosts = computed(() => {
   if (props.selectedCategory === 'all') {
-    return BLOG_POSTS;
+    return props.posts;
   }
-  return BLOG_POSTS.filter((post) => post.category === props.selectedCategory);
+  return props.posts.filter((post) => post.category === props.selectedCategory);
 });
 
 // Formatear fecha
@@ -73,8 +89,8 @@ function onMouseEnter(slug: string) {
   const postEl = postRefs.value[slug];
   if (postEl) {
     gsap.to(postEl, {
-      x: 14,
-      duration: 0.4,
+      x: HOVER_SHIFT_X,
+      duration: HOVER_ANIM_DURATION,
       ease: 'power2.out',
     });
   }
@@ -92,9 +108,7 @@ function onMouseEnter(slug: string) {
     addDrawAnimation(tl, {
       svg: arrowComponent.svg,
       paths: arrowPaths.value[slug],
-      duration: 0.17,
-      stagger: 0.2,
-      ease: 'power1.inOut',
+      ...DOODLE_TIMING,
     });
   }
 }
@@ -104,7 +118,7 @@ function onMouseLeave(slug: string) {
   if (postEl) {
     gsap.to(postEl, {
       x: 0,
-      duration: 0.4,
+      duration: HOVER_ANIM_DURATION,
       ease: 'power2.out',
     });
   }
@@ -154,7 +168,7 @@ function onMouseLeave(slug: string) {
                 </span>
                 <span class="text-[0.6rem] font-mono tracking-widest opacity-25">•</span>
                 <span class="text-[0.6rem] font-mono tracking-widest opacity-40">
-                  {{ formatDate(post.publishedAt) }}
+                  {{ formatDate(post.date) }}
                 </span>
               </div>
               <!-- Índice del post: _01, _02, etc. -->
@@ -168,19 +182,18 @@ function onMouseLeave(slug: string) {
               {{ post.title }}
             </h3>
 
-            <!-- Excerpt -->
+            <!-- Description -->
             <p class="mt-2 text-sm font-mono opacity-40 leading-relaxed line-clamp-2">
-              {{ post.excerpt }}
+              {{ post.description }}
             </p>
 
             <!-- Arrow Doodle -->
-            <div class="mt-3 h-5 overflow-visible">
-              <div class="w-14">
-                <DoodleArrowRightGeneral
-                  :ref="setArrowRef(post.slug)"
-                  :stroke-color="getCategoryColor(post.category)"
-                />
-              </div>
+            <div class="mt-1 h-2 overflow-visible flex justify-end">
+              <DoodleArrowRightGeneral
+                :ref="setArrowRef(post.slug)"
+                :stroke-color="getCategoryColor(post.category)"
+                :style="ARROW_STYLE"
+              />
             </div>
           </div>
         </NuxtLink>
@@ -221,6 +234,7 @@ function onMouseLeave(slug: string) {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

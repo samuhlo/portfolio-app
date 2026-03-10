@@ -49,6 +49,22 @@ const DOODLE_TIMING = {
   ease: 'power3.out',
   proportional: true,
 };
+
+// TOP SAMLL
+const DOODLE_STYLE = {
+  top: '-0.2em',
+  left: '0',
+  width: '1.1em',
+  transform: 'rotate(3deg)',
+};
+
+// BOTTOM BIG
+// const DOODLE_STYLE = {
+//   bottom: '-0.23em',
+//   left: '0',
+//   width: '2.1em',
+// };
+
 // =============================================================================
 // █ NAVIGATION: detectar si venimos de un post para skip de animación
 // =============================================================================
@@ -242,7 +258,7 @@ onMounted(() => {
         <DoodleSubtitleBlog
           ref="doodleRef"
           class="blog-subtitle-doodle absolute h-auto pointer-events-none opacity-0"
-          :style="{ bottom: '-0.23em', left: '0', width: '2.1em' }"
+          :style="DOODLE_STYLE"
         />
       </h1>
 

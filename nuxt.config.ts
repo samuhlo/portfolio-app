@@ -9,7 +9,7 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss() as any],
   },
-  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt'],
+  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content'],
   fonts: {
     families: [{ name: 'Space Mono', provider: 'google' }],
   },
