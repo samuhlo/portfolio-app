@@ -10,6 +10,20 @@ export default defineNuxtConfig({
     plugins: [tailwindcss() as any],
   },
   modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content'],
+
+  // =========================================================================
+  // █ NUXT CONTENT: Shiki syntax highlighting
+  // =========================================================================
+  content: {
+    highlight: {
+      // github-light: colores reales (keywords, strings, funciones) sobre fondo cream
+      theme: 'github-light',
+      langs: [
+        'typescript', 'javascript', 'vue', 'html', 'css',
+        'bash', 'shell', 'json', 'markdown', 'python', 'yaml',
+      ],
+    },
+  },
   fonts: {
     families: [{ name: 'Space Mono', provider: 'google' }],
   },
