@@ -1,19 +1,19 @@
 ---
-title: "Anatomy of a Living Portfolio: GitHub Webhooks + IA"
-description: "Cómo construí un sistema donde mi portfolio se actualiza solo cada vez que hago git push. Webhooks, OpenAI, Zod y la magia de no tener que mantener un CMS."
-date: "2026-03-03"
-category: "breakdown"
-topics: ["github", "webhooks", "openai", "zod", "automatizacion", "nuxt"]
+title: 'Anatomy of a Living Portfolio: GitHub Webhooks + IA'
+description: 'Cómo construí un sistema donde mi portfolio se actualiza solo cada vez que hago git push. Webhooks, OpenAI, Zod y la magia de no tener que mantener un CMS.'
+date: '2026-03-03'
+category: 'breakdown'
+topics: ['github', 'webhooks', 'openai', 'zod', 'automatizacion', 'nuxt']
 time_to_read: 10
 published: true
-slug: "anatomy-of-a-living-portfolio"
+slug: 'anatomy-of-a-living-portfolio'
 ---
 
 # Anatomy of a Living Portfolio: GitHub Webhooks + IA
 
 Odio mantener portfolios. Haces un proyecto, lo terminas, y luego tienes que ir a tu portfolio, crear una nueva entrada, escribir una descripción, subir screenshots, añadir tags... La fricción es tan alta que la mayoría de devs terminamos con portfolios desactualizados.
 
-Mi solución: que el portfolio se actualice solo.
+Mi solución: que el :hand-drawn{svg="/blog/doodles/underline.svg" placement="under" stroke-color="#ffca40" stroke-width=8}[portfolio] se actualice solo.
 
 ## La idea
 
@@ -35,7 +35,12 @@ El flujo completo es:
 
 Vamos pieza por pieza.
 
-## El webhook
+::hand-drawn{svg="/blog/doodles/circle.svg" placement="around"
+stroke-color="#ff0000"}
+
+El webhook
+
+::
 
 En GitHub, configuro un webhook a nivel de organización (para no tener que hacerlo repo por repo) que escucha el evento `push`. El payload incluye información sobre qué archivos cambiaron.
 
@@ -44,31 +49,30 @@ En mi servidor, lo primero es verificar que el webhook viene realmente de GitHub
 ```typescript
 // server/api/webhooks/github.post.ts
 export default defineEventHandler(async (event) => {
-  const signature = getHeader(event, 'x-hub-signature-256')
-  const body = await readRawBody(event)
+  const signature = getHeader(event, 'x-hub-signature-256');
+  const body = await readRawBody(event);
 
   const expected = `sha256=${createHmac('sha256', config.githubWebhookSecret)
     .update(body)
-    .digest('hex')}`
+    .digest('hex')}`;
 
   if (signature !== expected) {
-    throw createError({ statusCode: 401, message: 'Invalid signature' })
+    throw createError({ statusCode: 401, message: 'Invalid signature' });
   }
 
-  const payload = JSON.parse(body)
+  const payload = JSON.parse(body);
 
   // Solo nos interesan los pushes que modifican README.md
   const readmeChanged = payload.commits?.some(
-    (commit) => commit.modified?.includes('README.md')
-      || commit.added?.includes('README.md')
-  )
+    (commit) => commit.modified?.includes('README.md') || commit.added?.includes('README.md'),
+  );
 
   if (!readmeChanged) {
-    return { status: 'skipped', reason: 'No README changes' }
+    return { status: 'skipped', reason: 'No README changes' };
   }
 
   // Procesar...
-})
+});
 ```
 
 La verificación de firma es crítica. Sin ella, cualquiera podría mandar payloads falsos a tu endpoint y corromperte los datos.
@@ -95,7 +99,7 @@ que no esté en el README.
 
 README:
 ${readmeContent}
-`
+`;
 ```
 
 La clave del prompt es ser extremadamente específico con la estructura que esperas. Si le dices "extrae información", te va a dar lo que quiera. Si le das un JSON schema exacto, el output es predecible.
@@ -113,14 +117,14 @@ const ProjectAIResponse = z.object({
   techStack: z.array(z.string()).min(1).max(20),
   keyFeatures: z.array(z.string()).min(1).max(10),
   category: z.enum(['web', 'mobile', 'cli', 'library', 'other']),
-})
+});
 
-const parsed = ProjectAIResponse.safeParse(aiResponse)
+const parsed = ProjectAIResponse.safeParse(aiResponse);
 
 if (!parsed.success) {
-  console.error('AI response validation failed:', parsed.error)
+  console.error('AI response validation failed:', parsed.error);
   // Log para debugging, pero no crashear
-  return { status: 'error', issues: parsed.error.issues }
+  return { status: 'error', issues: parsed.error.issues };
 }
 ```
 
@@ -148,7 +152,7 @@ await db
       category: parsed.data.category,
       updatedAt: new Date(),
     },
-  })
+  });
 ```
 
 El `onConflictDoUpdate` es lo que hace que esto sea idempotente. Si el proyecto ya existe, se actualiza. Si es nuevo, se crea. Puedo recibir el mismo webhook diez veces y el resultado es el mismo.
@@ -172,3 +176,47 @@ También me gustaría añadir generación automática de screenshots. Existe la 
 ## Resultado
 
 Mi portfolio lleva un mes con este sistema y se ha actualizado solo 14 veces sin que yo toque nada. Cada push a un README se refleja en la web en menos de 30 segundos. Es exactamente lo que quería: un portfolio que está vivo mientras yo me dedico a lo que realmente importa, que es construir cosas.
+
+::draw-heading{svg="/blog/doodles/underline.svg" level="2" trigger="scroll"}
+La extracción con IA (con doodle)
+::
+
+---
+
+## [TEST] HandDrawn doodles
+
+**sin stroke-color** — hereda el color de categoría del post automáticamente:
+
+:hand-drawn{svg="/blog/doodles/underline.svg" placement="under"}[design systems]
+
+**stroke-color="accent"** — idem, explícito:
+
+:hand-drawn{svg="/blog/doodles/circle.svg" placement="around" stroke-color="accent"}[Zod]
+
+**stroke-color="#hex"** — color fijo:
+
+:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" stroke-color="#e85d4a"}[webhooks]
+
+**placement="over"**:
+
+:hand-drawn{svg="/blog/doodles/underline.svg" placement="over"}[sobre el texto]
+
+**placement="left"**:
+
+:hand-drawn{svg="/blog/doodles/arrow-down.svg" placement="left"}[edge case]
+
+**placement="right"**:
+
+:hand-drawn{svg="/blog/doodles/arrow-down.svg" placement="right"}[upsert]
+
+**trigger="load"** — se dibuja al montar:
+
+:hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="load" duration="2"}[idempotente]
+
+**trigger="hover"** — draw/erase on hover:
+
+:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" trigger="hover"}[ pasa el cursor aquí]
+
+**trigger="scroll"** — se dibuja al montar:
+
+:hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="scroll" duration="2"}[SCROOOOLL]

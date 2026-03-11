@@ -35,7 +35,9 @@ async function handleCopy() {
   await navigator.clipboard.writeText(props.code);
   copied.value = true;
   if (copyTimer) clearTimeout(copyTimer);
-  copyTimer = setTimeout(() => { copied.value = false; }, 2000);
+  copyTimer = setTimeout(() => {
+    copied.value = false;
+  }, 2000);
 }
 
 onUnmounted(() => {
@@ -45,7 +47,6 @@ onUnmounted(() => {
 
 <template>
   <div class="prose-pre not-prose">
-
     <!-- Header: lenguaje · filename · copy -->
     <div class="pre-header">
       <div class="pre-meta">
@@ -63,7 +64,6 @@ onUnmounted(() => {
     <div class="pre-body">
       <pre :class="props.class"><slot /></pre>
     </div>
-
   </div>
 </template>
 
@@ -100,14 +100,14 @@ onUnmounted(() => {
   font-size: 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.22em;
-  opacity: 0.35;
+  opacity: 0.75;
   user-select: none;
 }
 
 .pre-filename {
   font-family: var(--font-mono);
   font-size: 0.6rem;
-  opacity: 0.45;
+  opacity: 0.75;
   padding-left: 0.75rem;
   border-left: 1px solid rgba(12, 0, 17, 0.12);
 }
@@ -125,13 +125,18 @@ onUnmounted(() => {
   border: none;
   padding: 0;
   cursor: pointer;
-  opacity: 0.2;
+  opacity: 0.65;
   transition: opacity 0.2s ease;
   user-select: none;
 }
 
-.pre-copy:hover { opacity: 0.75; }
-.pre-copy.copied { opacity: 0.55; }
+.pre-copy:hover {
+  opacity: 1;
+}
+.pre-copy.copied {
+  opacity: 1;
+  color: var(--color-accent);
+}
 
 /* ================================================================
    CODE BODY

@@ -76,7 +76,9 @@ const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
     <div class="post-body-line mb-14 h-px bg-foreground/8 origin-left" />
 
     <!-- Post Content -->
-    <div ref="postContentRef" class="post-content prose">
+    <!-- [NOTE] --color-accent aquí overridea el global → todos los MDC del post
+         (HandDrawn, ProsePre borders, etc.) heredan el color de categoría via cascade -->
+    <div ref="postContentRef" class="post-content prose" :style="{ '--color-accent': categoryColor }">
       <ContentRenderer :value="post as any" />
     </div>
 
