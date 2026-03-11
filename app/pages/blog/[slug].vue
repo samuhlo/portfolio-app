@@ -100,8 +100,11 @@ function setupGSAP() {
     }
 
     // ScrollTrigger: muestra el título en la sidebar cuando el h1 sale del viewport
+    // [NOTE] Solo en desktop — en móvil el sidebar está en otro orden de layout
+    // y el título apareciendo causa un salto visual innecesario.
     const titleEl = containerRef.value.querySelector('.post-body-title');
-    if (titleEl) {
+    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    if (titleEl && isDesktop) {
       ScrollTrigger.create({
         trigger: titleEl,
         start: 'bottom top',
