@@ -64,11 +64,11 @@ const props = withDefaults(
      */
     strokeColor?: string;
     /** Grosor del trazo en px */
-    strokeWidth?: number;
+    strokeWidth?: string | number;
     /** Cómo se dispara la animación */
     trigger?: 'scroll' | 'load' | 'hover';
     /** Duración total del dibujo en segundos */
-    duration?: number;
+    duration?: string | number;
     /** Easing GSAP */
     ease?: string;
     // -- Overrides CSS de posición (sobreescriben el preset) --
@@ -95,6 +95,9 @@ const props = withDefaults(
 // [NOTE] Sin stroke-color o con "accent" → hereda --color-accent del post,
 // que BlogPostBody setea dinámicamente al color de la categoría.
 // Cualquier otro valor se usa directamente como color CSS.
+// [NOTE] MDC siempre pasa props como strings aunque el valor sea numérico
+const durationNum = computed(() => Number(props.duration));
+
 const resolvedStrokeColor = computed(() => {
   if (!props.strokeColor || props.strokeColor === 'accent') return 'var(--color-accent)';
   return props.strokeColor;
@@ -125,7 +128,7 @@ const svgContainerStyle = computed<CSSProperties>(() => {
     ...(props.svgTransform !== undefined && { transform: props.svgTransform }),
     // CSS variables para el color y grosor — los paths del SVG las leen con var()
     '--doodle-stroke-color': resolvedStrokeColor.value,
-    ...(props.strokeWidth !== undefined && { '--doodle-stroke-width': `${props.strokeWidth}px` }),
+    ...(props.strokeWidth !== undefined && { '--doodle-stroke-width': `${Number(props.strokeWidth)}px` }),
   };
 });
 
@@ -172,7 +175,7 @@ onMounted(async () => {
       addDrawAnimation(tl, {
         svg: svgEl,
         paths: preparedPaths,
-        duration: props.duration,
+        duration: durationNum.value,
         ease: props.ease,
         proportional: true,
       });
@@ -186,7 +189,7 @@ onMounted(async () => {
       addDrawAnimation(tl, {
         svg: svgEl,
         paths: preparedPaths,
-        duration: props.duration,
+        duration: durationNum.value,
         ease: props.ease,
         proportional: true,
       });
@@ -216,7 +219,7 @@ function handleHoverEnter() {
     svg: svgEl,
     paths: preparedPaths,
     // [NOTE] Hover más rápido — sensación responsiva
-    duration: props.duration * 0.45,
+    duration: durationNum.value * 0.45,
     ease: 'power2.out',
     proportional: true,
   });

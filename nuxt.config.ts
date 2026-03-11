@@ -12,6 +12,35 @@ export default defineNuxtConfig({
   modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content'],
 
   // =========================================================================
+  // █ RUNTIME CONFIG
+  // =========================================================================
+  runtimeConfig: {
+    // Server-only (subida programática de assets vía S3 SDK)
+    cfAccountId: process.env.CF_ACCOUNT_ID,
+    r2AccessKeyId: process.env.R2_ACCESS_KEY_ID,
+    r2SecretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    r2BucketName: process.env.R2_BUCKET_NAME,
+    // Public (disponible en cliente — solo la URL pública, nunca las keys)
+    public: {
+      assetsUrl: process.env.NUXT_PUBLIC_ASSETS_URL ?? 'https://assets.samuhlo.dev',
+    },
+  },
+
+  // =========================================================================
+  // █ NUXT IMAGE :: Cloudflare R2 via custom domain
+  // =========================================================================
+  image: {
+    // [NOTE] Whitelist del dominio para que IPX pueda fetchear y optimizar
+    domains: ['assets.samuhlo.dev'],
+    // Alias: permite usar src="/blog/..." en lugar de la URL completa
+    alias: {
+      blog: 'https://assets.samuhlo.dev/blog',
+    },
+    format: ['avif', 'webp'],
+    quality: 80,
+  },
+
+  // =========================================================================
   // █ NUXT CONTENT: Shiki syntax highlighting
   // =========================================================================
   content: {

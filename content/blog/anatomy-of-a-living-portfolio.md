@@ -33,6 +33,16 @@ El flujo completo es:
 6. Valida la respuesta con Zod
 7. Hace upsert en la base de datos (Neon + Drizzle)
 
+::blog-image
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+alt: Diagrama del flujo completo — webhook, IA, base de datos
+width: 1200
+height: 800
+caption: El flujo completo desde el git push hasta la base de datos
+---
+::
+
 Vamos pieza por pieza.
 
 ::hand-drawn{svg="/blog/doodles/circle.svg" placement="around"
@@ -103,6 +113,16 @@ ${readmeContent}
 ```
 
 La clave del prompt es ser extremadamente específico con la estructura que esperas. Si le dices "extrae información", te va a dar lo que quiera. Si le das un JSON schema exacto, el output es predecible.
+
+::blog-image
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_2.jpg
+alt: Ejemplo de respuesta estructurada de la IA
+width: 1200
+height: 800
+caption: Output del modelo después de procesar un README real
+---
+::
 
 Uso GPT-4o-mini para esto porque es rápido, barato, y más que suficiente para extraer datos estructurados de un README. No necesitas GPT-4 para esto.
 
@@ -220,3 +240,60 @@ La extracción con IA (con doodle)
 **trigger="scroll"** — se dibuja al montar:
 
 :hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="scroll" duration="2"}[SCROOOOLL]
+
+## [TEST] ImageSlider
+
+::image-slider
+---
+images:
+  - src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+    alt: Prueba imagen 1
+    label: WEBHOOK_FLOW
+  - src: blog/anatomy-of-a-living-portfolio/prueba_blog_2.jpg
+    alt: Prueba imagen 2
+    label: AI_PIPELINE
+---
+::
+
+## [TEST] CodePreview — GSAP live demo
+
+::code-preview
+---
+height: 300
+html: |
+  <div class="scene">
+    <div class="box"></div>
+  </div>
+css: |
+  body {
+    background: #0c0011;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .scene {
+    position: relative;
+    width: 400px;
+    height: 80px;
+  }
+  .box {
+    width: 60px;
+    height: 60px;
+    background: #ffca40;
+    border-radius: 4px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+  }
+js: |
+  gsap.to(".box", {
+    x: 340,
+    rotation: 360,
+    duration: 1.8,
+    repeat: -1,
+    yoyo: true,
+    ease: "power2.inOut"
+  });
+---
+::

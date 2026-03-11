@@ -30,10 +30,12 @@ type Placement = 'under' | 'over' | 'around' | 'left' | 'right';
 // =============================================================================
 // █ PROPS
 // =============================================================================
+// [NOTE] MDC siempre pasa props como strings aunque el valor sea numérico.
+// Los props number se declaran como string | number y se coercionan con Number().
 const props = withDefaults(
   defineProps<{
     /** Nivel del heading (1–6) */
-    level?: 1 | 2 | 3 | 4 | 5 | 6;
+    level?: string | number;
     /** Path al SVG en /public */
     svg: string;
     /** Preset de posición del doodle */
@@ -41,11 +43,11 @@ const props = withDefaults(
     /** Color del trazo. Omitido → hereda --color-accent del post */
     strokeColor?: string;
     /** Grosor del trazo en px */
-    strokeWidth?: number;
+    strokeWidth?: string | number;
     /** Cómo se dispara la animación */
     trigger?: 'scroll' | 'load' | 'hover';
     /** Duración total del dibujo en segundos */
-    duration?: number;
+    duration?: string | number;
     /** Easing GSAP */
     ease?: string;
     // -- Overrides CSS de posición --
@@ -64,6 +66,9 @@ const props = withDefaults(
     ease: 'power2.inOut',
   },
 );
+
+const levelNum  = computed(() => Number(props.level));
+const durationNum = computed(() => Number(props.duration));
 
 // =============================================================================
 // █ COLOR RESOLUTION
@@ -93,7 +98,7 @@ const svgContainerStyle = computed<CSSProperties>(() => ({
   ...(props.width        !== undefined && { width: props.width }),
   ...(props.svgTransform !== undefined && { transform: props.svgTransform }),
   '--doodle-stroke-color': resolvedStrokeColor.value,
-  ...(props.strokeWidth  !== undefined && { '--doodle-stroke-width': `${props.strokeWidth}px` }),
+  ...(props.strokeWidth  !== undefined && { '--doodle-stroke-width': `${Number(props.strokeWidth)}px` }),
 }));
 
 // =============================================================================
@@ -133,13 +138,13 @@ onMounted(async () => {
 
     if (props.trigger === 'load') {
       const tl = gsap.timeline();
-      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: props.duration, ease: props.ease, proportional: true });
+      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value, ease: props.ease, proportional: true });
       return;
     }
 
     if (props.trigger === 'scroll') {
       const tl = gsap.timeline({ paused: true });
-      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: props.duration, ease: props.ease, proportional: true });
+      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value, ease: props.ease, proportional: true });
       ScrollTrigger.create({ trigger: anchorRef.value, start: 'top 88%', once: true, onEnter: () => tl.play() });
       return;
     }
@@ -153,7 +158,7 @@ function handleHoverEnter() {
   if (props.trigger !== 'hover' || !svgEl || isAnimating) return;
   isAnimating = true;
   const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
-  addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: props.duration * 0.45, ease: 'power2.out', proportional: true });
+  addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value * 0.45, ease: 'power2.out', proportional: true });
 }
 
 function handleHoverLeave() {
@@ -164,18 +169,18 @@ function handleHoverLeave() {
 </script>
 
 <template>
-  <!-- [NOTE] component :is renderiza h1–h6 según el prop level.
-       ContentSlot unwrap="p" elimina el <p> que Nuxt Content genera
-       al parsear el texto dentro de ::draw-heading:: como markdown. -->
+  <!-- [NOTE] component :is renderiza h1–h6 según levelNum.
+       Nuxt Content v3 no tiene ContentSlot — se usa <slot /> directamente.
+       El <p> wrapper que genera el parser se aplana con display:contents en CSS. -->
   <component
-    :is="`h${level}`"
+    :is="`h${levelNum}`"
     ref="anchorRef"
-    class="relative inline-block"
+    class="draw-heading relative inline-block"
     :class="{ 'cursor-pointer': trigger === 'hover' }"
     @mouseenter="handleHoverEnter"
     @mouseleave="handleHoverLeave"
   >
-    <ContentSlot :use="$slots.default" unwrap="p" />
+    <slot />
     <span
       ref="containerRef"
       class="absolute block pointer-events-none [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
@@ -184,3 +189,12 @@ function handleHoverLeave() {
     />
   </component>
 </template>
+
+<style scoped>
+/* [NOTE] Nuxt Content envuelve el texto del slot en <p>.
+   display:contents hace que el <p> sea "transparente" visualmente
+   sin alterar el texto ni el flujo del heading. */
+.draw-heading :deep(> p) {
+  display: contents;
+}
+</style>
