@@ -190,10 +190,14 @@ function onMouseLeave(slug: string) {
 
             <!-- Arrow Doodle -->
             <div class="mt-1 h-2 overflow-visible flex justify-end">
+              <!-- [NOTE] opacity-0 inicial imprescindible — sin esto los paths
+                   son visibles en SSR y hacen un flick antes de que
+                   preparePaths los oculte tras la hidratación. -->
               <DoodleArrowRightGeneral
                 :ref="setArrowRef(post.slug)"
                 :stroke-color="getCategoryColor(post.category)"
                 :style="ARROW_STYLE"
+                class="opacity-0"
               />
             </div>
           </div>

@@ -396,6 +396,17 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
   font-size: 0.55rem;
 }
 
+/* En móvil: quitar la ruta, dejar solo índice + nombre + flecha */
+@media (max-width: 640px) {
+  .is-row {
+    grid-template-columns: 2.5rem 1fr 2rem;
+  }
+
+  .is-path {
+    display: none;
+  }
+}
+
 /* ================================================================
    ARROW
    ================================================================ */

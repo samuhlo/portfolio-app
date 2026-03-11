@@ -47,6 +47,11 @@ export const useDoodleDraw = () => {
   const preparePaths = (svgEl: SVGSVGElement | null): SVGPathElement[] => {
     if (!svgEl) return [];
 
+    // [NOTE] Ocultar el SVG container antes de calcular longitudes.
+    // Previene el flick de SSR→hidratación: sin esto, los paths son visibles
+    // en el HTML renderizado hasta que gsap.set los oculte tras el mount.
+    gsap.set(svgEl, { opacity: 0 });
+
     const paths = Array.from(svgEl.querySelectorAll('path'));
 
     paths.forEach((path) => {
