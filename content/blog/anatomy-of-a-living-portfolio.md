@@ -45,12 +45,9 @@ caption: El flujo completo desde el git push hasta la base de datos
 
 Vamos pieza por pieza.
 
-::hand-drawn{svg="/blog/doodles/circle.svg" placement="around"
-stroke-color="#ff0000"}
 
-El webhook
+## El webhook
 
-::
 
 En GitHub, configuro un webhook a nivel de organización (para no tener que hacerlo repo por repo) que escucha el evento `push`. El payload incluye información sobre qué archivos cambiaron.
 
@@ -93,7 +90,7 @@ Una vez que sé que el README cambió, descargo el contenido raw y se lo paso a 
 
 ```typescript
 const prompt = `
-Analiza el siguiente README de un proyecto de software y extrae 
+Analiza el siguiente README de un proyecto de software y extrae
 la información en formato JSON con esta estructura exacta:
 {
   "name": "nombre del proyecto",
@@ -103,8 +100,8 @@ la información en formato JSON con esta estructura exacta:
   "category": "web|mobile|cli|library|other"
 }
 
-Mantén un tono técnico y profesional. El resumen debe explicar 
-el problema que resuelve y cómo lo resuelve. No inventes información 
+Mantén un tono técnico y profesional. El resumen debe explicar
+el problema que resuelve y cómo lo resuelve. No inventes información
 que no esté en el README.
 
 README:
@@ -235,11 +232,29 @@ La extracción con IA (con doodle)
 
 **trigger="hover"** — draw/erase on hover:
 
-:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" trigger="hover"}[ pasa el cursor aquí]
+:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" trigger="hover"}[pasa el cursor aquí]
 
-**trigger="scroll"** — se dibuja al montar:
+**trigger="scroll"**:
 
 :hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="scroll" duration="2"}[SCROOOOLL]
+
+## [TEST] Prose Components
+
+### ProseBlockquote
+
+> Valida siempre la respuesta de la IA antes de tocar la base de datos. Si confías ciegamente en el output del modelo, tarde o temprano te meterá basura en producción.
+>
+> No es pesimismo, es ingeniería.
+
+### ProseCodeInline
+
+El endpoint recibe el payload, verifica la firma con `createHmac`, y solo procesa si `readmeChanged` es `true`. Si el `safeParse` de Zod falla, el webhook devuelve `200` igualmente — GitHub no necesita saber de tus errores internos.
+
+### ProseA — links internos y externos
+
+- Link interno: [vuelve al inicio](/blog)
+- Link externo con icono: [documentación de Zod](https://zod.dev) y [GSAP ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/)
+- Link externo a GitHub: [ver el código del webhook](https://github.com)
 
 ## [TEST] ImageSlider
 

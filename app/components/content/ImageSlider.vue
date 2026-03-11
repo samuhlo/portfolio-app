@@ -6,7 +6,9 @@
  *         Layout: viewport de imagen + lista de archivos debajo.
  *         El item activo tiene fondo --color-accent (igual que en la
  *         referencia de diseño). Navegación por click en filas,
- *         swipe táctil y teclas ←→. Transición GSAP crossfade.
+ *         click/tap en el viewport, swipe táctil y teclas ←→.
+ *         Cursor label "NEXT IMAGE" que sigue al ratón con lerp
+ *         (mismo sistema que ProjectCard en playground).
  *
  * USAGE (markdown):
  *   ::image-slider
@@ -20,14 +22,13 @@
  *   ---
  *   ::
  *
- * label es opcional — si se omite se extrae del nombre del archivo.
- *
  * STATUS: STABLE
  * =====================================================================
  */
 
 import { ref, computed, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
+import { useCursorLabel } from '~/composables/useCursorLabel';
 
 // =============================================================================
 // █ TYPES
@@ -51,9 +52,42 @@ const props = withDefaults(
 );
 
 // =============================================================================
+// █ HOVER CAPABILITY
+// =============================================================================
+// [NOTE] En touch no hay hover → no mostrar cursor label
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
+
+// =============================================================================
+// █ CURSOR LABEL
+// =============================================================================
+const {
+  containerRef,
+  labelRef,
+  isHovering,
+  onMouseMove,
+  onMouseEnter,
+  onMouseLeave,
+} = useCursorLabel({ lerp: 0.1, offsetX: 14, offsetY: 10 });
+
+function handleMouseEnter(e: MouseEvent) {
+  if (!hasHover) return;
+  onMouseEnter(e);
+}
+
+function handleMouseLeave() {
+  if (!hasHover) return;
+  onMouseLeave();
+}
+
+function handleMouseMove(e: MouseEvent) {
+  if (!hasHover) return;
+  onMouseMove(e);
+}
+
+// =============================================================================
 // █ STATE
 // =============================================================================
-const current   = ref(0);
+const current = ref(0);
 let transitioning = false;
 
 const slideRefs = ref<(HTMLElement | null)[]>([]);
@@ -71,8 +105,6 @@ const { gsap, initGSAP } = useGSAP();
 
 onMounted(() => {
   initGSAP(() => {
-    // [NOTE] Estado inicial: primera slide visible en su posición, resto ocultas
-    // Se usa opacity + y para que las slides off-screen no sean visibles
     slideRefs.value.forEach((el, i) => {
       if (el) gsap.set(el, { opacity: i === 0 ? 1 : 0, y: '0%', zIndex: i === 0 ? 1 : 0 });
     });
@@ -82,10 +114,8 @@ onMounted(() => {
 // =============================================================================
 // █ NAVIGATION
 // =============================================================================
-// [NOTE] Dirección determina cómo entran y salen las imágenes:
-//   fwd → la actual cae hacia abajo, la siguiente baja desde arriba
-//   bwd → la actual sube hacia arriba, la anterior sube desde abajo
-//   Simula pasar fotos/cromos con la mano.
+// [NOTE] fwd → la actual cae hacia abajo, la siguiente baja desde arriba.
+//        bwd → la actual sube, la anterior sube desde abajo.
 function goTo(index: number, dir: 'fwd' | 'bwd' = 'fwd') {
   if (index === current.value || transitioning || !props.images.length) return;
   transitioning = true;
@@ -98,19 +128,15 @@ function goTo(index: number, dir: 'fwd' | 'bwd' = 'fwd') {
 
   const tl = gsap.timeline({
     onComplete: () => {
-      // Resetear la slide saliente para que no ocupe espacio visual en futuras transiciones
       if (fromEl) gsap.set(fromEl, { opacity: 0, y: '0%', zIndex: 0 });
       if (toEl)   gsap.set(toEl, { zIndex: 1 });
       transitioning = false;
     },
   });
 
-  // Posicionar la slide entrante fuera de pantalla y hacerla visible
   tl.set(toEl, { opacity: 1, y: enterY, zIndex: 2 });
-
-  // Ambas slides se mueven simultáneamente — sensación física de la mano
-  tl.to(fromEl, { y: exitY,  duration: 0.5, ease: 'power3.inOut' }, 0);
-  tl.to(toEl,   { y: '0%',   duration: 0.5, ease: 'power3.inOut' }, 0);
+  tl.to(fromEl, { y: exitY, duration: 0.5, ease: 'power3.inOut' }, 0);
+  tl.to(toEl,   { y: '0%',  duration: 0.5, ease: 'power3.inOut' }, 0);
 
   current.value = index;
 }
@@ -119,7 +145,7 @@ function next() { goTo((current.value + 1) % props.images.length, 'fwd'); }
 function prev() { goTo((current.value - 1 + props.images.length) % props.images.length, 'bwd'); }
 
 // =============================================================================
-// █ SWIPE (pointer events)
+// █ POINTER — swipe + tap-to-next
 // =============================================================================
 let swipeStartX = 0;
 let swipeStartY = 0;
@@ -132,9 +158,13 @@ function onPointerDown(e: PointerEvent) {
 function onPointerUp(e: PointerEvent) {
   const dx = e.clientX - swipeStartX;
   const dy = Math.abs(e.clientY - swipeStartY);
-  // [NOTE] Solo disparar si el swipe es claramente horizontal (dy < 30)
+
   if (Math.abs(dx) > 50 && dy < 30) {
+    // Swipe horizontal
     dx < 0 ? next() : prev();
+  } else if (Math.abs(dx) < 8 && dy < 8) {
+    // [NOTE] Tap sin movimiento → next (igual que click en el viewport)
+    next();
   }
 }
 
@@ -168,9 +198,11 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
   <figure class="image-slider not-prose my-8" aria-label="Image slider">
 
     <!-- ================================================================
-         VIEWPORT — imágenes apiladas, transición GSAP crossfade
+         VIEWPORT — imágenes apiladas + cursor label
+         containerRef viene de useCursorLabel
          ================================================================ -->
     <div
+      ref="containerRef"
       class="is-viewport"
       :style="{ height: viewportHeight }"
       tabindex="0"
@@ -178,6 +210,9 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
       :aria-label="images[current]?.alt"
       @pointerdown="onPointerDown"
       @pointerup="onPointerUp"
+      @mouseenter="handleMouseEnter"
+      @mouseleave="handleMouseLeave"
+      @mousemove="handleMouseMove"
     >
       <div
         v-for="(img, i) in images"
@@ -192,10 +227,17 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
           sizes="sm:100vw md:100vw lg:860px"
           format="avif,webp"
           :quality="85"
-          :img-attrs="{
-            class: 'is-slide-img',
-          }"
+          :img-attrs="{ class: 'is-slide-img' }"
         />
+      </div>
+
+      <!-- Cursor label — sigue al ratón con lerp, color de categoría del post -->
+      <div
+        ref="labelRef"
+        class="is-cursor-label"
+        :class="{ 'is-cursor-label--visible': isHovering }"
+      >
+        NEXT IMAGE
       </div>
     </div>
 
@@ -216,7 +258,6 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
         <span class="is-label">{{ img.label ?? extractLabel(img.src) }}</span>
         <span class="is-path">{{ img.src }}</span>
 
-        <!-- Flecha de navegación — solo en el row activo -->
         <button
           v-if="i === current"
           class="is-arrow"
@@ -241,26 +282,54 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
   width: 100%;
   overflow: hidden;
   background: rgba(12, 0, 17, 0.06);
-  cursor: grab;
   user-select: none;
 }
 
-.is-viewport:active { cursor: grabbing; }
+.is-viewport { cursor: pointer; }
 
 .is-slide {
   position: absolute;
   inset: 0;
-  /* Opacity gestionada por GSAP — CSS solo define el estado inicial */
   opacity: 0;
 }
 
-/* [NOTE] El :deep() alcanza el <img> dentro de NuxtPicture */
 .is-slide :deep(picture),
 .is-slide :deep(.is-slide-img) {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* ================================================================
+   CURSOR LABEL
+   Mismo patrón que ProjectCard. Color de fondo = --color-accent
+   del post (seteado dinámicamente por BlogPostBody).
+   ================================================================ */
+.is-cursor-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 20;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  white-space: nowrap;
+  color: var(--color-accent);
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 0.2s ease;
+}
+
+.is-cursor-label--visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .is-cursor-label { display: none; }
 }
 
 /* ================================================================
@@ -289,7 +358,6 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
   background: rgba(12, 0, 17, 0.03);
 }
 
-/* Item activo: fondo acento, texto foreground */
 .is-row--active {
   background: var(--color-accent);
   opacity: 1;
@@ -297,7 +365,7 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
 }
 
 /* ================================================================
-   ROW CELLS — Space Mono, todo uppercase/monospace
+   ROW CELLS
    ================================================================ */
 .is-index,
 .is-label,
