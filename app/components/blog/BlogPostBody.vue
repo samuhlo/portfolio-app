@@ -9,7 +9,7 @@
  * =====================================================================
  */
 
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import type { BlogPost } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 

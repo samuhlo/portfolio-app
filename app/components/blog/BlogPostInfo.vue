@@ -1,12 +1,13 @@
 <script setup lang="ts">
 /**
- * █ [COMPONENT] :: BLOG POST INFO
- * =====================================================================
+ * ========================================================================
+ * [UI_MOLECULE] :: BLOG POST INFO
+ * ========================================================================
  * DESC:   Sidebar de metadata. Estética: vertical strip minimalista
  *         con la categoría como elemento de color primario.
  *         Título sticky con GSAP al hacer scroll.
  * STATUS: STABLE
- * =====================================================================
+ * ========================================================================
  */
 
 import { ref, watch } from 'vue';

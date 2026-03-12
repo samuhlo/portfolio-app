@@ -1,15 +1,17 @@
 <script setup lang="ts">
 /**
- * █ [PROSE] :: PROSE A (LINK)
- * =====================================================================
+ * ========================================================================
+ * [PROSE] :: PROSE A (LINK)
+ * ========================================================================
  * DESC:   Override de <a>. NuxtLink para internos, target blank para
  *         externos. El icono externo (↗) es un doodle dibujado con
  *         stroke-dash al hacer hover — mismo sistema que los doodles
  *         del resto del portfolio.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import gsap from 'gsap';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 

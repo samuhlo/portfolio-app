@@ -1,10 +1,12 @@
 <script setup lang="ts">
 /**
- * █ [PROSE] :: PROSE CODE INLINE
- * =====================================================================
+ * ========================================================================
+ * [PROSE] :: PROSE CODE INLINE
+ * ========================================================================
  * DESC:   Override de <code> inline en markdown. Pill con fondo sutil
  *         y font mono consistente con los bloques de código de Shiki.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 defineOptions({ inheritAttrs: false });

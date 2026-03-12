@@ -1,12 +1,14 @@
 <script setup lang="ts">
 /**
- * █ [PROSE] :: PROSE PRE
- * =====================================================================
+ * ========================================================================
+ * [PROSE] :: PROSE PRE
+ * ========================================================================
  * DESC:   Override del bloque de código (triple backtick) de Nuxt Content.
  *         ProsePre es el componente correcto para fenced code blocks.
  *         El prop `code` contiene el HTML ya resaltado por Shiki.
  *         Header: lenguaje + filename + botón copy.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 import { ref, onUnmounted } from 'vue';

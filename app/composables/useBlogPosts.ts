@@ -1,11 +1,13 @@
 /**
- * █ [COMPOSABLE] :: USE BLOG POSTS
- * =====================================================================
+ * ========================================================================
+ * [COMPOSABLE] :: USE BLOG POSTS
+ * ========================================================================
  * DESC:   Lista de posts publicados desde Nuxt Content, ordenados por
  *         fecha descendente. Filtrable por categoría en el cliente.
  *         La key 'blog-posts' es compartida — otras llamadas (useBlogPost,
  *         useBlogCategories) reusan el mismo cache sin doble fetch.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 import { computed } from 'vue';

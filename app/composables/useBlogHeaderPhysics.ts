@@ -5,7 +5,7 @@
  * DESC:   Motor físico 2D (Matter.js) para la animación cartoon del header.
  *         La "B" sale disparada hacia la izquierda y cae con gravedad
  *         tras ser "empujada" por "logs".
- * STATUS: WIP
+ * STATUS: STABLE
  * ========================================================================
  */
 import { onUnmounted } from 'vue';

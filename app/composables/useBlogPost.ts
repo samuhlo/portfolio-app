@@ -1,11 +1,13 @@
 /**
- * █ [COMPOSABLE] :: USE BLOG POST
- * =====================================================================
+ * ========================================================================
+ * [COMPOSABLE] :: USE BLOG POST
+ * ========================================================================
  * DESC:   Post individual por slug con navegación prev/next.
  *         Reutiliza la key 'blog-posts' de useBlogPosts para el cache
  *         compartido — sin doble fetch al combinar con el listado.
  *         Lanza 404 si el post no existe.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 import { computed } from 'vue';

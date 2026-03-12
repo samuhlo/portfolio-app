@@ -1,10 +1,12 @@
 /**
- * █ [COMPOSABLE] :: USE BLOG CATEGORIES
- * =====================================================================
+ * ========================================================================
+ * [COMPOSABLE] :: USE BLOG CATEGORIES
+ * ========================================================================
  * DESC:   Lista de categorías con conteo de posts publicados.
  *         Derivado de useBlogPosts — sin fetch adicional.
  *         Incluye la opción 'all' con el total de posts.
- * =====================================================================
+ * STATUS: STABLE
+ * ========================================================================
  */
 
 import { computed } from 'vue';

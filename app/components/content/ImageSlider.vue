@@ -26,7 +26,8 @@
  * =====================================================================
  */
 
-import { ref, computed, onMounted, onUnmounted, type ComponentPublicInstance } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type { ComponentPublicInstance } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useCursorLabel } from '~/composables/useCursorLabel';
 
