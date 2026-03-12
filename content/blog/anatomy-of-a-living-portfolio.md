@@ -2,7 +2,7 @@
 title: 'Anatomy of a Living Portfolio: GitHub Webhooks + IA'
 description: 'Cómo construí un sistema donde mi portfolio se actualiza solo cada vez que hago git push. Webhooks, OpenAI, Zod y la magia de no tener que mantener un CMS.'
 date: '2026-03-03'
-category: 'breakdown'
+category: 'find'
 topics: ['github', 'webhooks', 'openai', 'zod', 'automatizacion', 'nuxt']
 time_to_read: 10
 published: true
@@ -194,7 +194,7 @@ También me gustaría añadir generación automática de screenshots. Existe la 
 
 Mi portfolio lleva un mes con este sistema y se ha actualizado solo 14 veces sin que yo toque nada. Cada push a un README se refleja en la web en menos de 30 segundos. Es exactamente lo que quería: un portfolio que está vivo mientras yo me dedico a lo que realmente importa, que es construir cosas.
 
-::draw-heading{svg="/blog/doodles/underline.svg" level="2" trigger="scroll"}
+::draw-heading{svg="/blog/doodles/blog_medium_circle.svg" level="1" trigger="scroll"}
 La extracción con IA (con doodle)
 ::
 
@@ -204,39 +204,39 @@ La extracción con IA (con doodle)
 
 **sin stroke-color** — hereda el color de categoría del post automáticamente:
 
-:hand-drawn{svg="/blog/doodles/underline.svg" placement="under"}[design systems]
+:hand-drawn{svg="/blog/doodles/blog_medium_underline.svg" placement="under"}[design systems]
 
 **stroke-color="accent"** — idem, explícito:
 
-:hand-drawn{svg="/blog/doodles/circle.svg" placement="around" stroke-color="accent"}[Zod]
+:hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around" stroke-color="accent"}[Zod]
 
 **stroke-color="#hex"** — color fijo:
 
-:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" stroke-color="#e85d4a"}[webhooks]
+:hand-drawn{svg="/blog/doodles/blog_long_underline.svg" placement="under" stroke-color="#e85d4a"}[webhooks]
 
 **placement="over"**:
 
-:hand-drawn{svg="/blog/doodles/underline.svg" placement="over"}[sobre el texto]
+:hand-drawn{svg="/blog/doodles/blog_long_underline.svg" placement="over"}[sobre el texto]
 
 **placement="left"**:
 
-:hand-drawn{svg="/blog/doodles/arrow-down.svg" placement="left"}[edge case]
+:hand-drawn{svg="/blog/doodles/blog_arrow_down.svg" placement="left"}[edge case]
 
 **placement="right"**:
 
-:hand-drawn{svg="/blog/doodles/arrow-down.svg" placement="right"}[upsert]
+:hand-drawn{svg="/blog/doodles/blog_arrow_down.svg" placement="right"}[upsert]
 
 **trigger="load"** — se dibuja al montar:
 
-:hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="load" duration="2"}[idempotente]
+:hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="around" trigger="load" duration="2" width="80"}[idempotente]
 
 **trigger="hover"** — draw/erase on hover:
 
-:hand-drawn{svg="/blog/doodles/underline.svg" placement="under" trigger="hover"}[pasa el cursor aquí]
+:hand-drawn{svg="/blog/doodles/blog_long_underline.svg" placement="under" trigger="hover"}[pasa el cursor aquí]
 
 **trigger="scroll"**:
 
-:hand-drawn{svg="/blog/doodles/asterisk.svg" placement="around" trigger="scroll" duration="2"}[SCROOOOLL]
+:hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="around" trigger="scroll" duration="2"}[SCROOOOLL]
 
 ## [TEST] Prose Components
 
@@ -414,6 +414,174 @@ js: |
       x: (Math.random() - 0.5) * 10,
       y: -(14 + Math.random() * 8),
     });
+  });
+---
+::
+
+::code-preview
+---
+height: 300
+html: |
+  <div class="scene">
+    <svg id="doodle" viewBox="0 0 320 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path id="p1"
+        d="M10,70 C30,20 60,80 100,40 C130,10 150,75 190,45 C220,20 250,65 280,38 C295,28 305,50 312,42"
+        stroke="#ffca40" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <button id="btn">replay</button>
+  </div>
+css: |
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 2rem;
+    background: #0c0011;
+  }
+  svg { width: 320px; }
+  button {
+    font-family: monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    background: none;
+    border: 1.5px solid #faf3f0;
+    padding: 0.5rem 1.4rem;
+    color: #faf3f0;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  button:hover { background: #faf3f0; color: #0c0011; }
+js: |
+  const path = document.getElementById('p1');
+  const length = path.getTotalLength() + 20;
+
+  // Preparar: dash tan largo como el path, offset = invisible
+  path.style.strokeDasharray = length;
+  path.style.strokeDashoffset = length;
+
+  const draw = () =>
+    gsap.to(path, { strokeDashoffset: 0, duration: 1.8, ease: 'power2.inOut' });
+
+  draw();
+
+  document.getElementById('btn').addEventListener('click', () => {
+    gsap.set(path, { strokeDashoffset: length });
+    draw();
+  });
+---
+::
+
+
+::blog-media
+---
+src: blog/animated-portfolio/samuhlo_intro.mp4
+alt: Diagrama del flujo completo — webhook, IA, base de datos
+maxWidth: 55%
+align: center
+caption: El flujo completo desde el git push hasta la base de datos
+---
+::
+
+---
+
+## [TEST] Control de tamaño y alineación
+
+### Sin props — ancho completo (comportamiento por defecto)
+
+::blog-media
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+alt: Imagen full width
+caption: Sin maxWidth ni align — ocupa todo el contenedor
+---
+::
+
+### maxWidth + align center
+
+::blog-media
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+alt: Imagen centrada al 55%
+maxWidth: 55%
+align: center
+caption: maxWidth 55% · align center
+---
+::
+
+### maxWidth + align left
+
+::blog-media
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+alt: Imagen alineada a la izquierda
+maxWidth: 45%
+align: left
+caption: maxWidth 45% · align left
+---
+::
+
+### maxWidth + align right
+
+::blog-media
+---
+src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+alt: Imagen alineada a la derecha
+maxWidth: 45%
+align: right
+caption: maxWidth 45% · align right
+---
+::
+
+### ImageSlider con maxWidth
+
+::image-slider
+---
+maxWidth: 640px
+align: center
+images:
+  - src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
+    alt: Imagen 1
+    label: WEBHOOK_FLOW
+  - src: blog/anatomy-of-a-living-portfolio/prueba_blog_2.jpg
+    alt: Imagen 2
+    label: AI_PIPELINE
+---
+::
+
+### CodePreview con maxWidth
+
+::code-preview
+---
+height: 260
+maxWidth: 560px
+align: center
+html: |
+  <div class="box"></div>
+css: |
+  body {
+    background: #0c0011;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .box {
+    width: 60px;
+    height: 60px;
+    background: #ffca40;
+    border-radius: 4px;
+  }
+js: |
+  gsap.to(".box", {
+    rotation: 360,
+    scale: 1.4,
+    duration: 1.2,
+    repeat: -1,
+    yoyo: true,
+    ease: "power2.inOut"
   });
 ---
 ::

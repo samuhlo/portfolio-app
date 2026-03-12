@@ -5,7 +5,7 @@ date: "2026-02-25"
 category: "find"
 topics: ["gsap", "scrolltrigger", "animacion", "javascript", "performance"]
 time_to_read: 9
-published: true
+published: false
 slug: "scrolltrigger-patterns-que-uso-en-cada-proyecto"
 ---
 

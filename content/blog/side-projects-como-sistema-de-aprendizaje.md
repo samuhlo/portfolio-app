@@ -5,7 +5,7 @@ date: "2026-01-20"
 category: "outside"
 topics: ["aprendizaje", "side-projects", "carrera", "reflexion"]
 time_to_read: 7
-published: true
+published: false
 slug: "side-projects-como-sistema-de-aprendizaje"
 ---
 

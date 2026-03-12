@@ -5,7 +5,7 @@ date: "2026-02-07"
 category: weekly_log
 topics: ["Design Systems", "GSAP", "Vue", "CSS"]
 time_to_read: 5
-published: true
+published: false
 slug: week-06-2026-creative-chaos
 ---
 

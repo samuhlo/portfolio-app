@@ -2,7 +2,7 @@
 title: "Drizzle ORM: SQL que se siente como TypeScript"
 description: "Después de años con Prisma, probé Drizzle ORM en un proyecto serverless y no voy a volver. Así fue mi experiencia migrando y por qué creo que es el futuro del acceso a datos en TypeScript."
 date: "2026-02-10"
-category: "find"
+category: "outside"
 topics: ["drizzle", "typescript", "orm", "postgres", "serverless"]
 time_to_read: 8
 published: true

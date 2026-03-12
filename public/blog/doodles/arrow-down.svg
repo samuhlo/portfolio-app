@@ -1,5 +1,0 @@
-<svg viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
-  <path d="M30,6 C26,22 34,44 29,70" style="stroke: var(--doodle-stroke-color, currentColor); stroke-width: var(--doodle-stroke-width, 3.5px)" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M29,70 C23,58 14,53 16,51" style="stroke: var(--doodle-stroke-color, currentColor); stroke-width: var(--doodle-stroke-width, 3.5px)" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M29,70 C35,58 44,53 42,51" style="stroke: var(--doodle-stroke-color, currentColor); stroke-width: var(--doodle-stroke-width, 3.5px)" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>

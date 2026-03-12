@@ -5,7 +5,7 @@ date: "2026-03-06"
 category: "breakdown"
 topics: ["tresjs", "threejs", "webgl", "css", "arquitectura", "performance"]
 time_to_read: 9
-published: true
+published: false
 slug: "canvas-curtain-webgl-dom-layers"
 ---
 

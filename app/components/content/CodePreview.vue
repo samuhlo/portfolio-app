@@ -31,6 +31,34 @@
  *   Draggable    → GSAP Draggable plugin
  *   Matter       → Matter.js Physics Engine
  *
+ * TAMAÑO Y ALINEACIÓN:
+ *   Sin maxWidth el componente ocupa el 100% del contenedor (por defecto).
+ *   Con maxWidth se puede controlar el ancho y la posición horizontal:
+ *
+ *   ::code-preview        — centrado a 560px
+ *   ---
+ *   height: 320
+ *   maxWidth: 560px
+ *   align: center
+ *   html: |
+ *     <div class="box"></div>
+ *   ---
+ *   ::
+ *
+ *   ::code-preview        — alineado a la derecha al 70%
+ *   ---
+ *   height: 320
+ *   maxWidth: 70%
+ *   align: right
+ *   html: |
+ *     <div class="box"></div>
+ *   ---
+ *   ::
+ *
+ *   maxWidth acepta cualquier unidad CSS válida: px, %, rem, etc.
+ *   align puede ser 'left' | 'center' | 'right' (default: 'center').
+ *   Si no se pasa maxWidth, align no tiene efecto.
+ *
  * STATUS: STABLE
  * =====================================================================
  */
@@ -66,11 +94,30 @@ const props = withDefaults(
     js?: string;
     /** Altura del iframe de preview en px */
     height?: string | number;
+    /**
+     * Ancho máximo del componente.
+     * Acepta px, %, rem, etc. (e.g. '700px', '80%')
+     * Sin valor → ocupa el 100% disponible.
+     */
+    maxWidth?: string;
+    /**
+     * Alineación horizontal cuando maxWidth está definido.
+     * 'left' | 'center' | 'right'  — default: 'center'
+     */
+    align?: 'left' | 'center' | 'right';
   }>(),
   {
     height: 280,
+    align: 'center',
   },
 );
+
+const wrapperStyle = computed(() => {
+  if (!props.maxWidth) return {};
+  const ml = props.align === 'right' ? 'auto' : props.align === 'center' ? 'auto' : '0';
+  const mr = props.align === 'left' ? 'auto' : props.align === 'center' ? 'auto' : '0';
+  return { maxWidth: props.maxWidth, marginLeft: ml, marginRight: mr, width: '100%' };
+});
 
 // =============================================================================
 // █ TABS
@@ -178,7 +225,7 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
 </script>
 
 <template>
-  <div class="code-preview not-prose my-8">
+  <div class="code-preview not-prose my-8" :style="wrapperStyle">
     <!-- ================================================================
          TAB BAR
          ================================================================ -->

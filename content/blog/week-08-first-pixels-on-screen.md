@@ -5,7 +5,7 @@ date: "2026-02-21"
 category: "weekly_log"
 topics: ["nuxt", "tresjs", "gsap", "lenis", "webgl"]
 time_to_read: 7
-published: true
+published: false
 slug: "week-08-first-pixels-on-screen"
 ---
 

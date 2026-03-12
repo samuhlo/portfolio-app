@@ -23,6 +23,13 @@ export type BlogPost = {
   body?: unknown;
 };
 
+// Ítem de TOC — headings detectados en el contenido del post
+export type TocHeading = {
+  id: string;
+  text: string;
+  level: 2 | 3;
+};
+
 // Ítem de categoría con conteo — usado por useBlogCategories y BlogIndex
 export type CategoryItem = {
   id: BlogCategory | 'all';

@@ -5,7 +5,7 @@ date: "2026-02-18"
 category: "outside"
 topics: ["reflexion", "impostor-syndrome", "build-in-public", "creatividad"]
 time_to_read: 6
-published: true
+published: false
 slug: "construir-en-publico-cuando-no-te-sientes-listo"
 ---
 

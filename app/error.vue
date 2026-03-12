@@ -97,7 +97,7 @@ onUnmounted(() => {
         transform: 'translate(-50%, -50%)',
       }"
     >
-      <DoodleWorking404General ref="doodleRef" class="w-full" />
+      <DoodleNotFound ref="doodleRef" class="w-full" />
     </div>
 
     <!-- Botón back estático abajo -->

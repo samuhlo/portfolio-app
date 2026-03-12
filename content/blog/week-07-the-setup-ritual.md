@@ -5,7 +5,7 @@ date: "2026-02-14"
 category: "weekly_log"
 topics: ["tooling", "dx", "terminal", "productividad"]
 time_to_read: 6
-published: true
+published: false
 slug: "week-07-the-setup-ritual"
 ---
 

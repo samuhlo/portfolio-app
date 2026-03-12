@@ -23,6 +23,38 @@
  *   ---
  *   ::
  *
+ * TAMAÑO Y ALINEACIÓN:
+ *   Sin maxWidth el componente ocupa el 100% del contenedor (por defecto).
+ *   Con maxWidth se puede controlar el ancho y la posición horizontal:
+ *
+ *   ::blog-media          — centrado al 60% del contenedor
+ *   ---
+ *   src: blog/mi-post/cover.jpg
+ *   maxWidth: 60%
+ *   align: center
+ *   ---
+ *   ::
+ *
+ *   ::blog-media          — pegado a la izquierda, 400px fijos
+ *   ---
+ *   src: blog/mi-post/cover.jpg
+ *   maxWidth: 400px
+ *   align: left
+ *   ---
+ *   ::
+ *
+ *   ::blog-media          — pegado a la derecha, 45%
+ *   ---
+ *   src: blog/mi-post/cover.jpg
+ *   maxWidth: 45%
+ *   align: right
+ *   ---
+ *   ::
+ *
+ *   maxWidth acepta cualquier unidad CSS válida: px, %, rem, etc.
+ *   align puede ser 'left' | 'center' | 'right' (default: 'center').
+ *   Si no se pasa maxWidth, align no tiene efecto.
+ *
  * NOTAS:
  *   - alt es opcional en vídeos (no aplica al elemento <video>)
  *   - format y quality solo se usan para imágenes (NuxtPicture)
@@ -33,6 +65,7 @@
  */
 
 import { computed } from 'vue';
+import { useRuntimeConfig } from '#imports';
 
 const props = withDefaults(
   defineProps<{
@@ -56,26 +89,56 @@ const props = withDefaults(
      * Default: 80
      */
     quality?: number;
+    /**
+     * Ancho máximo del componente.
+     * Acepta px, %, rem, etc. (e.g. '600px', '80%', '40rem')
+     * Sin valor → ocupa el 100% disponible.
+     */
+    maxWidth?: string;
+    /**
+     * Alineación horizontal cuando maxWidth está definido.
+     * 'left' | 'center' | 'right'  — default: 'center'
+     */
+    align?: 'left' | 'center' | 'right';
   }>(),
   {
     format: 'avif,webp',
     quality: 80,
+    align: 'center',
   },
 );
 
+const figureStyle = computed(() => {
+  if (!props.maxWidth) return {};
+  const ml = props.align === 'right' ? 'auto' : props.align === 'center' ? 'auto' : '0';
+  const mr = props.align === 'left' ? 'auto' : props.align === 'center' ? 'auto' : '0';
+  return { maxWidth: props.maxWidth, marginLeft: ml, marginRight: mr, width: '100%' };
+});
+
+const config = useRuntimeConfig();
 const isVideo = computed(() => /\.(mp4|webm)$/i.test(props.src));
+
+const videoSrc = computed(() => {
+  if (!props.src) return '';
+  if (props.src.startsWith('http')) return props.src;
+
+  const baseUrl = config.public.assetsUrl?.replace(/\/$/, '') ?? '';
+  const path = props.src.startsWith('/') ? props.src : `/${props.src}`;
+
+  return `${baseUrl}${path}`;
+});
 </script>
 
 <template>
-  <figure class="my-8 not-prose">
+  <figure class="my-8 not-prose" :style="figureStyle">
     <video
       v-if="isVideo"
-      :src="src"
+      :src="videoSrc"
       :width="width"
       :height="height"
+      autoplay
       controls
       muted
-      loop
       playsinline
       preload="metadata"
       class="w-full h-auto rounded-sm"
