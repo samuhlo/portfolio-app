@@ -33,7 +33,7 @@ El flujo completo es:
 6. Valida la respuesta con Zod
 7. Hace upsert en la base de datos (Neon + Drizzle)
 
-::blog-image
+::blog-media
 ---
 src: blog/anatomy-of-a-living-portfolio/prueba_blog_1.jpg
 alt: Diagrama del flujo completo — webhook, IA, base de datos
@@ -111,7 +111,7 @@ ${readmeContent}
 
 La clave del prompt es ser extremadamente específico con la estructura que esperas. Si le dices "extrae información", te va a dar lo que quiera. Si le das un JSON schema exacto, el output es predecible.
 
-::blog-image
+::blog-media
 ---
 src: blog/anatomy-of-a-living-portfolio/prueba_blog_2.jpg
 alt: Ejemplo de respuesta estructurada de la IA
@@ -272,6 +272,9 @@ images:
 
 ## [TEST] CodePreview — GSAP live demo
 
+
+
+
 ::code-preview
 ---
 height: 300
@@ -309,6 +312,108 @@ js: |
     repeat: -1,
     yoyo: true,
     ease: "power2.inOut"
+  });
+---
+::
+
+## [TEST] CodePreview — Matter.js live demo
+
+::code-preview
+---
+height: 320
+html: |
+  <canvas id="c"></canvas>
+  <p id="hint">click para lanzar</p>
+css: |
+  body {
+    margin: 0;
+    background: #0c0011;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1rem;
+  }
+  canvas { display: block; border: 1px solid rgba(255,255,255,0.06); }
+  #hint {
+    font-family: monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin: 0;
+  }
+js: |
+  const W = 380, H = 240;
+  const canvas = document.getElementById('c');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const { Engine, Runner, Bodies, World, Body } = Matter;
+  const engine = Engine.create({ gravity: { x: 0, y: 2 } });
+
+  // Paredes invisibles
+  World.add(engine.world, [
+    Bodies.rectangle(W / 2, H + 25, W * 2, 50, { isStatic: true }),
+    Bodies.rectangle(-25,   H / 2, 50, H * 2, { isStatic: true }),
+    Bodies.rectangle(W + 25, H / 2, 50, H * 2, { isStatic: true }),
+  ]);
+
+  // Bola
+  const R = 22;
+  const ball = Bodies.circle(W / 2, R + 10, R, {
+    restitution: 0.65,
+    friction: 0.3,
+    frictionAir: 0.01,
+  });
+  World.add(engine.world, ball);
+  Runner.run(engine);
+
+  const draw = () => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#0c0011';
+    ctx.fillRect(0, 0, W, H);
+
+    // Suelo
+    ctx.fillStyle = 'rgba(255,202,64,0.12)';
+    ctx.fillRect(0, H - 3, W, 3);
+
+    // Sombra
+    const shadowAlpha = Math.max(0, 0.25 - (ball.position.y / H) * 0.25);
+    const shadowW = R * 2 * (1 - ball.position.y / H * 0.4);
+    ctx.beginPath();
+    ctx.ellipse(ball.position.x, H - 3, Math.max(4, shadowW), 5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,202,64,${shadowAlpha})`;
+    ctx.fill();
+
+    // Bola
+    const { x, y } = ball.position;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ball.angle);
+    ctx.beginPath();
+    ctx.arc(0, 0, R, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffca40';
+    ctx.fill();
+    // Marca de rotación
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(R * 0.75, 0);
+    ctx.stroke();
+    ctx.restore();
+
+    requestAnimationFrame(draw);
+  };
+  draw();
+
+  canvas.addEventListener('click', () => {
+    Body.setVelocity(ball, {
+      x: (Math.random() - 0.5) * 10,
+      y: -(14 + Math.random() * 8),
+    });
   });
 ---
 ::

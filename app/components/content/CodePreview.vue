@@ -29,6 +29,7 @@
  *   gsap         → GSAP core
  *   ScrollTrigger → GSAP ScrollTrigger plugin
  *   Draggable    → GSAP Draggable plugin
+ *   Matter       → Matter.js Physics Engine
  *
  * STATUS: STABLE
  * =====================================================================
@@ -37,15 +38,15 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 // =============================================================================
-// █ CONSTANTS
+// █ CONSTANTS (CDN SCRIPTS)
 // =============================================================================
-const GSAP_VERSION = '3.12.5';
-const CDN = `https://cdnjs.cloudflare.com/ajax/libs/gsap/${GSAP_VERSION}`;
-
-const GSAP_SCRIPTS: Record<string, string> = {
-  gsap: `${CDN}/gsap.min.js`,
-  ScrollTrigger: `${CDN}/ScrollTrigger.min.js`,
-  Draggable: `${CDN}/Draggable.min.js`,
+const EXTERNAL_SCRIPTS: Record<string, string> = {
+  // GSAP
+  gsap: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js',
+  ScrollTrigger: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js',
+  Draggable: 'https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Draggable.min.js',
+  // Physics
+  Matter: 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js',
 };
 
 // Estilos base inyectados en el iframe — reset mínimo, sin imponer diseño
@@ -93,8 +94,8 @@ const active = ref<Tab>('preview');
 const srcdoc = computed(() => {
   const js = props.js ?? '';
 
-  // Auto-detectar qué scripts de GSAP inyectar
-  const scriptTags = Object.entries(GSAP_SCRIPTS)
+  // Auto-detectar qué scripts externos inyectar
+  const scriptTags = Object.entries(EXTERNAL_SCRIPTS)
     .filter(([key]) => js.includes(key))
     .map(([, url]) => `<script src="${url}"><\/script>`)
     .join('\n');

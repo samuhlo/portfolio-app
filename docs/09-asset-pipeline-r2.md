@@ -152,16 +152,17 @@ useSeoMeta({ ogImage: cover })
 
 ---
 
-## Componente MDC — `::blog-image`
+## Componente MDC — `::blog-media`
 
-`app/components/content/BlogImage.vue` — inserta imágenes optimizadas dentro del markdown del post.
+`app/components/content/BlogMedia.vue` — inserta imágenes y vídeos dentro del markdown del post.
 
-Wrappea `NuxtPicture`, que genera automáticamente las fuentes AVIF y WebP. El navegador descarga el formato más eficiente que soporte.
+Para imágenes wrappea `NuxtPicture`, que genera automáticamente las fuentes AVIF y WebP. Para vídeos (`.mp4`, `.webm`) renderiza un `<video>` con `controls muted loop playsinline`. La detección es automática por extensión del `src`.
 
 ### Uso en markdown
 
 ```md
-::blog-image
+# Imagen
+::blog-media
 ---
 src: blog/mi-post/cover.jpeg
 alt: Descripción de la imagen
@@ -170,18 +171,28 @@ height: 675
 caption: Texto de pie de imagen (opcional)
 ---
 ::
+
+# Vídeo
+::blog-media
+---
+src: blog/mi-post/demo.mp4
+caption: Demo en vídeo (opcional)
+---
+::
 ```
 
 ### Props
 
 | Prop | Tipo | Descripción |
 |---|---|---|
-| `src` | `string` | Path con alias `blog/` o URL completa |
-| `alt` | `string` | Texto alternativo — obligatorio |
+| `src` | `string` | Path con alias `blog/` — `.mp4`/`.webm` activa el modo vídeo |
+| `alt` | `string` | Texto alternativo — requerido para imágenes, ignorado en vídeos |
 | `width` | `number` | Ancho original del asset |
 | `height` | `number` | Alto original del asset |
-| `caption` | `string` | Pie de imagen, opcional |
-| `sizes` | `string` | Breakpoints responsive (default: `sm:100vw md:90vw lg:800px`) |
+| `caption` | `string` | Pie de imagen/vídeo, opcional |
+| `sizes` | `string` | Breakpoints responsive, solo imágenes (default: `sm:100vw md:90vw lg:800px`) |
+| `format` | `string` | Formatos IPX, solo imágenes (default: `avif,webp`) |
+| `quality` | `number` | Calidad de compresión 1–100, solo imágenes (default: `80`) |
 
 ### Lo que NuxtPicture genera en el HTML
 
@@ -220,7 +231,7 @@ bun run assets:upload blog/nuevo-post/ ./mis-imagenes/
 #    image: https://assets.samuhlo.dev/blog/nuevo-post/cover.webp
 
 # 4. Insertar en el cuerpo del post
-#    ::blog-image
+#    ::blog-media
 #    ---
 #    src: blog/nuevo-post/cover.webp
 #    alt: Descripción
