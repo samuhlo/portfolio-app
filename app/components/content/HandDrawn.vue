@@ -105,7 +105,7 @@ const props = withDefaults(
 // =============================================================================
 // [NOTE] MDC siempre pasa props como strings aunque el valor sea numérico
 const durationNum = computed(() => Number(props.duration));
-const countNum    = computed(() => Math.max(1, Number(props.count)));
+const countNum = computed(() => Math.max(1, Number(props.count)));
 
 const resolvedStrokeColor = computed(() => {
   if (!props.strokeColor || props.strokeColor === 'accent') return 'var(--color-accent)';
@@ -117,11 +117,11 @@ const resolvedStrokeColor = computed(() => {
 // =============================================================================
 // [NOTE] Valores en em para que escalen con el tamaño de fuente del contexto
 const PRESETS: Record<Placement, CSSProperties> = {
-  under:  { bottom: '-0.35em', left: '0',   width: '100%' },
-  over:   { top: '-0.35em',    left: '0',   width: '100%', transform: 'translateY(-100%)' },
-  around: { top: '50%',        left: '50%', width: '115%', transform: 'translate(-50%, -50%)' },
-  left:   { right: '110%',     top: '50%',  width: '2em',  transform: 'translateY(-50%)' },
-  right:  { left: '110%',      top: '50%',  width: '2em',  transform: 'translateY(-50%)' },
+  under: { bottom: '-0.35em', left: '0', width: '100%' },
+  over: { top: '-0.35em', left: '0', width: '100%', transform: 'translateY(-100%)' },
+  around: { top: '50%', left: '50%', width: '115%', transform: 'translate(-50%, -50%)' },
+  left: { right: '110%', top: '50%', width: '2em', transform: 'translateY(-50%)' },
+  right: { left: '110%', top: '50%', width: '2em', transform: 'translateY(-50%)' },
 };
 
 // Estilo base de la primera copia (índice 0)
@@ -129,14 +129,16 @@ const svgContainerStyle = computed<CSSProperties>(() => {
   const preset = PRESETS[props.placement];
   return {
     ...preset,
-    ...(props.top          !== undefined && { top: props.top }),
-    ...(props.left         !== undefined && { left: props.left }),
-    ...(props.bottom       !== undefined && { bottom: props.bottom }),
-    ...(props.right        !== undefined && { right: props.right }),
-    ...(props.width        !== undefined && { width: props.width }),
+    ...(props.top !== undefined && { top: props.top }),
+    ...(props.left !== undefined && { left: props.left }),
+    ...(props.bottom !== undefined && { bottom: props.bottom }),
+    ...(props.right !== undefined && { right: props.right }),
+    ...(props.width !== undefined && { width: props.width }),
     ...(props.svgTransform !== undefined && { transform: props.svgTransform }),
     '--doodle-stroke-color': resolvedStrokeColor.value,
-    ...(props.strokeWidth !== undefined && { '--doodle-stroke-width': `${Number(props.strokeWidth)}px` }),
+    ...(props.strokeWidth !== undefined && {
+      '--doodle-stroke-width': `${Number(props.strokeWidth)}px`,
+    }),
   };
 });
 
@@ -154,7 +156,7 @@ const svgContainerStyle = computed<CSSProperties>(() => {
 function getNthContainerStyle(i: number): CSSProperties {
   if (i === 0) return svgContainerStyle.value;
 
-  const w   = props.width ?? '2em';
+  const w = props.width ?? '2em';
   const gap = '0.1em';
   // offset total para la i-ésima copia
   const offset = `calc(${i} * (${w} + ${gap}))`;
@@ -177,16 +179,16 @@ function getNthContainerStyle(i: number): CSSProperties {
 // =============================================================================
 // █ REFS & STATE
 // =============================================================================
-const anchorRef    = ref<HTMLElement | null>(null);
+const anchorRef = ref<HTMLElement | null>(null);
 const containerRefs = ref<(HTMLElement | null)[]>([]);
-const svgContent   = ref<string>('');
+const svgContent = ref<string>('');
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
 
 // Un array de SVGSVGElement y paths preparados por cada copia
-let svgEls:         (SVGSVGElement | null)[] = [];
-let allPreparedPaths: SVGPathElement[][]     = [];
+let svgEls: (SVGSVGElement | null)[] = [];
+let allPreparedPaths: SVGPathElement[][] = [];
 let isAnimating = false;
 
 function setContainerRef(i: number) {
@@ -209,11 +211,11 @@ onMounted(async () => {
 
   await nextTick();
 
-  svgEls = containerRefs.value.map(el => el?.querySelector('svg') ?? null);
-  if (svgEls.every(el => !el)) return;
+  svgEls = containerRefs.value.map((el) => el?.querySelector('svg') ?? null);
+  if (svgEls.every((el) => !el)) return;
 
   initGSAP(() => {
-    allPreparedPaths = svgEls.map(svgEl => (svgEl ? preparePaths(svgEl) : []));
+    allPreparedPaths = svgEls.map((svgEl) => (svgEl ? preparePaths(svgEl) : []));
 
     if (props.trigger === 'load') {
       // Todas las copias se dibujan al mismo tiempo
@@ -250,7 +252,7 @@ onMounted(async () => {
         trigger: anchorRef.value,
         start: 'top 88%',
         once: true,
-        onEnter: () => timelines.forEach(tl => tl?.play()),
+        onEnter: () => timelines.forEach((tl) => tl?.play()),
       });
       return;
     }
@@ -269,7 +271,9 @@ function handleHoverEnter() {
   svgEls.forEach((svgEl, i) => {
     if (!svgEl) return;
     const tl = gsap.timeline({
-      onComplete: () => { isAnimating = false; },
+      onComplete: () => {
+        isAnimating = false;
+      },
     });
     addDrawAnimation(tl, {
       svg: svgEl,
@@ -306,9 +310,21 @@ function handleHoverLeave() {
       v-for="i in countNum"
       :key="i"
       :ref="setContainerRef(i - 1)"
-      class="absolute block pointer-events-none [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
+      class="absolute block pointer-events-none doodle-svg-container [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
       :style="getNthContainerStyle(i - 1)"
       v-html="svgContent"
     />
   </span>
 </template>
+
+<style>
+.doodle-svg-container path,
+.doodle-svg-container circle,
+.doodle-svg-container line,
+.doodle-svg-container polyline,
+.doodle-svg-container polygon,
+.doodle-svg-container rect,
+.doodle-svg-container ellipse {
+  stroke: var(--doodle-stroke-color, var(--color-accent, #ffca40)) !important;
+}
+</style>

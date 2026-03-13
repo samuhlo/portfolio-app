@@ -67,7 +67,7 @@ const props = withDefaults(
   },
 );
 
-const levelNum  = computed(() => Number(props.level));
+const levelNum = computed(() => Number(props.level));
 const durationNum = computed(() => Number(props.duration));
 
 // =============================================================================
@@ -82,31 +82,33 @@ const resolvedStrokeColor = computed(() => {
 // █ PLACEMENT PRESETS
 // =============================================================================
 const PRESETS: Record<Placement, CSSProperties> = {
-  under:  { bottom: '-0.2em', left: '0',   width: '100%' },
-  over:   { top: '-0.2em',    left: '0',   width: '100%', transform: 'translateY(-100%)' },
-  around: { top: '50%',       left: '50%', width: '110%', transform: 'translate(-50%, -50%)' },
-  left:   { right: '105%',    top: '50%',  width: '1.5em', transform: 'translateY(-50%)' },
-  right:  { left: '105%',     top: '50%',  width: '1.5em', transform: 'translateY(-50%)' },
+  under: { bottom: '-0.2em', left: '0', width: '100%' },
+  over: { top: '-0.2em', left: '0', width: '100%', transform: 'translateY(-100%)' },
+  around: { top: '50%', left: '50%', width: '110%', transform: 'translate(-50%, -50%)' },
+  left: { right: '105%', top: '50%', width: '1.5em', transform: 'translateY(-50%)' },
+  right: { left: '105%', top: '50%', width: '1.5em', transform: 'translateY(-50%)' },
 };
 
 const svgContainerStyle = computed<CSSProperties>(() => ({
   ...PRESETS[props.placement],
-  ...(props.top          !== undefined && { top: props.top }),
-  ...(props.left         !== undefined && { left: props.left }),
-  ...(props.bottom       !== undefined && { bottom: props.bottom }),
-  ...(props.right        !== undefined && { right: props.right }),
-  ...(props.width        !== undefined && { width: props.width }),
+  ...(props.top !== undefined && { top: props.top }),
+  ...(props.left !== undefined && { left: props.left }),
+  ...(props.bottom !== undefined && { bottom: props.bottom }),
+  ...(props.right !== undefined && { right: props.right }),
+  ...(props.width !== undefined && { width: props.width }),
   ...(props.svgTransform !== undefined && { transform: props.svgTransform }),
   '--doodle-stroke-color': resolvedStrokeColor.value,
-  ...(props.strokeWidth  !== undefined && { '--doodle-stroke-width': `${Number(props.strokeWidth)}px` }),
+  ...(props.strokeWidth !== undefined && {
+    '--doodle-stroke-width': `${Number(props.strokeWidth)}px`,
+  }),
 }));
 
 // =============================================================================
 // █ REFS & STATE
 // =============================================================================
-const anchorRef    = ref<HTMLElement | null>(null);
+const anchorRef = ref<HTMLElement | null>(null);
 const containerRef = ref<HTMLElement | null>(null);
-const svgContent   = ref<string>('');
+const svgContent = ref<string>('');
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
@@ -138,14 +140,31 @@ onMounted(async () => {
 
     if (props.trigger === 'load') {
       const tl = gsap.timeline();
-      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value, ease: props.ease, proportional: true });
+      addDrawAnimation(tl, {
+        svg: svgEl,
+        paths: preparedPaths,
+        duration: durationNum.value,
+        ease: props.ease,
+        proportional: true,
+      });
       return;
     }
 
     if (props.trigger === 'scroll') {
       const tl = gsap.timeline({ paused: true });
-      addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value, ease: props.ease, proportional: true });
-      ScrollTrigger.create({ trigger: anchorRef.value, start: 'top 88%', once: true, onEnter: () => tl.play() });
+      addDrawAnimation(tl, {
+        svg: svgEl,
+        paths: preparedPaths,
+        duration: durationNum.value,
+        ease: props.ease,
+        proportional: true,
+      });
+      ScrollTrigger.create({
+        trigger: anchorRef.value,
+        start: 'top 88%',
+        once: true,
+        onEnter: () => tl.play(),
+      });
       return;
     }
   });
@@ -157,8 +176,18 @@ onMounted(async () => {
 function handleHoverEnter() {
   if (props.trigger !== 'hover' || !svgEl || isAnimating) return;
   isAnimating = true;
-  const tl = gsap.timeline({ onComplete: () => { isAnimating = false; } });
-  addDrawAnimation(tl, { svg: svgEl, paths: preparedPaths, duration: durationNum.value * 0.45, ease: 'power2.out', proportional: true });
+  const tl = gsap.timeline({
+    onComplete: () => {
+      isAnimating = false;
+    },
+  });
+  addDrawAnimation(tl, {
+    svg: svgEl,
+    paths: preparedPaths,
+    duration: durationNum.value * 0.45,
+    ease: 'power2.out',
+    proportional: true,
+  });
 }
 
 function handleHoverLeave() {
@@ -183,17 +212,26 @@ function handleHoverLeave() {
     <slot />
     <span
       ref="containerRef"
-      class="absolute block pointer-events-none [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
+      class="absolute block pointer-events-none doodle-svg-container [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
       :style="svgContainerStyle"
       v-html="svgContent"
     />
   </component>
 </template>
 
+<style>
+.doodle-svg-container path,
+.doodle-svg-container circle,
+.doodle-svg-container line,
+.doodle-svg-container polyline,
+.doodle-svg-container polygon,
+.doodle-svg-container rect,
+.doodle-svg-container ellipse {
+  stroke: var(--doodle-stroke-color, var(--color-accent, #ffca40)) !important;
+}
+</style>
+
 <style scoped>
-/* [NOTE] Nuxt Content envuelve el texto del slot en <p>.
-   display:contents hace que el <p> sea "transparente" visualmente
-   sin alterar el texto ni el flujo del heading. */
 .draw-heading :deep(> p) {
   display: contents;
 }
