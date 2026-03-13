@@ -4,6 +4,7 @@
  * =====================================================================
  * DESC:   Landing page principal. Orquesta secciones (Hero, Bio, Playground).
  *         Transiciones y scroll se inicializan a nivel superior.
+ *         BioSection y PlaygroundSection son client-only para performance móvil.
  * STATUS: STABLE
  * =====================================================================
  */
@@ -23,12 +24,11 @@ const description =
 useSeoMeta({
   title,
   description,
-  // ── Open Graph ──
   ogType: 'website',
-  ogTitle: `Samuel López _ ${title}`, // Variante con guion bajo para redes
+  ogTitle: `Samuel López _ ${title}`,
   ogDescription: description,
   ogUrl: SITE_URL,
-  ogSiteName: 'SAMUHLO.sh', // Tu dominio conceptual
+  ogSiteName: 'SAMUHLO.sh',
   ogLocale: 'en_US',
   ogImage: `${SITE_URL}/images/og-cover.png`,
   ogImageSecureUrl: `${SITE_URL}/images/og-cover.png`,
@@ -36,7 +36,6 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: 'Samuel López — Code, Design & Much More',
-  // ── Twitter Card ──
   twitterCard: 'summary_large_image',
   twitterTitle: `Samuel López _ ${title}`,
   twitterDescription: description,
@@ -47,8 +46,10 @@ useSeoMeta({
 
 <template>
   <div>
-    <HeroSection />
-    <BioSection />
-    <PlaygroundSection />
+    <LazyHeroSection />
+    <ClientOnly>
+      <LazyBioSection />
+      <LazyPlaygroundSection />
+    </ClientOnly>
   </div>
 </template>

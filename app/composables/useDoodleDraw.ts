@@ -14,7 +14,7 @@ interface DrawAnimationOptions {
   svg: SVGSVGElement;
   /** Los path elements preparados con preparePaths */
   paths: SVGPathElement[];
-  /** Duración del dibujo de cada path */
+  /** Duración del dibujo de cada path (o del path más largo si proportional=true) */
   duration: number;
   /** Stagger entre paths (default: 0) */
   stagger?: number;
@@ -22,6 +22,11 @@ interface DrawAnimationOptions {
   position?: gsap.Position;
   /** Easing del dibujo (default: 'power1.inOut') */
   ease?: string;
+  /** Si true, la duración de cada path se ajusta a su longitud relativa.
+   *  Evita que strokes cortos terminen mucho antes que los largos. */
+  proportional?: boolean;
+  /** Duración mínima cuando proportional=true (default: duration * 0.4) */
+  minDuration?: number;
 }
 
 /**
@@ -42,6 +47,11 @@ export const useDoodleDraw = () => {
   const preparePaths = (svgEl: SVGSVGElement | null): SVGPathElement[] => {
     if (!svgEl) return [];
 
+    // [NOTE] Ocultar el SVG container antes de calcular longitudes.
+    // Previene el flick de SSR→hidratación: sin esto, los paths son visibles
+    // en el HTML renderizado hasta que gsap.set los oculte tras el mount.
+    gsap.set(svgEl, { opacity: 0 });
+
     const paths = Array.from(svgEl.querySelectorAll('path'));
 
     paths.forEach((path) => {
@@ -61,23 +71,63 @@ export const useDoodleDraw = () => {
    * Añade la secuencia de dibujo de un SVG a un timeline GSAP existente.
    * Primero hace visible el SVG (opacity) y luego anima el strokeDashoffset
    * de cada path, haciéndolos visibles al instante de empezar.
+   *
+   * Con proportional=true, la duración de cada path se escala según su
+   * longitud relativa al path más largo -> escritura fluida y uniforme.
    */
   const addDrawAnimation = (tl: gsap.core.Timeline, options: DrawAnimationOptions): void => {
-    const { svg, paths, duration, stagger = 0, position = '+=0', ease = 'power1.inOut' } = options;
+    const {
+      svg,
+      paths,
+      duration,
+      stagger = 0,
+      position = '+=0',
+      ease = 'power1.inOut',
+      proportional = false,
+      minDuration,
+    } = options;
 
     if (!paths.length || !svg) return;
 
-    tl.to(svg, { opacity: 1, duration: 0.01 }, position).to(
-      paths,
-      {
-        visibility: 'visible',
-        strokeDashoffset: 0,
-        duration,
-        ease,
-        stagger,
-      },
-      '<',
-    );
+    tl.to(svg, { opacity: 1, duration: 0.01 }, position);
+
+    if (!proportional) {
+      // Modo clásico: misma duración para todos los paths
+      tl.to(
+        paths,
+        {
+          visibility: 'visible',
+          strokeDashoffset: 0,
+          duration,
+          ease,
+          stagger,
+        },
+        '<',
+      );
+      return;
+    }
+
+    // Modo proporcional: duración escalada por longitud de cada path
+    const lengths = paths.map((p) => p.getTotalLength());
+    const maxLength = Math.max(...lengths);
+    const floor = minDuration ?? duration * 0.4;
+
+    paths.forEach((path, i) => {
+      const ratio = lengths[i]! / maxLength;
+      const pathDuration = Math.max(floor, duration * ratio);
+      const offset = i === 0 ? '<' : `<+=${stagger}`;
+
+      tl.to(
+        path,
+        {
+          visibility: 'visible',
+          strokeDashoffset: 0,
+          duration: pathDuration,
+          ease,
+        },
+        offset,
+      );
+    });
   };
 
   /**

@@ -29,6 +29,7 @@ const LAYOUT = {
   digitallab: { bottom: '-0.15em', right: '-0.2em', width: '2.5em' },
 };
 
+// Tiempos para un efecto de escritura perfecto
 const TIMING = {
   duracion: 0.2,
   stagger: 0.06,

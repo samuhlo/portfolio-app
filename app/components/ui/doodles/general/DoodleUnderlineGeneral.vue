@@ -7,19 +7,40 @@
  * =====================================================================
  */
 import { ref } from 'vue';
+
+withDefaults(
+  defineProps<{
+    strokeWidth?: number;
+    strokeColor?: string;
+  }>(),
+  {
+    strokeWidth: 4,
+    strokeColor: '#ffca40',
+  },
+);
+
 const svgRef = ref<SVGSVGElement | null>(null);
 defineExpose({ svg: svgRef });
 </script>
 
 <template>
-  <svg ref="svgRef" viewBox="0 0 107 14" fill="none">
+  <svg
+    ref="svgRef"
+    viewBox="0 0 107 14"
+    fill="none"
+    :style="{
+      '--doodle-stroke-width': strokeWidth + 'px',
+      '--doodle-stroke-color': strokeColor,
+    }"
+  >
     <g transform="matrix(1,0,0,1,-1707.981116,-668.720724)">
       <path
         d="M1709.981,674.541C1711.164,674.425 1718.825,671.735 1812.119,670.721C1775.314,673.519 1757.217,673.597 1743.644,677.009C1758.789,678.468 1763.731,677.63 1768.754,680.325"
-        stroke="var(--color-accent, #ffca40)"
-        stroke-width="4"
+        stroke="var(--doodle-stroke-color, #ffca40)"
+        stroke-width="var(--doodle-stroke-width, 4)"
         stroke-linecap="round"
         stroke-linejoin="round"
+        vector-effect="non-scaling-stroke"
       />
     </g>
   </svg>

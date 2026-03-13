@@ -9,8 +9,6 @@ useHead({
 
 const isLoading = ref(true);
 
-// ESPERAR HIDRATACIÓN COMPLETA -> onMounted de los hijos (GSAP) ya ejecutó.
-// nextTick asegura DOM actualizado, rAF asegura que el browser ya pintó.
 const TRANSITION_BUFFER_MS = 100;
 
 onMounted(async () => {
@@ -26,12 +24,12 @@ onMounted(async () => {
 <template>
   <div>
     <PageLoader :visible="isLoading" />
-    <!-- [NOTE] Inyecta ASCII Art onMounted y se mantiene invisible -->
+    <ClientOnly>
+      <NoiseBackground />
+    </ClientOnly>
     <ConsoleMessage />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
-    <!-- [NOTE] Global para no re-renderizar la animación de grain entre páginas -->
-    <NoiseBackground />
   </div>
 </template>

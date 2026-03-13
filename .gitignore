@@ -5,10 +5,14 @@
 .nitro
 .cache
 dist
+.agent
 .agents
 skills
 skills-lock.json
-docs/backend
+docs
+.claude/agent-memory/style-enforcer/MEMORY.md
+.claude
+CLAUDE.md
 # Node dependencies
 node_modules
 
