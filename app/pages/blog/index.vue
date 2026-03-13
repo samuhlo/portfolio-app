@@ -72,11 +72,11 @@ function runAnimation() {
     if (categoryEls.length > 0) {
       tl.from(categoryEls, { x: -20, opacity: 0, duration: 0.35, stagger: 0.05 }, '+=0.3');
     }
-    
+
     if (postEls.length > 0) {
       tl.from(postEls, { y: 20, opacity: 0, duration: 0.4, stagger: 0.06 }, '-=0.15');
     }
-    
+
     if (dividerEls.length > 0) {
       tl.from(
         dividerEls,
@@ -90,10 +90,15 @@ function runAnimation() {
 onMounted(() => {
   if (status.value === 'success') {
     nextTick(() => runAnimation());
+  } else if (status.value === 'error') {
+    isLoading.value = false;
   } else {
     const unwatch = watch(status, (newStatus) => {
       if (newStatus === 'success') {
         nextTick(() => runAnimation());
+        unwatch();
+      } else if (newStatus === 'error') {
+        isLoading.value = false;
         unwatch();
       }
     });

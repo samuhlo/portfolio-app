@@ -28,32 +28,40 @@ import { join, extname, basename } from 'node:path';
 // █ CONSTANTS
 // =============================================================================
 const MIME_TYPES: Record<string, string> = {
-  '.jpg':  'image/jpeg',
+  '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.png':  'image/png',
+  '.png': 'image/png',
   '.webp': 'image/webp',
   '.avif': 'image/avif',
-  '.gif':  'image/gif',
-  '.svg':  'image/svg+xml',
-  '.pdf':  'application/pdf',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.pdf': 'application/pdf',
 };
 
-// [NOTE] Cache-Control largo — los assets son inmutables (se versiona via nombre de archivo)
-const CACHE_CONTROL = 'public, max-age=31536000, immutable';
+// [NOTE] Cache-Control: immutable solo es seguro si la key incluye hash de contenido
+const CACHE_CONTROL_IMMUTABLE = 'public, max-age=31536000, immutable';
+const CACHE_CONTROL_CONSERVATIVE = 'public, max-age=3600, must-revalidate';
+
+/** Detecta si la key incluye un hash de contenido (ej: cover.abc123.webp) */
+function hasContentHash(key: string): boolean {
+  const filename = basename(key);
+  return /[.-][a-f0-9]{8,}\.[a-z]+$/i.test(filename);
+}
+
+function getCacheControl(key: string): string {
+  return hasContentHash(key) ? CACHE_CONTROL_IMMUTABLE : CACHE_CONTROL_CONSERVATIVE;
+}
 
 // =============================================================================
 // █ R2 CLIENT
 // =============================================================================
-const {
-  CF_ACCOUNT_ID,
-  R2_ACCESS_KEY_ID,
-  R2_SECRET_ACCESS_KEY,
-  R2_BUCKET_NAME,
-} = process.env;
+const { CF_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME } = process.env;
 
 if (!CF_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY || !R2_BUCKET_NAME) {
   console.error('[R2] Faltan variables de entorno. Comprueba .env');
-  console.error('  Requeridas: CF_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME');
+  console.error(
+    '  Requeridas: CF_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME',
+  );
   process.exit(1);
 }
 
@@ -77,14 +85,17 @@ function getMimeType(filePath: string): string {
 async function uploadFile(r2Key: string, localPath: string): Promise<void> {
   const body = readFileSync(localPath);
   const contentType = getMimeType(localPath);
+  const cacheControl = getCacheControl(r2Key);
 
-  await client.send(new PutObjectCommand({
-    Bucket: R2_BUCKET_NAME,
-    Key: r2Key,
-    Body: body,
-    ContentType: contentType,
-    CacheControl: CACHE_CONTROL,
-  }));
+  await client.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET_NAME,
+      Key: r2Key,
+      Body: body,
+      ContentType: contentType,
+      CacheControl: cacheControl,
+    }),
+  );
 
   const sizeKb = (body.byteLength / 1024).toFixed(1);
   console.log(`  ✓ ${r2Key} (${sizeKb} KB, ${contentType})`);
@@ -128,7 +139,10 @@ if (isDir) {
   const prefix = r2Target.endsWith('/') ? r2Target : `${r2Target}/`;
 
   for (const file of files) {
-    const relativePath = file.replace(localSource.endsWith('/') ? localSource : `${localSource}/`, '');
+    const relativePath = file.replace(
+      localSource.endsWith('/') ? localSource : `${localSource}/`,
+      '',
+    );
     const r2Key = `${prefix}${relativePath}`;
     await uploadFile(r2Key, file);
   }

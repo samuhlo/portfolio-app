@@ -4,7 +4,7 @@ export default defineNuxtPlugin(() => {
   const router = useRouter();
 
   router.afterEach((to, from) => {
-    if (from.fullPath !== to.fullPath) {
+    if (from.fullPath !== to.fullPath && !to.hash) {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
 
       if (typeof (window as any).lenis !== 'undefined') {

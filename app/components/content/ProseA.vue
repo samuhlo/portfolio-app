@@ -72,6 +72,7 @@ function erase() {
   <!-- Link interno: NuxtLink para SPA, sin icono -->
   <NuxtLink
     v-if="isInternal"
+    v-bind="$attrs"
     :to="href"
     class="text-inherit decoration-foreground/25 transition-colors duration-200 hover:text-accent hover:decoration-accent"
   >
@@ -81,9 +82,10 @@ function erase() {
   <!-- Link externo: target blank + doodle ↗ dibujado al hover -->
   <a
     v-else
+    v-bind="$attrs"
     :href="href"
-    target="_blank"
-    rel="noopener noreferrer"
+    :target="target ?? '_blank'"
+    :rel="!target || target === '_blank' ? 'noopener noreferrer' : undefined"
     class="text-inherit decoration-foreground/25 transition-colors duration-200 hover:text-accent hover:decoration-accent"
     @mouseenter="draw"
     @mouseleave="erase"
