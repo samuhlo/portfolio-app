@@ -303,8 +303,8 @@ onMounted(async () => {
   --q-close-transform-desktop: rotate(10deg);
 
   /* MOBILE */
-  --q-close-bottom-mobile: -0.2em; /* <-- AJUSTAR MÓVIL AQUÍ */
-  --q-close-left-mobile: 110%; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-close-bottom-mobile: 1em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-close-left-mobile: 105%; /* <-- AJUSTAR MÓVIL AQUÍ */
   --q-close-width-mobile: 2em; /* <-- AJUSTAR MÓVIL AQUÍ */
   --q-close-transform-mobile: rotate(10deg);
 

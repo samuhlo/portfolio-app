@@ -27,6 +27,8 @@ defineExpose({ svg: svgRef });
   <svg
     ref="svgRef"
     viewBox="0 0 46 42"
+    width="100%"
+    height="100%"
     fill="none"
     :style="{
       '--doodle-stroke-width': strokeWidth + 'px',
