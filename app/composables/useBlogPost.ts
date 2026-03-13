@@ -17,7 +17,7 @@ import { useBlogPosts } from '~/composables/useBlogPosts';
 
 export function useBlogPost(slug: string) {
   const { data: post, status } = useAsyncData(`blog-post-${slug}`, async () => {
-    const result = await queryCollection('blog').path(`/blog/${slug}`).first();
+    const result = await queryCollection('blog').where('slug', '=', slug).first();
     if (!result) {
       throw createError({ statusCode: 404, statusMessage: 'Post not found' });
     }
