@@ -13,7 +13,7 @@ slug: 'anatomy-of-a-living-portfolio'
 
 Odio mantener portfolios. Haces un proyecto, lo terminas, y luego tienes que ir a tu portfolio, crear una nueva entrada, escribir una descripción, subir screenshots, añadir tags... La fricción es tan alta que la mayoría de devs terminamos con portfolios desactualizados.
 
-Mi solución: que el :hand-drawn{svg="/blog/doodles/underline.svg" placement="under" stroke-color="#ffca40" stroke-width=8}[portfolio] se actualice solo.
+Mi solución: que el :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg" placement="under" stroke-color="#ffca40" stroke-width=8}[portfolio] se actualice solo.
 
 ## La idea
 

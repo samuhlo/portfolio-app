@@ -5,20 +5,25 @@ export default defineNuxtConfig({
   ssr: true,
   future: { compatibilityVersion: 4 },
   srcDir: 'app/',
-  // serverDir configurado por defecto en raíz
   css: ['~/assets/styles/main.css'],
-  // =========================================================================
-  // █ CSS OPTIMIZATIONS & FEATURES
-  // =========================================================================
   features: {
-    inlineStyles: true, // Inlines CSS < 50kb into HTML directly (solves render-blocking)
+    inlineStyles: false,
   },
-  
+
   vite: {
     plugins: [tailwindcss() as any],
     build: {
       cssCodeSplit: true,
-      cssMinify: 'esbuild',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
+      },
+    },
+    css: {
+      devSourcemap: true,
     },
   },
   modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
@@ -98,11 +103,35 @@ export default defineNuxtConfig({
       titleTemplate: '%s // SAMUHLO',
       link: [
         { rel: 'preconnect', href: 'https://assets.samuhlo.dev', crossorigin: 'anonymous' },
-        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Regular.woff2?v=font-cors', crossorigin: 'anonymous' },
-        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Medium.woff2?v=font-cors', crossorigin: 'anonymous' },
-        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Bold.woff2?v=font-cors', crossorigin: 'anonymous' },
-        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Black.woff2?v=font-cors', crossorigin: 'anonymous' },
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: 'https://assets.samuhlo.dev/fonts/Strawford-Regular.woff2?v=font-cors',
+          crossorigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: 'https://assets.samuhlo.dev/fonts/Strawford-Medium.woff2?v=font-cors',
+          crossorigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: 'https://assets.samuhlo.dev/fonts/Strawford-Bold.woff2?v=font-cors',
+          crossorigin: 'anonymous',
+        },
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          href: 'https://assets.samuhlo.dev/fonts/Strawford-Black.woff2?v=font-cors',
+          crossorigin: 'anonymous',
+        },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ],
       meta: [
         { name: 'author', content: 'Samuel Lopez (samuhlo)' },
