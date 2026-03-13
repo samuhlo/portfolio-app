@@ -17,7 +17,7 @@ export default defineNuxtConfig({
       minify: 'terser',
       terserOptions: {
         compress: {
-          drop_console: true,
+          pure_funcs: ['console.warn', 'console.error', 'console.info', 'console.debug'],
           drop_debugger: true,
         },
       },
