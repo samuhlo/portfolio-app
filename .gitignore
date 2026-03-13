@@ -9,7 +9,7 @@ dist
 .agents
 skills
 skills-lock.json
-docs/backend
+docs
 .claude/agent-memory/style-enforcer/MEMORY.md
 .claude
 CLAUDE.md
@@ -24,7 +24,7 @@ node_modules
 eslint.config.mjs
 
 # Logs
-#logs
+logs
 *.log
 
 # Misc

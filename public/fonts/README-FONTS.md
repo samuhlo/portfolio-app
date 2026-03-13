@@ -1,1 +1,0 @@
-"The fonts used in this project (Strawford by Atipo) are commercial and proprietary. They are included here only for the purpose of web deployment. You may not download, copy, or use these font files in your own projects."
