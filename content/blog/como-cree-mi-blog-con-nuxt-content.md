@@ -5,7 +5,7 @@ date: '2026-03-13'
 category: breakdown
 topics: ['nuxt', 'nuxt content', 'vue', 'markdown', 'componentes']
 time_to_read: 8
-published: true
+published: false
 slug: como-cree-mi-blog-con-nuxt-content
 ---
 

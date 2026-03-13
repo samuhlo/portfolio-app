@@ -5,7 +5,7 @@ date: '2026-03-03'
 category: 'find'
 topics: ['github', 'webhooks', 'openai', 'zod', 'automatizacion', 'nuxt']
 time_to_read: 10
-published: true
+published: false
 slug: 'anatomy-of-a-living-portfolio'
 ---
 
