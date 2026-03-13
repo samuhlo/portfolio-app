@@ -23,8 +23,8 @@ onMounted(async () => {
 
 <template>
   <div>
+    <PageLoader :visible="isLoading" />
     <ClientOnly>
-      <PageLoader :visible="isLoading" />
       <NoiseBackground />
     </ClientOnly>
     <ConsoleMessage />
