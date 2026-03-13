@@ -32,13 +32,11 @@ const circleRef = ref<DoodleExposed | null>(null);
 const quotesCloseRef = ref<DoodleExposed | null>(null);
 
 const LAYOUT = {
-  quotesOpen: { top: '-2em', right: '0.2em', width: '2em', transform: 'rotate(-10deg)' },
   crossFun: { top: '60%', left: '-5%', width: '110%', transform: 'translateY(-50%)' },
   fun: { bottom: '55%', left: '10%', width: '2.5em' },
   wave: { top: '70%', left: '5%', width: '90%' },
   heart: { top: '5%', left: '102%', width: '1.5em', transform: 'rotate(30deg)' },
   circle: { top: '50%', left: '50%', width: '115%', transform: 'translate(-50%, -50%)' },
-  quotesClose: { bottom: '-0.2em', left: '110%', width: '2em', transform: 'rotate(10deg)' },
 };
 
 // Orden canónico de todos los doodles — se usa tanto en móvil como en desktop
@@ -51,7 +49,10 @@ type DoodleConfig = {
 
 const HEARTBEAT_DELAY_MS = 600;
 
-onMounted(() => {
+onMounted(async () => {
+  // Esperar a que las fuentes se carguen para evitar errores con SplitText en producción
+  await document.fonts.ready;
+
   initGSAP(() => {
     const getPaths = (r: typeof quotesOpenRef) => preparePaths(r.value?.svg ?? null);
     const isMobile = window.matchMedia(`(max-width: ${BREAKPOINTS.mobile}px)`).matches;
@@ -195,64 +196,136 @@ onMounted(() => {
       ref="textContainerRef"
       class="w-full text-center flex flex-col gap-8 text-[clamp(1.2rem,2.5vw,2.5rem)] font-medium leading-relaxed tracking-tight"
     >
-      <p>
-        <span class="relative inline-block">
-          <DoodleQuotesOpenBio
-            ref="quotesOpenRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.quotesOpen"
-          />
-        </span>
-        Hi, I'm Samuel. I work as a <b>Product Architect</b>, which is just a
-        <span class="relative inline-block">
-          formal
-          <DoodleCrossFunBio
-            ref="crossFunRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.crossFun"
-          />
-          <DoodleFunBio
-            ref="funRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.fun"
-          />
-        </span>
-        way of saying I love
-        <span class="relative inline-block">
-          designing digital ecosystems
-          <DoodleWaveBio
-            ref="waveRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.wave"
-          />
-        </span>
-        and coding them from scratch. I build architectures that are rock-solid, but that
-        <span class="relative inline-block">
-          feel alive.
-          <DoodleHeartBio
-            ref="heartRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.heart"
-          />
+      <p class="relative">
+        <span class="sr-only"
+          >Hi, I'm Samuel. I work as a Product Architect, which is just a formal way of saying I
+          love designing digital ecosystems and coding them from scratch. I build architectures that
+          are rock-solid, but that feel alive.</span
+        >
+        <span aria-hidden="true">
+          <span class="relative inline-block">
+            <DoodleQuotesOpenBio
+              ref="quotesOpenRef"
+              class="absolute pointer-events-none opacity-0 layout-quotes-open"
+            />
+          </span>
+          Hi, I'm Samuel. I work as a <b>Product Architect</b>, which is just a
+          <span class="relative inline-block">
+            formal
+            <DoodleCrossFunBio
+              ref="crossFunRef"
+              class="absolute pointer-events-none opacity-0"
+              :style="LAYOUT.crossFun"
+            />
+            <DoodleFunBio
+              ref="funRef"
+              class="absolute pointer-events-none opacity-0"
+              :style="LAYOUT.fun"
+            />
+          </span>
+          way of saying I love
+          <span class="relative inline-block">
+            designing digital ecosystems
+            <DoodleWaveBio
+              ref="waveRef"
+              class="absolute pointer-events-none opacity-0"
+              :style="LAYOUT.wave"
+            />
+          </span>
+          and coding them from scratch. I build architectures that are rock-solid, but that
+          <span class="relative inline-block">
+            feel alive.
+            <DoodleHeartBio
+              ref="heartRef"
+              class="absolute pointer-events-none opacity-0"
+              :style="LAYOUT.heart"
+            />
+          </span>
         </span>
       </p>
-      <p>
-        If you're looking for someone who understands <b>design</b>, writes <b>clean code</b>, and
-        has a <b>business mindset</b>... you've come to the right place.
-        <span class="relative inline-block">
-          Come say hi!
-          <DoodleCircleWord
-            ref="circleRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.circle"
-          />
-          <DoodleQuotesCloseBio
-            ref="quotesCloseRef"
-            class="absolute pointer-events-none opacity-0"
-            :style="LAYOUT.quotesClose"
-          />
+      <p class="relative">
+        <span class="sr-only"
+          >If you're looking for someone who understands design, writes clean code, and has a
+          business mindset... you've come to the right place. Come say hi!</span
+        >
+        <span aria-hidden="true">
+          If you're looking for someone who understands <b>design</b>, writes <b>clean code</b>, and
+          has a <b>business mindset</b>... you've come to the right place.
+          <span class="relative inline-block">
+            Come say hi!
+            <DoodleCircleWord
+              ref="circleRef"
+              class="absolute pointer-events-none opacity-0"
+              :style="LAYOUT.circle"
+            />
+            <DoodleQuotesCloseBio
+              ref="quotesCloseRef"
+              class="absolute pointer-events-none opacity-0 layout-quotes-close"
+            />
+          </span>
         </span>
       </p>
     </div>
   </section>
 </template>
+
+<style scoped>
+/*
+ * █ VARIABLES DE POSICIONAMIENTO - COMILLAS
+ * =====================================================================
+ * Ajusta aquí la posición de las comillas para desktop y móvil.
+ */
+
+.layout-quotes-open {
+  /* DESKTOP */
+  --q-open-top-desktop: -2em;
+  --q-open-right-desktop: 0.2em;
+  --q-open-width-desktop: 2em;
+  --q-open-transform-desktop: rotate(-10deg);
+
+  /* MOBILE */
+  --q-open-top-mobile: -2em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-open-right-mobile: -0.3em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-open-width-mobile: 2em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-open-transform-mobile: rotate(-10deg);
+
+  top: var(--q-open-top-desktop);
+  right: var(--q-open-right-desktop);
+  width: var(--q-open-width-desktop);
+  transform: var(--q-open-transform-desktop);
+}
+
+.layout-quotes-close {
+  /* DESKTOP */
+  --q-close-bottom-desktop: -0.2em;
+  --q-close-left-desktop: 110%;
+  --q-close-width-desktop: 2em;
+  --q-close-transform-desktop: rotate(10deg);
+
+  /* MOBILE */
+  --q-close-bottom-mobile: -0.2em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-close-left-mobile: 110%; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-close-width-mobile: 2em; /* <-- AJUSTAR MÓVIL AQUÍ */
+  --q-close-transform-mobile: rotate(10deg);
+
+  bottom: var(--q-close-bottom-desktop);
+  left: var(--q-close-left-desktop);
+  width: var(--q-close-width-desktop);
+  transform: var(--q-close-transform-desktop);
+}
+
+@media (max-width: 768px) {
+  .layout-quotes-open {
+    top: var(--q-open-top-mobile);
+    right: var(--q-open-right-mobile);
+    width: var(--q-open-width-mobile);
+    transform: var(--q-open-transform-mobile);
+  }
+  .layout-quotes-close {
+    bottom: var(--q-close-bottom-mobile);
+    left: var(--q-close-left-mobile);
+    width: var(--q-close-width-mobile);
+    transform: var(--q-close-transform-mobile);
+  }
+}
+</style>

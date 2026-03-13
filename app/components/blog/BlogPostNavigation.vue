@@ -141,7 +141,7 @@ function handlePrevLeave() {
 </script>
 
 <template>
-  <nav class="mt-16 pt-8 border-t border-foreground/10">
+  <nav role="navigation" aria-label="Blog post navigation" class="mt-16 pt-8 border-t border-foreground/10">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- ================================================================= -->
       <!-- █ PREV POST (más antiguo) -> IZQUIERDA -->

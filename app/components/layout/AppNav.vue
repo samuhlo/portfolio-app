@@ -54,19 +54,27 @@ onUnmounted(() => {
 <template>
   <nav
     ref="navRef"
+    role="navigation"
+    aria-label="Main navigation"
     class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-6 md:px-12 w-full"
   >
     <div class="flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink to="/" class="hover:font-bold transition-opacity">Home</NuxtLink>
+        <NuxtLink to="/" class="hover:font-bold transition-opacity"
+          >Home</NuxtLink
+        >
       </RandomDoodleHover>
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink to="/blog" class="hover:font-bold transition-opacity">Logs</NuxtLink>
+        <NuxtLink to="/blog" class="hover:font-bold transition-opacity"
+          >Logs</NuxtLink
+        >
       </RandomDoodleHover>
     </div>
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink :to="`mailto:${SITE.email}`" class="hover:font-bold transition-opacity"
+        <NuxtLink
+          :to="`mailto:${SITE.email}`"
+          class="hover:font-bold transition-opacity"
           >Contact</NuxtLink
         >
       </RandomDoodleHover>

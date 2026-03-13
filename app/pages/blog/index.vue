@@ -10,7 +10,7 @@
  * =====================================================================
  */
 
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
@@ -18,6 +18,7 @@ import { type BlogCategory } from '~/types/blog';
 import BlogHeader from '~/components/blog/BlogHeader.vue';
 import BlogIndex from '~/components/blog/BlogIndex.vue';
 import BlogList from '~/components/blog/BlogList.vue';
+import PageLoader from '~/components/layout/PageLoader.vue';
 
 definePageMeta({
   layout: 'blog',
@@ -29,7 +30,9 @@ definePageMeta({
   },
 });
 
-const { posts, filterByCategory } = useBlogPosts();
+const isLoading = ref(true);
+
+const { posts, status, filterByCategory } = useBlogPosts();
 const { categories } = useBlogCategories();
 
 const { gsap, initGSAP } = useGSAP();
@@ -51,25 +54,56 @@ useSeoMeta({
   ogType: 'website',
 });
 
-onMounted(() => {
+function runAnimation() {
   initGSAP(() => {
+    // Al iniciar GSAP, ya podemos ocultar el loader para que no haya FOUC
+    isLoading.value = false;
+
     if (!containerRef.value) return;
+
+    const categoryEls = containerRef.value.querySelectorAll('.category-item-anim');
+    const postEls = containerRef.value.querySelectorAll('.post-item-anim');
+    const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
+
+    if (categoryEls.length === 0 && postEls.length === 0) return;
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-    tl.from('.category-item-anim', { x: -20, opacity: 0, duration: 0.35, stagger: 0.05 }, '+=0.3');
-    tl.from('.post-item-anim', { y: 20, opacity: 0, duration: 0.4, stagger: 0.06 }, '-=0.15');
-    tl.from(
-      '.blog-divider',
-      { scaleX: 0, duration: 0.35, stagger: 0.06, ease: 'power2.inOut' },
-      '<0.03',
-    );
+    if (categoryEls.length > 0) {
+      tl.from(categoryEls, { x: -20, opacity: 0, duration: 0.35, stagger: 0.05 }, '+=0.3');
+    }
+    
+    if (postEls.length > 0) {
+      tl.from(postEls, { y: 20, opacity: 0, duration: 0.4, stagger: 0.06 }, '-=0.15');
+    }
+    
+    if (dividerEls.length > 0) {
+      tl.from(
+        dividerEls,
+        { scaleX: 0, duration: 0.35, stagger: 0.06, ease: 'power2.inOut' },
+        '<0.03',
+      );
+    }
   }, containerRef.value);
+}
+
+onMounted(() => {
+  if (status.value === 'success') {
+    nextTick(() => runAnimation());
+  } else {
+    const unwatch = watch(status, (newStatus) => {
+      if (newStatus === 'success') {
+        nextTick(() => runAnimation());
+        unwatch();
+      }
+    });
+  }
 });
 </script>
 
 <template>
   <div ref="containerRef" class="blog-page pb-24 md:pb-32">
+    <PageLoader :visible="isLoading" />
     <BlogHeader />
 
     <div class="blog-content grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">

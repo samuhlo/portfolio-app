@@ -1,15 +1,27 @@
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
+  compatibilityDate: '2026-03-13',
   ssr: true,
   future: { compatibilityVersion: 4 },
   srcDir: 'app/',
   // serverDir configurado por defecto en raíz
   css: ['~/assets/styles/main.css'],
+  // =========================================================================
+  // █ CSS OPTIMIZATIONS & FEATURES
+  // =========================================================================
+  features: {
+    inlineStyles: true, // Inlines CSS < 50kb into HTML directly (solves render-blocking)
+  },
+  
   vite: {
     plugins: [tailwindcss() as any],
+    build: {
+      cssCodeSplit: true,
+      cssMinify: 'esbuild',
+    },
   },
-  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content'],
+  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
 
   // =========================================================================
   // █ RUNTIME CONFIG
@@ -48,8 +60,17 @@ export default defineNuxtConfig({
       // github-light: colores reales (keywords, strings, funciones) sobre fondo cream
       theme: 'github-light',
       langs: [
-        'typescript', 'javascript', 'vue', 'html', 'css',
-        'bash', 'shell', 'json', 'markdown', 'python', 'yaml',
+        'typescript',
+        'javascript',
+        'vue',
+        'html',
+        'css',
+        'bash',
+        'shell',
+        'json',
+        'markdown',
+        'python',
+        'yaml',
       ],
     },
   },
@@ -71,11 +92,18 @@ export default defineNuxtConfig({
   // =========================================================================
   app: {
     head: {
-      htmlAttrs: { lang: 'en' },
+      htmlAttrs: { lang: 'es' },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       titleTemplate: '%s // SAMUHLO',
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [
+        { rel: 'preconnect', href: 'https://assets.samuhlo.dev', crossorigin: 'anonymous' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Regular.woff2?v=font-cors', crossorigin: 'anonymous' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Medium.woff2?v=font-cors', crossorigin: 'anonymous' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Bold.woff2?v=font-cors', crossorigin: 'anonymous' },
+        { rel: 'preload', as: 'font', type: 'font/woff2', href: 'https://assets.samuhlo.dev/fonts/Strawford-Black.woff2?v=font-cors', crossorigin: 'anonymous' },
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ],
       meta: [
         { name: 'author', content: 'Samuel Lopez (samuhlo)' },
         { name: 'theme-color', content: '#0C0011' },

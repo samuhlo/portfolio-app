@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.1",
+    "@nuxtjs/sitemap": "^7.6.0",
     "@types/matter-js": "^0.20.2",
     "@types/node": "^25.3.3",
     "@vue/eslint-config-prettier": "^10.2.0",
