@@ -16,13 +16,19 @@ import { type BlogPost } from '~/types/blog';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 
 export function useBlogPost(slug: string) {
-  const { data: post, status } = useAsyncData(`blog-post-${slug}`, async () => {
+  const { data: post, status, refresh } = useAsyncData(`blog-post-${slug}`, async () => {
     const result = await queryCollection('blog').where('slug', '=', slug).first();
     if (!result) {
       throw createError({ statusCode: 404, statusMessage: 'Post not found' });
     }
     return result as BlogPost;
   });
+
+  // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
+  // Si el cliente monta con post null, reintentamos client-side donde la query sí funciona.
+  if (import.meta.client && !post.value) {
+    refresh();
+  }
 
   // Reusar el cache de useBlogPosts — misma key, sin doble fetch
   const { posts: allPosts } = useBlogPosts();
