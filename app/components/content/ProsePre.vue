@@ -158,7 +158,7 @@ pre {
 }
 
 code {
-  font-family: var(--font-mono);
+  font-family: 'Fira Code', var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.8;
   background: transparent !important;

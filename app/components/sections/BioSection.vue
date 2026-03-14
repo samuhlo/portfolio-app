@@ -194,7 +194,7 @@ onMounted(async () => {
   >
     <div
       ref="textContainerRef"
-      class="w-full text-center flex flex-col gap-8 text-[clamp(1.2rem,2.5vw,2.5rem)] font-medium leading-relaxed tracking-tight"
+      class="bio-text-container w-full text-center flex flex-col gap-8 text-[clamp(1.2rem,2.5vw,2.5rem)] font-medium leading-relaxed tracking-tight"
     >
       <p class="relative">
         <span class="sr-only"
@@ -206,7 +206,7 @@ onMounted(async () => {
           <span class="relative inline-block">
             <DoodleQuotesOpenBio
               ref="quotesOpenRef"
-              class="absolute pointer-events-none opacity-0 layout-quotes-open"
+              class="absolute pointer-events-none opacity-0 layout-quotes-open bio-abs-doodle"
             />
           </span>
           Hi, I'm Samuel. I work as a <b>Product Architect</b>, which is just a
@@ -260,7 +260,7 @@ onMounted(async () => {
             />
             <DoodleQuotesCloseBio
               ref="quotesCloseRef"
-              class="absolute pointer-events-none opacity-0 layout-quotes-close"
+              class="absolute pointer-events-none opacity-0 layout-quotes-close bio-abs-doodle"
             />
           </span>
         </span>
@@ -297,7 +297,7 @@ onMounted(async () => {
 
 .layout-quotes-close {
   /* DESKTOP */
-  --q-close-bottom-desktop: -0.2em;
+  --q-close-bottom-desktop: 1em;
   --q-close-left-desktop: 110%;
   --q-close-width-desktop: 2em;
   --q-close-transform-desktop: rotate(10deg);
@@ -326,6 +326,16 @@ onMounted(async () => {
     left: var(--q-close-left-mobile);
     width: var(--q-close-width-mobile);
     transform: var(--q-close-transform-mobile);
+  }
+}
+
+@media (max-width: 389px) {
+  .bio-text-container {
+    font-size: 1.05rem;
+  }
+
+  .bio-abs-doodle {
+    z-index: -1;
   }
 }
 </style>

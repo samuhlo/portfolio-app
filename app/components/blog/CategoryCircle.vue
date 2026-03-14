@@ -19,19 +19,29 @@ const props = defineProps<{
   color: string;
 }>();
 
-const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
+const { preparePaths, addDrawAnimation, resetPaths, erasePaths } = useDoodleDraw();
 
 const circleRef = ref<{ svg: SVGSVGElement | null } | null>(null);
 const circlePaths = ref<SVGPathElement[]>([]);
 
+// Pre-inicializar paths al montar: getTotalLength() se llama aquí,
+// cuando el SVG ya está en el DOM y pintado, no en el primer click.
+onMounted(async () => {
+  await nextTick();
+  if (!circleRef.value?.svg) return;
+  circlePaths.value = preparePaths(circleRef.value.svg);
+  if (props.isActive) {
+    draw();
+  }
+});
+
 // Animar
 function draw() {
-  if (!circleRef.value?.svg) return;
+  if (!circleRef.value?.svg || !circlePaths.value.length) return;
 
-  // Preparar paths
-  circlePaths.value = preparePaths(circleRef.value.svg);
+  // Reset al estado inicial antes de redibujar
+  resetPaths(circleRef.value.svg, circlePaths.value);
 
-  // Animar
   const tl = gsap.timeline();
   addDrawAnimation(tl, {
     svg: circleRef.value.svg,
@@ -53,12 +63,9 @@ function erase() {
 
 watch(
   () => props.isActive,
-  async (active) => {
-    await nextTick();
-
+  (active) => {
     if (active) {
-      // Small delay para asegurar que el DOM está listo
-      setTimeout(draw, 50);
+      draw();
     } else {
       erase();
     }

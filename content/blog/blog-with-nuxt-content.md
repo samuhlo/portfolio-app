@@ -298,6 +298,6 @@ Lo que sí requiere es que te banques el overhead inicial: configurar el schema,
 
 El plan original con Notion no desapareció — está en pausa. La idea sigue siendo escribir ahí (donde me resulta más cómodo), pasar el contenido por un prompt que lo formatee para mis componentes, revisar, y hacer push. Todo con n8n, sin fricción manual.
 
-Pero la base va a seguir siendo Nuxt Content. El día que quiera cambiar de idea, tengo los artículos en markdown, los componentes son Vue, y la "base de datos" es una carpeta en el repo. Lo que me llevó unas horas configurar, me lleva unas horas deshacer.
+Pero la base va a seguir siendo Nuxt Content. El día que quiera cambiar de idea, tengo los artículos en markdown, los componentes son Vue, y la "base de datos" es una carpeta en el repo. Todo esto tiene una facil migracion a una base de datos convencional, cogiendo el contenido del frontmatter para los atributos/campos y el cuerpo del markdown pasa a ser el contenido principal.
 
 Por ahora esto funciona como quería: escribo, uso los componentes cuando los necesito, y el blog se actualiza cuando hago push.

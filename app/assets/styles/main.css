@@ -1,6 +1,35 @@
 @import 'tailwindcss';
 
 @font-face {
+  font-family: 'Silka Mono';
+  src: url('https://assets.samuhlo.dev/fonts/silkamono-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Silka Mono';
+  src: url('https://assets.samuhlo.dev/fonts/silkamono-medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Silka Mono';
+  src: url('https://assets.samuhlo.dev/fonts/silkamono-bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Silka Mono';
+  src: url('https://assets.samuhlo.dev/fonts/silkamono-black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Strawford';
   src: url('https://assets.samuhlo.dev/fonts/Strawford-Regular.woff2') format('woff2');
   font-weight: 400;
@@ -37,7 +66,7 @@
     'Strawford', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
     'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono:
-    'Space Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Silka Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 }
 
@@ -253,7 +282,7 @@ html.lenis body {
 .prose code,
 .prose .code-block code,
 .prose .inline-code {
-  font-family: var(--font-mono);
+  font-family: 'Fira Code', var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.7;
 }
