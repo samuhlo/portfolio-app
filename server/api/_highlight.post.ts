@@ -29,14 +29,28 @@ function getHighlighter(): Promise<Highlighter> {
 }
 
 export default defineEventHandler(async (event) => {
-  const { code, lang } = await readBody<{ code: string; lang: string }>(event);
+  const body = await readBody<{ code?: unknown; lang?: unknown }>(event);
+
+  if (typeof body?.code !== 'string') {
+    throw createError({ statusCode: 400, statusMessage: '`code` must be a string' });
+  }
+
+  if (body.code.length > 20_000) {
+    throw createError({ statusCode: 413, statusMessage: 'Code sample too large to highlight' });
+  }
+
+  const code = body.code;
+  const lang =
+    typeof body?.lang === 'string' && LANGS.includes(body.lang as (typeof LANGS)[number])
+      ? body.lang
+      : 'html';
 
   if (!code) return '';
 
   const highlighter = await getHighlighter();
 
   const html = await highlighter.codeToHtml(code.trim(), {
-    lang: LANGS.includes(lang as (typeof LANGS)[number]) ? lang : 'html',
+    lang,
     theme: 'snazzy-light',
   });
 
