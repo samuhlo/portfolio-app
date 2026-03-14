@@ -178,11 +178,13 @@ onMounted(async () => {
   const tasks: Promise<void>[] = [];
 
   const fetch = (code: string, lang: string, key: 'html' | 'css' | 'js') =>
-    $fetch<string>('/api/_highlight', { method: 'POST', body: { code, lang } })
+    $fetch<string>('/api/_highlight', { method: 'POST', body: { code, lang }, responseType: 'text' })
       .then((html) => {
         highlighted.value[key] = html;
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.warn(`[CodePreview] highlight failed for ${lang}:`, e?.message ?? e);
+      });
 
   if (props.html) tasks.push(fetch(props.html, 'html', 'html'));
   if (props.css) tasks.push(fetch(props.css, 'css', 'css'));
@@ -385,12 +387,17 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
   overflow: auto;
 }
 
-/* Shiki genera su propio <pre> con colores inline — resetear el margin */
+/* cp-highlight-block es la clase raíz del bloque Shiki (renombrada en el API
+   para no colisionar con el CSS global de @nuxt/content que afecta a .shiki) */
+.cp-shiki :deep(.cp-highlight-block) {
+  background: transparent !important;
+}
+
 .cp-shiki :deep(pre) {
   margin: 0;
   padding: 1.25rem 1.5rem;
   background: transparent !important;
-  font-family: var(--font-mono);
+  font-family: 'Fira Code', var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.8;
 }
@@ -399,7 +406,7 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
 .cp-pre {
   margin: 0;
   padding: 1.25rem 1.5rem;
-  font-family: var(--font-mono);
+  font-family: 'Fira Code', var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.8;
   overflow-x: auto;

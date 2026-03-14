@@ -29,7 +29,7 @@ Empecemos.
 
 GSAP es el motor de todo. ScrollTrigger para las animaciones vinculadas al scroll, SplitText para manipular texto letra a letra. Lo primero que hay que hacer es registrar los plugins:
 
-```javascript
+```typescript
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { SplitText } from 'gsap/SplitText'
@@ -43,7 +43,7 @@ La solución de GSAP para esto es `gsap.context()`. Es como un :hand-drawn{svg="
 
 En Vue esto queda muy limpio con un composable:
 
-```javascript
+```typescript
 // useGSAP.js
 import { onUnmounted } from 'vue'
 import gsap from 'gsap'
@@ -67,7 +67,7 @@ export const useGSAP = () => {
 
 Cada componente que necesita animaciones llama a `initGSAP()` pasándole un callback. Todo lo que se cree dentro de ese callback — tweens, ScrollTriggers, timelines — queda registrado en el contexto y se destruye automáticamente cuando el componente sale del DOM.
 
-```javascript
+```typescript
 // En cualquier componente
 const { gsap, initGSAP } = useGSAP()
 const boxRef = ref(null)
@@ -88,7 +88,7 @@ Hay un detalle más que me costó descubrir. En móvil, cuando el usuario hace s
 
 La solución es una sola línea:
 
-```javascript
+```typescript
 ScrollTrigger.config({ ignoreMobileResize: true })
 ```
 
@@ -106,7 +106,7 @@ El problema con Lenis + GSAP es que cada uno quiere llevar el ritmo. GSAP tiene 
 
 La solución es obligar a Lenis a usar el ticker de GSAP en lugar del suyo:
 
-```javascript
+```typescript
 import Lenis from 'lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -132,7 +132,7 @@ El resultado es que Lenis y ScrollTrigger comparten exactamente el mismo frame. 
 
 En Nuxt, esto vive en un plugin client-side para que solo se ejecute en el navegador y la instancia de Lenis esté disponible globalmente:
 
-```javascript
+```typescript
 // plugins/lenis.client.js
 export default defineNuxtPlugin(() => {
   const lenis = new Lenis({ autoRaf: false })
@@ -155,7 +155,7 @@ Al entrar a la página, antes de que el usuario hubiera hecho scroll, el navbar 
 
 La solución fue escuchar el evento `scroll` de Lenis directamente, sin pasar por ScrollTrigger:
 
-```javascript
+```typescript
 const { $lenis } = useNuxtApp()
 
 const showAnim = gsap.from(navEl, {
@@ -220,7 +220,7 @@ Cada letra que va a caer es un `<span>` independiente con `ref`:
 
 El timeline hace cuatro cosas en secuencia:
 
-```javascript
+```typescript
 const tl = gsap.timeline({ paused: true })
 
 // 1. Golpecito inicial — pierden el equilibrio
@@ -264,7 +264,7 @@ Mientras el título hace lo suyo, el subtítulo tiene su propio timeline: aparec
 
 Aquí está la parte que más me gusta. Ambos componentes exponen su timeline hacia afuera con `defineExpose`:
 
-```javascript
+```typescript
 // En HeroTitle.vue
 defineExpose({ getTimeline: () => titleTimeline })
 
@@ -274,7 +274,7 @@ defineExpose({ getTimeline: () => subtitleTimeline })
 
 Y HeroSection los recoge y los pasa a un único ScrollTrigger pineado:
 
-```javascript
+```typescript
 const titleTl = heroTitleRef.value?.getTimeline()
 const subtitleTl = heroSubtitleRef.value?.getTimeline()
 
@@ -305,7 +305,7 @@ La solución intuitiva es matar el ScrollTrigger en `onLeave` — cuando el usua
 
 La solución real es esperar más. Esperar a que el usuario haya scrollado al menos un viewport entero más allá de donde terminó la animación. En ese punto la sección está completamente fuera de pantalla, y el reposicionado es invisible.
 
-```javascript
+```typescript
 ScrollTrigger.create({
   trigger: pinElement,
   start: 'top top',
@@ -357,7 +357,7 @@ Hice una prueba de campo con gente real mirando el portfolio en móvil. El feedb
 
 La solución fue detectar si el usuario está en móvil y, en ese caso, reproducir las animaciones automáticamente en lugar de vincularlas al scroll:
 
-```javascript
+```typescript
 const isMobile = window.matchMedia('(max-width: 768px)').matches
 
 if (isMobile) {
@@ -400,7 +400,7 @@ Para esto usé Matter.js, un motor de física 2D para el navegador. La idea es s
 
 ### El setup básico
 
-```javascript
+```typescript
 import { Engine, Runner, Bodies, World, Body } from 'matter-js'
 
 // Motor de física con gravedad
@@ -550,7 +550,7 @@ js: |
 
 En móvil, el texto "CONTACT" en una sola fila no cabe en el ancho de pantalla con un tamaño legible. Tuve que dividirlo en dos filas ("CON" y "TACT") y gestionar el spawn de forma que la segunda fila ("TACT") cayera primero y se asentara antes de que llegara la primera ("CON").
 
-```javascript
+```typescript
 if (isMobile) {
   // TACT: spawn justo encima del canvas, cae primero
   spawnRow(rowBottom, W, -(letterHeight / 2), staggerDelay)
@@ -567,7 +567,7 @@ También aumenté la gravedad en móvil a 8.5 (vs 4.5 en desktop). El motivo: en
 
 La física no arranca hasta que la sección es visible. Tiene sentido: ¿para qué calcular física de algo que nadie está viendo?
 
-```javascript
+```typescript
 const observer = new IntersectionObserver((entries) => {
   for (const entry of entries) {
     if (entry.isIntersecting && !triggered) {
@@ -598,7 +598,7 @@ El `pause()` y `resume()` paran el Runner de Matter.js y cancelan el loop de `re
 
 Cuando el usuario hace click en cualquier parte de la sección (o en el email), las letras salen volando hacia arriba:
 
-```javascript
+```typescript
 const slam = () => {
   for (const { body } of letterBodies) {
     Body.setVelocity(body, {
@@ -700,7 +700,7 @@ Imagina que el trazo de un path SVG es una línea de puntos. `strokeDasharray` d
 
 Animar `strokeDashoffset` de la longitud del path hasta 0 crea el efecto de dibujo:
 
-```javascript
+```typescript
 const preparePaths = (svgEl) => {
   const paths = svgEl.querySelectorAll('path')
 
@@ -734,7 +734,7 @@ En Nuxt con SSR, el HTML se renderiza en el servidor y se envía al navegador. L
 
 La solución fue ocultar el SVG completo con `opacity: 0` antes de que GSAP toque los paths individuales:
 
-```javascript
+```typescript
 const preparePaths = (svgEl) => {
   // Ocultar el contenedor completo primero, antes de calcular longitudes
   // Esto previene el flash de SSR → hidratación
@@ -747,7 +747,7 @@ const preparePaths = (svgEl) => {
 
 Y al añadir la animación de dibujo al timeline, se hace visible en el primer frame de la animación:
 
-```javascript
+```typescript
 tl.to(svgEl, { opacity: 1, duration: 0.01 }) // invisible → visible instantáneamente
 tl.to(paths, { strokeDashoffset: 0, visibility: 'visible', duration })
 ```
@@ -758,7 +758,7 @@ Hay SVGs que tienen múltiples paths de longitudes muy distintas. Un subrayado s
 
 La solución es escalar la duración de cada path según su longitud relativa:
 
-```javascript
+```typescript
 const drawProportional = (tl, paths, maxDuration) => {
   const lengths = paths.map(p => p.getTotalLength())
   const maxLength = Math.max(...lengths)
@@ -815,7 +815,7 @@ La respuesta es que no fue gratis. Hubo decisiones conscientes en cada pieza del
 
 ### El ignoreMobileResize que ya mencioné
 
-```javascript
+```typescript
 ScrollTrigger.config({ ignoreMobileResize: true })
 ```
 
@@ -825,7 +825,7 @@ Una línea que elimina un goteo constante de recálculos en móvil. Sin esto, ca
 
 Para Matter.js, el patrón es pausar el motor cuando la sección no es visible, no destruirlo. Destruir y recrear el motor cada vez que la sección entra y sale de pantalla es más caro que simplemente pausar el Runner y cancelar el rAF:
 
-```javascript
+```typescript
 const pause = () => {
   Runner.stop(runner)
   cancelAnimationFrame(rafId)
@@ -844,7 +844,7 @@ IntersectionObserver detecta cuándo la sección entra y sale del viewport y lla
 
 La página 404 tiene el número "404" cayendo con física. Una vez que aterriza y se queda quieto, no tiene sentido seguir ejecutando el motor de física ni el loop de rAF.
 
-```javascript
+```typescript
 let settleCount = 0
 
 const draw = () => {
@@ -871,7 +871,7 @@ Cuando el cuerpo lleva 60 frames consecutivos casi sin moverse (speed < 0.05), s
 
 Cuando el usuario redimensiona la ventana, muchos componentes necesitan recalcular cosas — tamaño del canvas de física, posición de ScrollTriggers, etc. Sin debounce, cada pixel de resize dispara un recálculo.
 
-```javascript
+```typescript
 let resizeTimer = null
 
 window.addEventListener('resize', () => {
@@ -888,7 +888,7 @@ window.addEventListener('resize', () => {
 
 Para la física, además, solo se reinicializa si el ancho cambió significativamente — más de 50px. Esto ignora los cambios de altura que provoca la barra de URL del navegador en móvil sin el `ignoreMobileResize` de ScrollTrigger:
 
-```javascript
+```typescript
 const newWidth = container.clientWidth
 if (Math.abs(newWidth - prevWidth) < 50) return // ignorar cambios pequeños
 ```

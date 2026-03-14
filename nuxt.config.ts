@@ -62,8 +62,8 @@ export default defineNuxtConfig({
   // =========================================================================
   content: {
     highlight: {
-      // github-light: colores reales (keywords, strings, funciones) sobre fondo cream
-      theme: 'github-light',
+      // one-light: colores reales en todos los lenguajes incluido JS plano
+      theme: 'snazzy-light',
       langs: [
         'typescript',
         'javascript',
@@ -80,7 +80,7 @@ export default defineNuxtConfig({
     },
   },
   fonts: {
-    families: [{ name: 'Space Mono', provider: 'google' }],
+    families: [{ name: 'Fira Code', provider: 'google' }],
   },
   components: [
     {

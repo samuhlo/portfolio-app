@@ -187,6 +187,13 @@ function setupHeadingTriggers(attempt = 0) {
       level: 2 as const,
     }));
 
+  // Los h2 existen pero aún sin IDs (Nuxt Content los asigna en el siguiente
+  // ciclo de render tras la hidratación en SPA navigation) → reintentar
+  if (headings.length === 0) {
+    if (attempt < 30) requestAnimationFrame(() => setupHeadingTriggers(attempt + 1));
+    return;
+  }
+
   headings.forEach((heading) => {
     const el = document.getElementById(heading.id);
     if (!el) return;
