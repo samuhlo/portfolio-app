@@ -30,6 +30,9 @@ onMounted(async () => {
   await nextTick();
   if (!circleRef.value?.svg) return;
   circlePaths.value = preparePaths(circleRef.value.svg);
+  if (props.isActive) {
+    draw();
+  }
 });
 
 // Animar

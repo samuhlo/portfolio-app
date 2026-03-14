@@ -23,6 +23,9 @@ function getHighlighter(): Promise<Highlighter> {
     highlighterPromise = createHighlighter({
       themes: ['snazzy-light'],
       langs: [...LANGS],
+    }).catch((error) => {
+      highlighterPromise = null;
+      throw error;
     });
   }
   return highlighterPromise;
