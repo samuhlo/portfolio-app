@@ -247,6 +247,8 @@ images:
 ---
 ::
 
+> Por cierto, estos dibujos estan hechos por [Jetpacks & Rollerskates](https://www.instagram.com/jetpacksandrollerskates/) 
+
 ### HandDrawn — doodles animados
 
 El más personal. Envuelve texto con un SVG que se anima como si se estuviera dibujando a mano. El SVG se posiciona relativo al contenido (debajo, encima, alrededor, a los lados), y la animación se dispara en scroll, en load o en hover.
@@ -358,7 +360,7 @@ Tres problemas distintos, todos relacionados con el timing — con qué está li
 
 Todo esto vive en pocos archivos. Y eso me parece uno de los puntos más importantes del sistema.
 
-El schema en `content.config.ts`, los artículos en `content/blog/`, los componentes en `app/components/content/`, y la página que lo renderiza todo es un Vue page normal con `<ContentRenderer>`. No hay capas ocultas. No hay servicios externos que puedan caerse. Todo es Vue, todo es TypeScript, todo está en el mismo repo.
+El schema en `content.config.ts`, los artículos en `content/blog/`, los componentes en `app/components/content/`, y la página que lo renderiza todo es una página de Vue normal con `<ContentRenderer>`. No hay capas ocultas. No hay servicios externos que puedan caerse. Todo es Vue, todo es TypeScript, todo está en el mismo repo.
 
 Para obtener un artículo:
 

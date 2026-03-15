@@ -20,8 +20,8 @@ export function useBlogPosts() {
 
   // [FIX] En entornos serverless, queryCollection puede devolver null en SSR.
   // Si el cliente monta sin datos, reintentamos client-side donde la query sí funciona.
-  if (import.meta.client && (!data.value || (data.value as BlogPost[]).length === 0)) {
-    refresh();
+  if (import.meta.client && data.value == null && status.value !== 'pending') {
+    void refresh();
   }
 
   const posts = computed<BlogPost[]>(() => (data.value as BlogPost[]) ?? []);

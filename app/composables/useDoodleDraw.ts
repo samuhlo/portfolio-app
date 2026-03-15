@@ -45,6 +45,9 @@ interface DrawAnimationOptions {
  * - addDrawAnimation: añade la secuencia de dibujo a un timeline existente
  */
 export const useDoodleDraw = () => {
+  const getBufferedLength = (path: SVGPathElement): number =>
+    Math.ceil(path.getTotalLength() * 2) + 20;
+
   /**
    * Prepara los paths de un SVG para la animación de dibujo.
    * Calcula strokeDasharray/offset y oculta los paths con visibility:hidden
@@ -61,10 +64,7 @@ export const useDoodleDraw = () => {
     const paths = Array.from(svgEl.querySelectorAll('path'));
 
     paths.forEach((path) => {
-      // [NOTE] buffer = 5% del path + 20px fijos.
-      // getTotalLength() subestima beziers complejos en algunos browsers —
-      // el margen relativo garantiza que el stroke siempre llega al final.
-      const length = Math.ceil(path.getTotalLength() * 1.05) + 20;
+      const length = getBufferedLength(path);
       gsap.set(path, {
         strokeDasharray: length,
         strokeDashoffset: length,
@@ -149,7 +149,7 @@ export const useDoodleDraw = () => {
     paths.forEach((p) => gsap.killTweensOf(p));
     gsap.set(svg, { opacity: 0 });
     paths.forEach((path) => {
-      const length = path.getTotalLength() + 20;
+      const length = getBufferedLength(path);
       gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
     });
   };
@@ -175,7 +175,7 @@ export const useDoodleDraw = () => {
       ease,
       onComplete: () => {
         paths.forEach((path) => {
-          const length = path.getTotalLength() + 20;
+          const length = getBufferedLength(path);
           gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
         });
       },

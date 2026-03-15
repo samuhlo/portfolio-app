@@ -8,7 +8,7 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
@@ -107,17 +107,26 @@ const handleResize = (): void => {
   }, RESIZE_DEBOUNCE_MS);
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // [NOTE] nextTick antes de preparePaths para que el DOM esté estable.
+  // Sin esto el SVG aparece brevemente dibujado antes de que GSAP lo oculte
+  // (mismo flick que tenía CategoryCircle en el primer click).
+  await nextTick();
+
+  let circlePaths: SVGPathElement[] = [];
+  if (circleDoodleRef.value?.svg) {
+    circlePaths = preparePaths(circleDoodleRef.value.svg);
+  }
+
   syncCanvasSize();
 
   initGSAP(() => {
-    if (circleDoodleRef.value?.svg) {
-      const paths = preparePaths(circleDoodleRef.value.svg);
-      // [NOTE] Animación pausada, se reproduce con 1.5s de delay tras IntersectionObserver
+    if (circleDoodleRef.value?.svg && circlePaths.length) {
+      // [NOTE] Animación pausada, se reproduce con delay tras IntersectionObserver
       circleAnimation = gsap.timeline({ paused: true, delay: 1.2 });
       addDrawAnimation(circleAnimation, {
         svg: circleDoodleRef.value.svg,
-        paths,
+        paths: circlePaths,
         duration: 0.6,
         ease: 'power1.out',
       });
@@ -171,7 +180,7 @@ const openMail = (): void => {
           {{ SITE.email }}
           <DoodleCircleGeneral
             ref="circleDoodleRef"
-            class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0"
+            class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           />
         </span>
       </NuxtLink>
