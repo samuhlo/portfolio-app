@@ -14,9 +14,15 @@ import { computed } from 'vue';
 import { type BlogPost, type BlogCategory } from '~/types/blog';
 
 export function useBlogPosts() {
-  const { data, status } = useAsyncData('blog-posts', () =>
+  const { data, status, refresh } = useAsyncData('blog-posts', () =>
     queryCollection('blog').where('published', '=', true).order('date', 'DESC').all(),
   );
+
+  // [FIX] En entornos serverless, queryCollection puede devolver null en SSR.
+  // Si el cliente monta sin datos, reintentamos client-side donde la query sí funciona.
+  if (import.meta.client && (!data.value || (data.value as BlogPost[]).length === 0)) {
+    refresh();
+  }
 
   const posts = computed<BlogPost[]>(() => (data.value as BlogPost[]) ?? []);
 

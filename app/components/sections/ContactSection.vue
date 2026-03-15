@@ -28,6 +28,10 @@ let observer: IntersectionObserver | null = null;
 let triggered = false;
 let circleAnimation: gsap.core.Timeline | null = null;
 
+// [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
+// threshold 0.4 → dispara la caída inicial de letras cuando el 40% es visible.
+const TRIGGER_THRESHOLD = 0.6;
+
 const syncCanvasSize = (): void => {
   const section = sectionRef.value;
   const canvas = canvasRef.value;
@@ -41,7 +45,13 @@ const syncCanvasSize = (): void => {
 
 const handleIntersection: IntersectionObserverCallback = (entries) => {
   for (const entry of entries) {
-    if (entry.isIntersecting && !triggered && canvasRef.value) {
+    // [NOTE] Para el disparo inicial necesitamos que el ratio alcance el threshold.
+    // Si la sección es más alta que el viewport, usamos el alto visible como fallback.
+    const ratioOk =
+      entry.intersectionRatio >= TRIGGER_THRESHOLD ||
+      entry.intersectionRect.height >= window.innerHeight * TRIGGER_THRESHOLD;
+
+    if (entry.isIntersecting && !triggered && canvasRef.value && ratioOk) {
       // Primera vez visible → iniciar física
       triggered = true;
 
@@ -104,19 +114,15 @@ onMounted(() => {
     if (circleDoodleRef.value?.svg) {
       const paths = preparePaths(circleDoodleRef.value.svg);
       // [NOTE] Animación pausada, se reproduce con 1.5s de delay tras IntersectionObserver
-      circleAnimation = gsap.timeline({ paused: true, delay: 0.6 });
+      circleAnimation = gsap.timeline({ paused: true, delay: 1.2 });
       addDrawAnimation(circleAnimation, {
         svg: circleDoodleRef.value.svg,
         paths,
-        duration: 0.8,
-        ease: 'power2.out',
+        duration: 0.6,
+        ease: 'power1.out',
       });
     }
   });
-
-  // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
-  // threshold 0.4 → dispara la caída inicial de letras cuando el 40% es visible.
-  const TRIGGER_THRESHOLD = 0.4;
 
   observer = new IntersectionObserver(handleIntersection, {
     threshold: [0, TRIGGER_THRESHOLD],
@@ -146,7 +152,7 @@ const openMail = (): void => {
 <template>
   <section
     ref="sectionRef"
-    class="relative min-h-[80vh] bg-foreground text-background overflow-hidden"
+    class="relative min-h-[60vh] md:min-h-[80vh] bg-foreground text-background overflow-hidden"
   >
     <!-- Canvas que ocupa toda la sección — letras caen desde el tope -->
     <canvas

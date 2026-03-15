@@ -61,22 +61,26 @@ export default defineNuxtConfig({
   // █ NUXT CONTENT: Shiki syntax highlighting
   // =========================================================================
   content: {
-    highlight: {
-      // one-light: colores reales en todos los lenguajes incluido JS plano
-      theme: 'snazzy-light',
-      langs: [
-        'typescript',
-        'javascript',
-        'vue',
-        'html',
-        'css',
-        'bash',
-        'shell',
-        'json',
-        'markdown',
-        'python',
-        'yaml',
-      ],
+    build: {
+      markdown: {
+        highlight: {
+          // one-light: colores reales en todos los lenguajes incluido JS plano
+          theme: 'snazzy-light',
+          langs: [
+            'typescript',
+            'javascript',
+            'vue',
+            'html',
+            'css',
+            'bash',
+            'shell',
+            'json',
+            'markdown',
+            'python',
+            'yaml',
+          ],
+        },
+      },
     },
   },
   fonts: {

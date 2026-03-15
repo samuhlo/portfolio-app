@@ -189,7 +189,7 @@ onMounted(async () => {
 <template>
   <section
     ref="sectionRef"
-    class="min-h-screen w-full flex justify-center items-center overflow-x-clip"
+    class="min-h-screen w-full flex justify-center items-center overflow-x-clip bio-section"
     style="padding: 10vh 12.5% 10vh 8.33%"
   >
     <div
@@ -315,6 +315,11 @@ onMounted(async () => {
 }
 
 @media (max-width: 768px) {
+  .bio-section {
+    min-height: auto;
+    padding-bottom: 9vh !important;
+  }
+
   .layout-quotes-open {
     top: var(--q-open-top-mobile);
     right: var(--q-open-right-mobile);

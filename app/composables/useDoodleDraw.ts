@@ -27,6 +27,12 @@ interface DrawAnimationOptions {
   proportional?: boolean;
   /** Duración mínima cuando proportional=true (default: duration * 0.4) */
   minDuration?: number;
+  /**
+   * Valor final de strokeDashoffset. Negativo = sobrepasar el extremo del path,
+   * útil cuando getTotalLength() subestima la longitud real del bezier.
+   * Default: 0
+   */
+  finalOffset?: number;
 }
 
 /**
@@ -55,8 +61,10 @@ export const useDoodleDraw = () => {
     const paths = Array.from(svgEl.querySelectorAll('path'));
 
     paths.forEach((path) => {
-      // [NOTE] +20 de margen para que los caps redondeados queden totalmente ocultos
-      const length = path.getTotalLength() + 20;
+      // [NOTE] buffer = 5% del path + 20px fijos.
+      // getTotalLength() subestima beziers complejos en algunos browsers —
+      // el margen relativo garantiza que el stroke siempre llega al final.
+      const length = Math.ceil(path.getTotalLength() * 1.05) + 20;
       gsap.set(path, {
         strokeDasharray: length,
         strokeDashoffset: length,
@@ -85,6 +93,7 @@ export const useDoodleDraw = () => {
       ease = 'power1.inOut',
       proportional = false,
       minDuration,
+      finalOffset = 0,
     } = options;
 
     if (!paths.length || !svg) return;
@@ -97,7 +106,7 @@ export const useDoodleDraw = () => {
         paths,
         {
           visibility: 'visible',
-          strokeDashoffset: 0,
+          strokeDashoffset: -finalOffset,
           duration,
           ease,
           stagger,
