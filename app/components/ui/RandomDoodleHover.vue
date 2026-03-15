@@ -29,7 +29,7 @@ const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matche
 
 const DOODLE_COUNT = 2;
 
-const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
+const { preparePaths, addDrawAnimation, erasePaths, resetPaths } = useDoodleDraw();
 
 const doodleRefs = ref<(DoodleExposed | null)[]>([]);
 
@@ -42,19 +42,24 @@ const allPreparedPaths = ref<SVGPathElement[][]>([]);
 
 /** Índice del doodle actualmente visible (-1 = ninguno) */
 let activeIndex = -1;
-let isAnimating = false;
+
+// [NOTE] Multiplier por doodle: DoodleUnderlineGeneral2 tiene beziers que hacen
+// un recorrido de ida y vuelta, lo que hace que getTotalLength() subestime
+// significativamente la longitud real. Con 1.05 el strokeDasharray queda menor
+// que el path real y el patrón dash genera un "chunk" visible por wrap-around
+// en la primera frame de la animación. Multiplier 2.0 previene esto.
+const DOODLE_MULTIPLIERS = [1.05, 2.0] as const;
 
 onMounted(() => {
   // [NOTE] Preparar los paths de ambos doodles al montar
   allPreparedPaths.value = Array.from({ length: DOODLE_COUNT }, (_, i) => {
     const doodle = doodleRefs.value[i];
-    return preparePaths(doodle?.svg ?? null);
+    return preparePaths(doodle?.svg ?? null, DOODLE_MULTIPLIERS[i]);
   });
 });
 
 const draw = () => {
-  if (!hasHover || isAnimating) return;
-  isAnimating = true;
+  if (!hasHover) return;
 
   // [NOTE] Elegir un doodle aleatorio distinto al anterior cuando sea posible
   let nextIndex = Math.floor(Math.random() * DOODLE_COUNT);
@@ -65,21 +70,22 @@ const draw = () => {
 
   const doodle = doodleRefs.value[activeIndex];
   const paths = allPreparedPaths.value[activeIndex];
-  if (!doodle?.svg || !paths?.length) {
-    isAnimating = false;
-    return;
+  if (!doodle?.svg || !paths?.length) return;
+
+  // [NOTE] Resetear TODOS los doodles antes de animar. Esto mata cualquier
+  // erasePaths.onComplete pendiente que pudiera sobrescribir strokeDashoffset
+  // mientras la nueva animación ya está corriendo (race condition de hover rápido).
+  for (let i = 0; i < DOODLE_COUNT; i++) {
+    const d = doodleRefs.value[i];
+    const p = allPreparedPaths.value[i];
+    if (d?.svg && p?.length) resetPaths(d.svg, p);
   }
 
-  const tl = gsap.timeline({
-    onComplete: () => {
-      isAnimating = false;
-    },
-  });
-
+  const tl = gsap.timeline();
   addDrawAnimation(tl, {
     svg: doodle.svg,
     paths,
-    duration: 0.35,
+    duration: 1.2,
     stagger: 0.05,
     ease: 'power2.out',
   });
@@ -92,10 +98,8 @@ const erase = () => {
   const paths = allPreparedPaths.value[activeIndex];
   if (!doodle?.svg || !paths?.length) return;
 
-  // [NOTE] Fadeout rápido y luego resetear strokeDashoffset para re-animar
   erasePaths(doodle.svg, paths);
   activeIndex = -1;
-  isAnimating = false;
 };
 
 // [FIX] Cleanup GSAP tweens al desmontar para evitar memory leaks

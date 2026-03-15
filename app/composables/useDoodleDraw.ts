@@ -27,6 +27,12 @@ interface DrawAnimationOptions {
   proportional?: boolean;
   /** Duración mínima cuando proportional=true (default: duration * 0.4) */
   minDuration?: number;
+  /**
+   * Valor final de strokeDashoffset. Negativo = sobrepasar el extremo del path,
+   * útil cuando getTotalLength() subestima la longitud real del bezier.
+   * Default: 0
+   */
+  finalOffset?: number;
 }
 
 /**
@@ -40,11 +46,24 @@ interface DrawAnimationOptions {
  */
 export const useDoodleDraw = () => {
   /**
+   * Buffer = multiplier * getTotalLength() + 20px fijos.
+   * El multiplier por defecto (1.05) añade un 5% — suficiente para la mayoría de
+   * doodles. Para beziers complejos donde getTotalLength() subestima más,
+   * se puede pasar un multiplier mayor (e.g. 2.0) desde el call site específico.
+   */
+  const getBufferedLength = (path: SVGPathElement, multiplier = 1.05): number =>
+    Math.ceil(path.getTotalLength() * multiplier) + 20;
+
+  /**
    * Prepara los paths de un SVG para la animación de dibujo.
    * Calcula strokeDasharray/offset y oculta los paths con visibility:hidden
    * para evitar los puntitos iniciales de stroke-linecap: round.
+   *
+   * @param multiplier - Factor sobre getTotalLength() para el buffer del dash.
+   *   Default 1.05 (5%). Pasar un valor mayor para beziers donde el browser
+   *   subestima significativamente la longitud del path.
    */
-  const preparePaths = (svgEl: SVGSVGElement | null): SVGPathElement[] => {
+  const preparePaths = (svgEl: SVGSVGElement | null, multiplier = 1.05): SVGPathElement[] => {
     if (!svgEl) return [];
 
     // [NOTE] Ocultar el SVG container antes de calcular longitudes.
@@ -55,8 +74,7 @@ export const useDoodleDraw = () => {
     const paths = Array.from(svgEl.querySelectorAll('path'));
 
     paths.forEach((path) => {
-      // [NOTE] +20 de margen para que los caps redondeados queden totalmente ocultos
-      const length = path.getTotalLength() + 20;
+      const length = getBufferedLength(path, multiplier);
       gsap.set(path, {
         strokeDasharray: length,
         strokeDashoffset: length,
@@ -85,6 +103,7 @@ export const useDoodleDraw = () => {
       ease = 'power1.inOut',
       proportional = false,
       minDuration,
+      finalOffset = 0,
     } = options;
 
     if (!paths.length || !svg) return;
@@ -97,7 +116,7 @@ export const useDoodleDraw = () => {
         paths,
         {
           visibility: 'visible',
-          strokeDashoffset: 0,
+          strokeDashoffset: -finalOffset,
           duration,
           ease,
           stagger,
@@ -133,6 +152,11 @@ export const useDoodleDraw = () => {
   /**
    * Resetea los paths de un SVG a su estado inicial (ocultos, sin dibujar).
    * Mata cualquier tween activo en el SVG y sus paths antes de resetear.
+   *
+   * [NOTE] Lee el strokeDasharray actual del path en lugar de recalcularlo.
+   * Esto evita que un multiplier diferente al usado en preparePaths cause
+   * un dashoffset menor al dasharray, lo que produce un stroke visible por
+   * wrap-around del patrón dash en la primera frame de la siguiente animación.
    */
   const resetPaths = (svg: SVGSVGElement | null, paths: SVGPathElement[]): void => {
     if (!svg || !paths.length) return;
@@ -140,8 +164,8 @@ export const useDoodleDraw = () => {
     paths.forEach((p) => gsap.killTweensOf(p));
     gsap.set(svg, { opacity: 0 });
     paths.forEach((path) => {
-      const length = path.getTotalLength() + 20;
-      gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
+      const dasharray = parseFloat(path.style.strokeDasharray) || getBufferedLength(path);
+      gsap.set(path, { strokeDashoffset: dasharray, visibility: 'hidden' });
     });
   };
 
@@ -166,12 +190,12 @@ export const useDoodleDraw = () => {
       ease,
       onComplete: () => {
         paths.forEach((path) => {
-          const length = path.getTotalLength() + 20;
-          gsap.set(path, { strokeDashoffset: length, visibility: 'hidden' });
+          const dasharray = parseFloat(path.style.strokeDasharray) || getBufferedLength(path);
+          gsap.set(path, { strokeDashoffset: dasharray, visibility: 'hidden' });
         });
       },
     });
   };
 
-  return { preparePaths, addDrawAnimation, resetPaths, erasePaths };
+  return { getBufferedLength, preparePaths, addDrawAnimation, resetPaths, erasePaths };
 };

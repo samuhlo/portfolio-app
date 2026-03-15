@@ -90,6 +90,9 @@ function setupGSAP() {
     const hasRestoredScroll = savedScroll && parseInt(savedScroll, 10) > 0;
 
     if (hasRestoredScroll) {
+      // [NOTE] La nav empieza con opacity:0 en HTML para evitar flash antes de GSAP.
+      // Si restauramos scroll, no hay animación → revelar inmediatamente.
+      gsap.set('.blog-post-nav', { opacity: 1 });
       window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
     } else {
       const tl = gsap.timeline({ defaults: { ease: ANIM.defaultEase } });
@@ -111,6 +114,11 @@ function setupGSAP() {
         ANIM.title.overlap,
       );
       tl.from(
+        '.post-body-accent-line',
+        { scaleY: 0, duration: 0.7, ease: 'power2.inOut' },
+        '<',
+      );
+      tl.from(
         '.post-body-excerpt',
         { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
         ANIM.excerpt.overlap,
@@ -125,6 +133,10 @@ function setupGSAP() {
         { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration },
         ANIM.content.overlap,
       );
+      // [NOTE] La nav empieza en opacity:0 (inline style en BlogPostNavigation).
+      // Se revela al final del timeline para que no flicker antes de que el
+      // contenido principal esté animado.
+      tl.to('.blog-post-nav', { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.2');
     }
 
     // ScrollTrigger: muestra el título en la sidebar cuando el h1 sale del viewport

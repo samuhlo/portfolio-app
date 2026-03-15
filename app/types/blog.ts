@@ -6,7 +6,7 @@
  * =====================================================================
  */
 
-export type BlogCategory = 'weekly_log' | 'find' | 'breakdown' | 'outside';
+export type BlogCategory = 'weekly_log' | 'find' | 'breakdown' | 'roots';
 
 export type BlogPost = {
   slug: string;
@@ -41,12 +41,12 @@ export const CATEGORY_LABELS: Record<BlogCategory, string> = {
   weekly_log: 'weekly_log',
   find: 'find',
   breakdown: 'breakdown',
-  outside: 'outside',
+  roots: 'roots',
 };
 
 export const CATEGORY_COLORS: Record<BlogCategory, string> = {
   weekly_log: '#FF8C42', // naranja — rutina cálida, energía constante
   find: '#FFCA40', // accent del proyecto ( lo que mas me gusta, descubir cosas usara este color)
   breakdown: '#A855F7', // púrpura — profundidad, análisis, un toque oscuro
-  outside: '#4ADE80', // verde vivo — naturaleza, movimiento, vida fuera
+  roots: '#4ADE80', // verde vivo — naturaleza, movimiento, vida fuera
 };

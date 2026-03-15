@@ -8,7 +8,7 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
@@ -28,6 +28,9 @@ let observer: IntersectionObserver | null = null;
 let triggered = false;
 let circleAnimation: gsap.core.Timeline | null = null;
 
+// [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
+// threshold 0.6 → dispara la caída inicial de letras cuando el 60% es visible.
+const TRIGGER_THRESHOLD = 0.6;
 const syncCanvasSize = (): void => {
   const section = sectionRef.value;
   const canvas = canvasRef.value;
@@ -41,7 +44,13 @@ const syncCanvasSize = (): void => {
 
 const handleIntersection: IntersectionObserverCallback = (entries) => {
   for (const entry of entries) {
-    if (entry.isIntersecting && !triggered && canvasRef.value) {
+    // [NOTE] Para el disparo inicial necesitamos que el ratio alcance el threshold.
+    // Si la sección es más alta que el viewport, usamos el alto visible como fallback.
+    const ratioOk =
+      entry.intersectionRatio >= TRIGGER_THRESHOLD ||
+      entry.intersectionRect.height >= window.innerHeight * TRIGGER_THRESHOLD;
+
+    if (entry.isIntersecting && !triggered && canvasRef.value && ratioOk) {
       // Primera vez visible → iniciar física
       triggered = true;
 
@@ -97,26 +106,33 @@ const handleResize = (): void => {
   }, RESIZE_DEBOUNCE_MS);
 };
 
-onMounted(() => {
+onMounted(async () => {
+  // [NOTE] nextTick antes de preparePaths para que el DOM esté estable.
+  // Sin esto el SVG aparece brevemente dibujado antes de que GSAP lo oculte
+  // (mismo flick que tenía CategoryCircle en el primer click).
+  await nextTick();
+
+  let circlePaths: SVGPathElement[] = [];
+  if (circleDoodleRef.value?.svg) {
+    // [NOTE] multiplier 2.0 — este bezier complejo tiene un getTotalLength()
+    // que subestima la longitud real, 1.05 no es suficiente para completar el trazo.
+    circlePaths = preparePaths(circleDoodleRef.value.svg, 2.0);
+  }
+
   syncCanvasSize();
 
   initGSAP(() => {
-    if (circleDoodleRef.value?.svg) {
-      const paths = preparePaths(circleDoodleRef.value.svg);
-      // [NOTE] Animación pausada, se reproduce con 1.5s de delay tras IntersectionObserver
-      circleAnimation = gsap.timeline({ paused: true, delay: 0.6 });
+    if (circleDoodleRef.value?.svg && circlePaths.length) {
+      // [NOTE] Animación pausada, se reproduce con delay tras IntersectionObserver
+      circleAnimation = gsap.timeline({ paused: true, delay: 1.2 });
       addDrawAnimation(circleAnimation, {
         svg: circleDoodleRef.value.svg,
-        paths,
-        duration: 0.8,
-        ease: 'power2.out',
+        paths: circlePaths,
+        duration: 0.6,
+        ease: 'power1.out',
       });
     }
   });
-
-  // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
-  // threshold 0.4 → dispara la caída inicial de letras cuando el 40% es visible.
-  const TRIGGER_THRESHOLD = 0.4;
 
   observer = new IntersectionObserver(handleIntersection, {
     threshold: [0, TRIGGER_THRESHOLD],
@@ -134,6 +150,8 @@ onUnmounted(() => {
   observer = null;
   window.removeEventListener('resize', handleResize);
   if (resizeTimer) clearTimeout(resizeTimer);
+  circleAnimation?.kill();
+  circleAnimation = null;
   destroy();
 });
 
@@ -146,7 +164,7 @@ const openMail = (): void => {
 <template>
   <section
     ref="sectionRef"
-    class="relative min-h-[80vh] bg-foreground text-background overflow-hidden"
+    class="relative min-h-[60vh] md:min-h-[80vh] bg-foreground text-background overflow-hidden"
   >
     <!-- Canvas que ocupa toda la sección — letras caen desde el tope -->
     <canvas
@@ -165,7 +183,7 @@ const openMail = (): void => {
           {{ SITE.email }}
           <DoodleCircleGeneral
             ref="circleDoodleRef"
-            class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0"
+            class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           />
         </span>
       </NuxtLink>

@@ -29,6 +29,7 @@ defineExpose({ svg: svgRef });
     viewBox="0 0 263 71"
     fill="none"
     :style="{
+      opacity: 0,
       '--doodle-stroke-width': strokeWidth + 'px',
       '--doodle-stroke-color': strokeColor,
     }"
