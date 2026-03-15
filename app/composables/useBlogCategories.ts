@@ -13,7 +13,7 @@ import { computed } from 'vue';
 import { CATEGORY_LABELS, type BlogCategory, type CategoryItem } from '~/types/blog';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 
-const ALL_CATEGORIES: BlogCategory[] = ['weekly_log', 'find', 'breakdown', 'outside'];
+const ALL_CATEGORIES: BlogCategory[] = ['weekly_log', 'find', 'breakdown', 'roots'];
 
 export function useBlogCategories() {
   const { posts } = useBlogPosts();

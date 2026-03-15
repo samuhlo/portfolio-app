@@ -275,7 +275,7 @@ onMounted(() => {
     <p
       class="blog-header-desc mt-8 text-base font-mono md:text-lg tracking-wide opacity-50 max-w-lg leading-relaxed"
     >
-      Thoughts, discoveries and updates from a mind that collects everything.
+      Lo que descubro, lo que rompo, y lo que guardo para no olvidar.
     </p>
   </header>
 </template>

@@ -145,7 +145,8 @@ function handlePrevLeave() {
   <nav
     role="navigation"
     aria-label="Blog post navigation"
-    class="mt-16 pt-8 border-t border-foreground/10"
+    class="blog-post-nav mt-16 pt-8 border-t border-foreground/10"
+    style="opacity: 0"
   >
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- ================================================================= -->

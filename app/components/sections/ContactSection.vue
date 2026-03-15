@@ -29,9 +29,8 @@ let triggered = false;
 let circleAnimation: gsap.core.Timeline | null = null;
 
 // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
-// threshold 0.4 → dispara la caída inicial de letras cuando el 40% es visible.
+// threshold 0.6 → dispara la caída inicial de letras cuando el 60% es visible.
 const TRIGGER_THRESHOLD = 0.6;
-
 const syncCanvasSize = (): void => {
   const section = sectionRef.value;
   const canvas = canvasRef.value;
@@ -151,6 +150,8 @@ onUnmounted(() => {
   observer = null;
   window.removeEventListener('resize', handleResize);
   if (resizeTimer) clearTimeout(resizeTimer);
+  circleAnimation?.kill();
+  circleAnimation = null;
   destroy();
 });
 

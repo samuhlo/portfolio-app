@@ -13,6 +13,8 @@
 import { computed } from 'vue';
 import { type BlogPost, type BlogCategory } from '~/types/blog';
 
+let clientRetryAttempted = false;
+
 export function useBlogPosts() {
   const { data, status, refresh } = useAsyncData('blog-posts', () =>
     queryCollection('blog').where('published', '=', true).order('date', 'DESC').all(),
@@ -20,7 +22,14 @@ export function useBlogPosts() {
 
   // [FIX] En entornos serverless, queryCollection puede devolver null en SSR.
   // Si el cliente monta sin datos, reintentamos client-side donde la query sí funciona.
-  if (import.meta.client && data.value == null && status.value !== 'pending') {
+  // Solo un intento para evitar bucles infinitos si la query también falla en el cliente.
+  if (
+    import.meta.client &&
+    data.value == null &&
+    status.value !== 'pending' &&
+    !clientRetryAttempted
+  ) {
+    clientRetryAttempted = true;
     void refresh();
   }
 

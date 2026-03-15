@@ -41,6 +41,7 @@ defineExpose({ svg: svgRef });
           stroke-width="var(--doodle-stroke-width, 5)"
           stroke-linecap="round"
           stroke-linejoin="round"
+          style="visibility: hidden"
         />
       </g>
       <g transform="matrix(-0.999048,0.043627,-0.043627,-0.999048,1553.0065,1095.0324)">
@@ -50,6 +51,7 @@ defineExpose({ svg: svgRef });
           stroke-width="var(--doodle-stroke-width, 5)"
           stroke-linecap="round"
           stroke-linejoin="round"
+          style="visibility: hidden"
         />
       </g>
     </g>

@@ -35,7 +35,7 @@ const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
     <header ref="postHeaderRef" class="post-body-header relative pl-7 mb-14 md:mb-20">
       <!-- Accent line: gradiente color → transparente, sólo en el header -->
       <div
-        class="absolute left-0 top-0 h-full w-[2.5px] rounded-full"
+        class="post-body-accent-line absolute left-0 top-0 h-full w-[2.5px] rounded-full origin-top"
         :style="{
           background: `linear-gradient(to bottom, ${categoryColor} 0%, ${categoryColor}00 100%)`,
         }"
