@@ -115,7 +115,9 @@ onMounted(async () => {
 
   let circlePaths: SVGPathElement[] = [];
   if (circleDoodleRef.value?.svg) {
-    circlePaths = preparePaths(circleDoodleRef.value.svg);
+    // [NOTE] multiplier 2.0 — este bezier complejo tiene un getTotalLength()
+    // que subestima la longitud real, 1.05 no es suficiente para completar el trazo.
+    circlePaths = preparePaths(circleDoodleRef.value.svg, 2.0);
   }
 
   syncCanvasSize();

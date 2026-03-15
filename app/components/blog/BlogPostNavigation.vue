@@ -13,6 +13,7 @@
 import { ref, onMounted } from 'vue';
 import { type BlogPost, type BlogCategory, CATEGORY_COLORS } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
+import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import DoodleArrowRightGeneral from '~/components/ui/doodles/general/DoodleArrowRightGeneral.vue';
 import DoodleArrowLeftGeneral from '~/components/ui/doodles/general/DoodleArrowLeftGeneral.vue';
 
@@ -28,6 +29,7 @@ defineProps<{
 // █ REFS & GSAP
 // =============================================================================
 const { gsap, initGSAP } = useGSAP();
+const { getBufferedLength } = useDoodleDraw();
 
 // Obtener color de categoría
 function getCategoryColor(category?: BlogCategory): string | undefined {
@@ -46,9 +48,9 @@ let prevTimeline: gsap.core.Timeline | null = null;
 // =============================================================================
 // █ DRAW-ON ANIMATION SETUP
 // =============================================================================
-const DRAW_DURATION = 0.2;
-const DRAW_EASE = 'power2.inOut';
-const LABEL_FADE_DURATION = 0.2;
+const DRAW_DURATION = 1.5;
+const DRAW_EASE = 'power2.out';
+const LABEL_FADE_DURATION = 0.5;
 
 /**
  * ◼️ SETUP DRAW TIMELINE
@@ -68,8 +70,7 @@ function setupDrawTimeline(
 
   // Estado inicial: paths invisibles (dashoffset = longitud total + 20)
   paths.forEach((path) => {
-    // [NOTE] +20 de margen para ocultar caps redondeados
-    const length = path.getTotalLength() + 20;
+    const length = getBufferedLength(path);
     gsap.set(path, {
       strokeDasharray: length,
       strokeDashoffset: length,
@@ -141,7 +142,11 @@ function handlePrevLeave() {
 </script>
 
 <template>
-  <nav role="navigation" aria-label="Blog post navigation" class="mt-16 pt-8 border-t border-foreground/10">
+  <nav
+    role="navigation"
+    aria-label="Blog post navigation"
+    class="mt-16 pt-8 border-t border-foreground/10"
+  >
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- ================================================================= -->
       <!-- █ PREV POST (más antiguo) -> IZQUIERDA -->

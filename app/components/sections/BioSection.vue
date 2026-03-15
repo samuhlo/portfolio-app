@@ -297,7 +297,7 @@ onMounted(async () => {
 
 .layout-quotes-close {
   /* DESKTOP */
-  --q-close-bottom-desktop: 1em;
+  --q-close-bottom-desktop: 0.4em;
   --q-close-left-desktop: 110%;
   --q-close-width-desktop: 2em;
   --q-close-transform-desktop: rotate(10deg);
