@@ -118,8 +118,7 @@ Pero hay algo más debajo: las imágenes y vídeos no están en el repo ni en el
 
 El motivo es simple: no quiero meter binarios en git. Un par de imágenes no pasa nada, pero si el blog crece, el repo se convierte en un problema. Con R2, el contenido estático vive separado del código, el repo se mantiene limpio, y los assets se sirven desde la CDN de Cloudflare.
 
-Para subir archivos hay un endpoint en el servidor de Nuxt (`/api/assets`) que recibe el archivo, lo sube al bucket usando el AWS SDK (la API de R2 es compatible con S3), y devuelve la URL pública. Las credenciales van en variables de entorno, el endpoint hace el trabajo. Sencillo.
-
+Para subir archivos hay un script (`scripts/upload-r2.ts`) que recibe el archivo, lo sube al bucket usando el AWS SDK (la API de R2 es compatible con S3), y devuelve la URL pública. Las credenciales van en variables de entorno, el script hace el trabajo. Sencillo.
 Lo más limpio del setup es el alias en `nuxt.config.ts`:
 
 ```typescript
