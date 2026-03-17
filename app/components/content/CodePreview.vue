@@ -77,11 +77,13 @@ const EXTERNAL_SCRIPTS: Record<string, string> = {
   Matter: 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js',
 };
 
-// Estilos base inyectados en el iframe — reset mínimo, sin imponer diseño
+// Estilos base inyectados en el iframe — reset mínimo, sin imponer diseño.
+// overflow-x: auto → si la demo tiene contenido más ancho que el iframe,
+// se puede scrollear horizontalmente dentro del preview en lugar de cliparse.
 const IFRAME_BASE_CSS = `
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: sans-serif; }
+  body { font-family: sans-serif; overflow-x: auto; }
 `.trim();
 
 // =============================================================================
@@ -223,7 +225,9 @@ onUnmounted(() => {
 // =============================================================================
 // █ HELPERS
 // =============================================================================
-const iframeHeight = computed(() => `${Number(props.height)}px`);
+const iframeHeight = computed(() =>
+  typeof props.height === 'number' ? `${props.height}px` : props.height,
+);
 </script>
 
 <template>
