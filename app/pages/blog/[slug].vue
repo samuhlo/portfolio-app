@@ -15,6 +15,7 @@ definePageMeta({ layout: 'blog' });
 
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
+import { useI18n } from '#imports';
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import type { TocHeading } from '~/types/blog';
@@ -22,6 +23,11 @@ import BlogPostLayout from '~/components/blog/BlogPostLayout.vue';
 import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
 import BlogPostNavigation from '~/components/blog/BlogPostNavigation.vue';
+
+const { locale } = useI18n();
+
+// Override global lang="es" with active locale
+useHead({ htmlAttrs: { lang: locale } });
 
 const route = useRoute();
 const slugValue = route.params.slug as string;

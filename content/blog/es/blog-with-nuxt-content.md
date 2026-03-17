@@ -6,6 +6,7 @@ category: breakdown
 topics: ['nuxt', 'nuxt content', 'vue', 'markdown', 'componentes']
 time_to_read: 8
 published: true
+lang: es
 slug: blog-with-nuxt-content
 ---
 

@@ -8,6 +8,8 @@
 
 export type BlogCategory = 'weekly_log' | 'find' | 'breakdown' | 'roots';
 
+export type BlogLocale = 'es' | 'en' | 'gz';
+
 export type BlogPost = {
   slug: string;
   title: string;
@@ -17,6 +19,7 @@ export type BlogPost = {
   topics: string[];
   time_to_read: number;
   published: boolean;
+  lang: BlogLocale;
   image?: string;
   // Campos internos de Nuxt Content
   _path?: string;

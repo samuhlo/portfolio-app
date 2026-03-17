@@ -6,6 +6,7 @@ category: find
 topics: ['tipografía', 'diseño', 'ui', 'atipo', 'recursos']
 time_to_read: 5
 published: true
+lang: es
 slug: atipo-foundry
 ---
 

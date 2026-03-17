@@ -87,7 +87,7 @@ async function copyLink() {
       <RandomDoodleHover :stroke-width="3" :stroke-color="categoryColor">
         <NuxtLink to="/blog" class="nav-link inline-flex items-center gap-2">
           <span>←</span>
-          <span>Back</span>
+          <span>{{ $t('blog.label_back') }}</span>
         </NuxtLink>
       </RandomDoodleHover>
     </div>
@@ -145,7 +145,7 @@ async function copyLink() {
     <div class="flex flex-col">
       <!-- Category — el elemento de color del sidebar -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Category</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_category') }}</p>
         <div class="flex items-center gap-2">
           <!-- Dot en color de categoría -->
           <span
@@ -163,13 +163,13 @@ async function copyLink() {
 
       <!-- Published -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Published</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_published') }}</p>
         <p class="text-xs font-mono opacity-75">{{ formatDate(post.date) }}</p>
       </div>
 
       <!-- Read time -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Read time</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_read_time') }}</p>
         <p class="text-xs font-mono opacity-60">
           <span class="font-bold text-sm">{{ post.time_to_read }}</span>
           <span class="opacity-60"> min</span>
@@ -178,7 +178,7 @@ async function copyLink() {
 
       <!-- Topics -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-3">Topics</p>
+        <p class="meta-label mb-3">{{ $t('blog.label_topics') }}</p>
         <div class="flex flex-col gap-1.5">
           <span
             v-for="topic in post.topics"
@@ -190,13 +190,16 @@ async function copyLink() {
         </div>
       </div>
 
+      <!-- Language switcher -->
+      <BlogLanguageSwitcher :slug="post.slug" />
+
       <!-- Share -->
       <div class="info-section-anim pt-4">
         <button class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
           <span
             class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
           >
-            Copy link
+            {{ $t('blog.label_copy_link') }}
           </span>
         </button>
       </div>

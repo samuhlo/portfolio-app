@@ -70,6 +70,8 @@ onUnmounted(() => {
         >
       </RandomDoodleHover>
     </div>
+    <slot />
+
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
         <NuxtLink

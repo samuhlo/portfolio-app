@@ -11,7 +11,9 @@
 
 <template>
   <div class="blog-layout flex flex-col min-h-screen font-sans">
-    <AppNav />
+    <AppNav>
+      <BlogNavLocaleSwitcher />
+    </AppNav>
     <main class="grow w-full overflow-x-clip">
       <div class="pt-20 md:pt-28 px-6 md:px-12">
         <slot />

@@ -26,7 +26,22 @@ export default defineNuxtConfig({
       devSourcemap: true,
     },
   },
-  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
+  modules: ['@nuxtjs/i18n', '@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
+
+  // =========================================================================
+  // █ I18N: Blog locale routing
+  // =========================================================================
+  i18n: {
+    strategy: 'prefix_except_default',
+    defaultLocale: 'es',
+    locales: [
+      { code: 'es', language: 'es-ES', name: 'Castellano', file: 'es.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      { code: 'gz', language: 'gl-ES', name: 'Galego', file: 'gz.json' },
+    ],
+    bundle: { compositionOnly: true },
+    langDir: 'locales',
+  },
 
   // =========================================================================
   // █ RUNTIME CONFIG

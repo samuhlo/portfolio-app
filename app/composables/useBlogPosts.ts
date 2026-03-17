@@ -4,20 +4,30 @@
  * ========================================================================
  * DESC:   Lista de posts publicados desde Nuxt Content, ordenados por
  *         fecha descendente. Filtrable por categoría en el cliente.
- *         La key 'blog-posts' es compartida — otras llamadas (useBlogPost,
- *         useBlogCategories) reusan el mismo cache sin doble fetch.
+ *         La clave incluye el locale activo — refetch automático al
+ *         cambiar idioma. Solo muestra posts del locale actual (sin fallback).
  * STATUS: STABLE
  * ========================================================================
  */
 
 import { computed } from 'vue';
+import { useI18n } from '#imports';
 import { type BlogPost, type BlogCategory } from '~/types/blog';
 
 let clientRetryAttempted = false;
 
 export function useBlogPosts() {
-  const { data, status, refresh } = useAsyncData('blog-posts', () =>
-    queryCollection('blog').where('published', '=', true).order('date', 'DESC').all(),
+  const { locale } = useI18n();
+
+  const { data, status, refresh } = useAsyncData(
+    () => `blog-posts-${locale.value}`,
+    () =>
+      queryCollection('blog')
+        .where('published', '=', true)
+        .where('lang', '=', locale.value)
+        .order('date', 'DESC')
+        .all(),
+    { watch: [locale] },
   );
 
   // [FIX] En entornos serverless, queryCollection puede devolver null en SSR.

@@ -6,6 +6,7 @@ category: 'find'
 topics: ['github', 'webhooks', 'openai', 'zod', 'automatizacion', 'nuxt']
 time_to_read: 10
 published: false
+lang: es
 slug: 'anatomy-of-a-living-portfolio'
 ---
 

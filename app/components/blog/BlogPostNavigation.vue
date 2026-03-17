@@ -164,7 +164,7 @@ function handlePrevLeave() {
               <span
                 class="nav-label text-xs font-mono uppercase tracking-[0.15em] opacity-30 whitespace-nowrap"
               >
-                Previous
+                {{ $t('blog.nav_previous') }}
               </span>
               <DoodleArrowLeftGeneral
                 ref="prevArrowRef"
@@ -198,7 +198,7 @@ function handlePrevLeave() {
               <span
                 class="nav-label text-xs font-mono uppercase tracking-[0.15em] opacity-30 whitespace-nowrap"
               >
-                Next
+                {{ $t('blog.nav_next') }}
               </span>
               <DoodleArrowRightGeneral
                 ref="nextArrowRef"

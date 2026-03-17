@@ -6,6 +6,7 @@ category: breakdown
 topics: ["GSAP", "Lenis", "Matter.js", "Vue", "Nuxt", "animaciones", "performance"]
 time_to_read: 12
 published: true
+lang: es
 slug: animated-portfolio
 ---
 

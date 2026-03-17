@@ -1,0 +1,13 @@
+{
+  "blog": {
+    "header_desc": "Lo que descubro, lo que rompo, y lo que guardo para no olvidar.",
+    "nav_previous": "Anterior",
+    "nav_next": "Siguiente",
+    "label_category": "Categoría",
+    "label_published": "Publicado",
+    "label_read_time": "Tiempo de lectura",
+    "label_topics": "Temas",
+    "label_copy_link": "Copiar enlace",
+    "label_back": "Volver"
+  }
+}

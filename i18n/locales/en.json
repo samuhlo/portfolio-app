@@ -1,0 +1,13 @@
+{
+  "blog": {
+    "header_desc": "What I discover, what I break, and what I keep so I don't forget.",
+    "nav_previous": "Previous",
+    "nav_next": "Next",
+    "label_category": "Category",
+    "label_published": "Published",
+    "label_read_time": "Read time",
+    "label_topics": "Topics",
+    "label_copy_link": "Copy link",
+    "label_back": "Back"
+  }
+}

@@ -11,6 +11,7 @@
  */
 
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useI18n } from '#imports';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
@@ -29,6 +30,11 @@ definePageMeta({
     to.meta.skipHeaderAnimation = isFromBlogPost;
   },
 });
+
+const { locale } = useI18n();
+
+// Override global lang="es" with active locale
+useHead({ htmlAttrs: { lang: locale } });
 
 const isLoading = ref(true);
 
