@@ -15,6 +15,7 @@ definePageMeta({ layout: 'blog' });
 
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
+import { SITE, BREAKPOINTS } from '~/config/site';
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import type { TocHeading } from '~/types/blog';
@@ -50,9 +51,9 @@ function saveScrollPosition() {
 
 // SEO
 useSeoMeta({
-  title: computed(() => (post.value ? `Samuel López _ ${post.value.title}` : 'Blog')),
+  title: computed(() => (post.value ? `${SITE.author} _ ${post.value.title}` : 'Blog')),
   description: computed(() => post.value?.description ?? ''),
-  ogTitle: computed(() => (post.value ? `Samuel López _ ${post.value.title}` : 'Blog')),
+  ogTitle: computed(() => (post.value ? `${SITE.author} _ ${post.value.title}` : 'Blog')),
   ogDescription: computed(() => post.value?.description ?? ''),
   ogType: 'article',
 });
@@ -143,7 +144,7 @@ function setupGSAP() {
     // [NOTE] Solo en desktop — en móvil el sidebar está en otro orden de layout
     // y el título apareciendo causa un salto visual innecesario.
     const titleEl = containerRef.value.querySelector('.post-body-title');
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+    const isDesktop = window.matchMedia(`(min-width: ${BREAKPOINTS.mobile}px)`).matches;
     if (titleEl && isDesktop) {
       ScrollTrigger.create({
         trigger: titleEl,
@@ -179,7 +180,7 @@ let headingTriggers: Killable[] = [];
 
 function setupHeadingTriggers(attempt = 0) {
   if (!containerRef.value) return;
-  if (!window.matchMedia('(min-width: 768px)').matches) return;
+  if (!window.matchMedia(`(min-width: ${BREAKPOINTS.mobile}px)`).matches) return;
 
   const headingEls = Array.from(
     containerRef.value.querySelectorAll('.post-content h2'),

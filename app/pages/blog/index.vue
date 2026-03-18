@@ -11,6 +11,7 @@
  */
 
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { SITE } from '~/config/site';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
@@ -47,10 +48,10 @@ function handleCategorySelect(category: BlogCategory | 'all') {
 }
 
 useSeoMeta({
-  title: 'Samuel López _ Blog',
-  description: 'Thoughts, updates, and design explorations from Samuel López.',
-  ogTitle: 'Samuel López _ Blog',
-  ogDescription: 'Thoughts, updates, and design explorations from Samuel López.',
+  title: `${SITE.author} _ Blog`,
+  description: `Thoughts, updates, and design explorations from ${SITE.author}.`,
+  ogTitle: `${SITE.author} _ Blog`,
+  ogDescription: `Thoughts, updates, and design explorations from ${SITE.author}.`,
   ogType: 'website',
 });
 

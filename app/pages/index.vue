@@ -14,8 +14,6 @@ import { SITE } from '~/config/site';
 // =============================================================================
 // █ SEO: Page-level meta
 // =============================================================================
-const SITE_URL = SITE.url;
-
 const title = 'Dev & Design';
 
 const description =
@@ -25,22 +23,22 @@ useSeoMeta({
   title,
   description,
   ogType: 'website',
-  ogTitle: `Samuel López _ ${title}`,
+  ogTitle: `${SITE.author} _ ${title}`,
   ogDescription: description,
-  ogUrl: SITE_URL,
-  ogSiteName: 'SAMUHLO.sh',
+  ogUrl: SITE.url,
+  ogSiteName: SITE.name,
   ogLocale: 'en_US',
-  ogImage: `${SITE_URL}/images/og-cover.png`,
-  ogImageSecureUrl: `${SITE_URL}/images/og-cover.png`,
+  ogImage: `${SITE.url}/images/og-cover.png`,
+  ogImageSecureUrl: `${SITE.url}/images/og-cover.png`,
   ogImageType: 'image/png',
   ogImageWidth: 1200,
   ogImageHeight: 630,
-  ogImageAlt: 'Samuel López — Code, Design & Much More',
+  ogImageAlt: `${SITE.author} — Code, Design & Much More`,
   twitterCard: 'summary_large_image',
-  twitterTitle: `Samuel López _ ${title}`,
+  twitterTitle: `${SITE.author} _ ${title}`,
   twitterDescription: description,
-  twitterImage: `${SITE_URL}/images/og-cover.png`,
-  twitterImageAlt: 'Samuel López — Code, Design & Much More',
+  twitterImage: `${SITE.url}/images/og-cover.png`,
+  twitterImageAlt: `${SITE.author} — Code, Design & Much More`,
 });
 </script>
 
