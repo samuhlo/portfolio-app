@@ -1,6 +1,6 @@
 ---
 title: Atipo Foundry — tipografía de alto nivel a dos horas de casa
-description: A veces buscamos assets premium en fundiciones internacionales y nos olvidamos de mirar cerca. Mi descubrimiento de Atipo, el estudio asturiano detrás de Silka Mono y Strawford.
+description: A veces buscamos assets premium en empresas internacionales y nos olvidamos de mirar cerca. Mi descubrimiento de Atipo, el estudio asturiano detrás de Silka Mono y Strawford.
 date: '2026-03-15'
 category: find
 topics: ['tipografía', 'diseño', 'ui', 'atipo', 'recursos']
