@@ -239,6 +239,9 @@ const iframeHeight = computed(() =>
       <button
         v-for="tab in availableTabs"
         :key="tab"
+        role="tab"
+        :aria-selected="active === tab"
+        :aria-label="`Show ${tab} tab`"
         class="cp-tab"
         :class="{ 'cp-tab--active': active === tab }"
         @click="active = tab"
@@ -249,6 +252,7 @@ const iframeHeight = computed(() =>
       <!-- Copy: solo visible en tabs de código, no en preview -->
       <button
         v-if="active !== 'preview'"
+        aria-label="Copy code"
         class="cp-copy"
         :class="{ 'cp-copy--copied': copied }"
         @click="handleCopy"
@@ -285,6 +289,7 @@ const iframeHeight = computed(() =>
       <iframe
         :srcdoc="srcdoc"
         sandbox="allow-scripts"
+        title="Code preview"
         :style="{ height: iframeHeight }"
         class="cp-iframe"
       />

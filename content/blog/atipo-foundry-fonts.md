@@ -190,7 +190,7 @@ Atipo tiene un modelo de distribución muy honesto. Para casi todas sus familias
 
 Te dejan probar el producto real en tu entorno de diseño, ver si encaja, y si te funciona, pagas. Como inversión en activos para tu stack personal, el retorno es absoluto.
 
-## Menos hype, más ejecución
+## Atipo y la buena tipografía
 
 Quería escribir esto para dejar constancia y darles las gracias. A veces nos cegamos buscando la excelencia fuera, asumiendo que el mejor diseño o la mejor ingeniería solo ocurre en los grandes hubs internacionales.
 

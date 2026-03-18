@@ -42,6 +42,7 @@ defineExpose({
     <!-- 1. Title -->
     <div class="mt-8 mb-8 pr-12">
       <h1
+        id="modal-project-title"
         class="text-[clamp(2.5rem,12vw,4rem)] sm:text-[10vw] font-black uppercase leading-[0.85] tracking-tight text-balance hyphens-auto wrap-break-word"
       >
         {{ projectName }}

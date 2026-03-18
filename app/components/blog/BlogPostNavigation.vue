@@ -159,7 +159,7 @@ function handlePrevLeave() {
           @mouseenter="handlePrevEnter"
           @mouseleave="handlePrevLeave"
         >
-          <NuxtLink :to="`/blog/${prevPost.slug}`" class="block group">
+          <NuxtLink :to="`/blog/${prevPost.slug}`" :aria-label="`Previous post: ${prevPost.title}`" class="block group">
             <div class="nav-arrow-wrapper justify-start mb-1 h-5">
               <span
                 class="nav-label text-xs font-mono uppercase tracking-[0.15em] opacity-30 whitespace-nowrap"
@@ -192,7 +192,7 @@ function handlePrevLeave() {
           @mouseenter="handleNextEnter"
           @mouseleave="handleNextLeave"
         >
-          <NuxtLink :to="`/blog/${nextPost.slug}`" class="block group">
+          <NuxtLink :to="`/blog/${nextPost.slug}`" :aria-label="`Next post: ${nextPost.title}`" class="block group">
             <div class="nav-arrow-wrapper justify-end md:justify-end mb-1 h-5">
               <!-- LABEL -> Se oculta al hover, la flecha se dibuja encima -->
               <span

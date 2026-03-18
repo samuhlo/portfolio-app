@@ -55,7 +55,7 @@ onUnmounted(() => {
         <span class="pre-lang">{{ language ?? 'code' }}</span>
         <span v-if="filename" class="pre-filename">{{ filename }}</span>
       </div>
-      <button class="pre-copy" :class="{ copied }" @click="handleCopy">
+      <button aria-label="Copy code" class="pre-copy" :class="{ copied }" @click="handleCopy">
         {{ copied ? 'copied' : 'copy' }}
       </button>
     </div>

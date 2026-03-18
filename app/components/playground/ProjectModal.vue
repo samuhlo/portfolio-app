@@ -249,6 +249,9 @@ const projectYear = computed(() => selectedProject.value?.year || new Date().get
           >
             <div
               ref="contentRef"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-project-title"
               class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
               :class="isMobile ? 'min-h-dvh h-auto pb-12' : 'h-[75vh] py-16'"
             >
