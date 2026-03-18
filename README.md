@@ -5,7 +5,7 @@
 **[Ecosistema interactivo fusionando fluidez GSAP, físicas reales y pipeline GitHub → AI → DB]**
 <br />
 
-[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-FFCA40?style=for-the-badge&logo=vercel&logoColor=black)](https://samuhlo.com)
+[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-FFCA40?style=for-the-badge&logo=vercel&logoColor=black)](https://samuhlo.dev)
 [![Status](https://img.shields.io/badge/STATUS-PRODUCTION-0C0011?style=for-the-badge)](https://github.com/samuhlo/portfolio-app)
 
   <br />
