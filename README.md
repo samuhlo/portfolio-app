@@ -9,6 +9,8 @@
 [![Status](https://img.shields.io/badge/STATUS-PRODUCTION-0C0011?style=for-the-badge)](https://github.com/samuhlo/portfolio-app)
 
   <br />
+  <img src="public/images/portada.webp" alt="samuhlo.dev — portfolio screenshot" width="100%" />
+  <br />
 </div>
 
 ---
