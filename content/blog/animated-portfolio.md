@@ -9,19 +9,17 @@ published: true
 slug: animated-portfolio
 ---
 
-## ¿Por qué tres librerías para un portfolio?
+## Por qué tres librerías para un portfolio
 
-La respuesta honesta es que llevaba tiempo con ganas de pelearme con ellas.
+Llevaba tiempo con ganas de pelearme con ellas.
 
 GSAP, Lenis, Matter.js. No las elegí porque las vi en un tutorial de YouTube ni porque estuvieran de moda en Twitter ese mes. Las llevaba investigando un tiempo, había hecho pruebas sueltas, y el portfolio me pareció el contexto perfecto para meterlas en serio. Si algo salía mal, el único perjudicado era yo.
 
-La apuesta era clara: quería un portfolio que se sintiera vivo. No solo bonito — vivo. Que tuviera peso, que las cosas se movieran con intención, que al hacer scroll pasara algo que valiera la pena. Eso implica animaciones de entrada, scroll suave de verdad, física real, y elementos dibujados a mano que aparecen como si alguien los estuviera trazando en ese momento.
+Quería un portfolio que se sintiera vivo. No solo bonito: vivo. Con peso, con cosas que se movieran con intención, con algo que valiera la pena al hacer scroll. Eso implica animaciones de entrada, scroll suave de verdad, física real, y elementos dibujados a mano que aparecen como si alguien los estuviera trazando en ese momento.
 
-El riesgo también era claro. Tres librerías de animación en una sola web SSR con Nuxt pueden convertirse en un desastre de performance, de timing, de conflictos entre ellas. Y spoiler: hubo momentos en los que fue exactamente eso.
+El riesgo también era claro. Tres librerías de animación en una sola web SSR con Nuxt pueden convertirse en un desastre de performance, de timing, de conflictos entre ellas. Hubo momentos en los que fue exactamente eso.
 
-En este artículo cuento cómo lo resolví. No el código completo del proyecto — eso sería ilegible — sino las decisiones técnicas, los problemas concretos que aparecieron, y versiones simplificadas del código para ilustrar cada concepto. Si usas Vue, Nuxt o simplemente GSAP en cualquier framework, debería serte útil.
-
-Empecemos.
+En este artículo cuento cómo lo resolví. No el código completo del proyecto (eso sería ilegible), sino las decisiones técnicas, los problemas concretos que aparecieron, y versiones simplificadas del código para ilustrar cada concepto. Si usas Vue, Nuxt o simplemente GSAP en cualquier framework, debería serte útil.
 
 ---
 
@@ -39,7 +37,7 @@ gsap.registerPlugin(ScrollTrigger, SplitText)
 
 Pero registrarlos a nivel global en un proyecto Vue/Nuxt tiene una trampa: si creas animaciones o ScrollTriggers dentro de componentes y no los limpias al desmontarlos, se acumulan. Memoria que no se libera, triggers que siguen escuchando aunque el componente ya no exista.
 
-La solución de GSAP para esto es `gsap.context()`. Es como un :hand-drawn{svg="/blog/doodles/blog_small_underline.svg"}[sandbox] — todas las animaciones que crees dentro de él se agrupan bajo un mismo paraguas, y cuando llamas a `.revert()`, desaparecen todas de golpe.
+La solución de GSAP para esto es `gsap.context()`. Es como un :hand-drawn{svg="/blog/doodles/blog_small_underline.svg"}[sandbox]: todas las animaciones que crees dentro de él se agrupan bajo un mismo paraguas, y cuando llamas a `.revert()`, desaparecen todas de golpe.
 
 En Vue esto queda muy limpio con un composable:
 
@@ -65,7 +63,7 @@ export const useGSAP = () => {
 }
 ```
 
-Cada componente que necesita animaciones llama a `initGSAP()` pasándole un callback. Todo lo que se cree dentro de ese callback — tweens, ScrollTriggers, timelines — queda registrado en el contexto y se destruye automáticamente cuando el componente sale del DOM.
+Cada componente que necesita animaciones llama a `initGSAP()` pasándole un callback. Todo lo que se cree dentro de ese callback: tweens, ScrollTriggers, timelines, queda todo registrado en el contexto y se destruye automáticamente cuando el componente sale del DOM.
 
 ```typescript
 // En cualquier componente
@@ -98,11 +96,11 @@ Con esto, los cambios de tamaño menores en móvil se ignoran. Las posiciones de
 
 ---
 
-## 2. Lenis — scroll suave sin pelearse con GSAP
+## 2. Lenis: scroll suave sin pelearse con GSAP
 
 Lenis es una librería de smooth scroll. Lo que hace es interceptar el scroll nativo y reemplazarlo por uno interpolado, dándole esa sensación fluida y física de que la página tiene inercia.
 
-El problema con Lenis + GSAP es que cada uno quiere llevar el ritmo. GSAP tiene su propio loop de animación (el ticker), y Lenis tiene el suyo (requestAnimationFrame). Si los dejas correr por separado, el scroll de Lenis y los ScrollTriggers de GSAP van ligeramente desincronizados. En pantallas de 120hz se nota.
+El problema con Lenis más GSAP es que cada uno quiere llevar el ritmo. GSAP tiene su propio loop de animación (el ticker), y Lenis tiene el suyo (requestAnimationFrame). Si los dejas correr por separado, el scroll de Lenis y los ScrollTriggers de GSAP van ligeramente desincronizados. En pantallas de 120hz se nota.
 
 La solución es obligar a Lenis a usar el ticker de GSAP en lugar del suyo:
 
@@ -126,7 +124,7 @@ gsap.ticker.add((time) => {
 gsap.ticker.lagSmoothing(0)
 ```
 
-Con `autoRaf: false` le dices a Lenis "tú no manejes tu propio loop". Luego lo conectas al ticker de GSAP pasándole el tiempo en cada frame. Y con `lagSmoothing(0)` eliminas una interpolación extra que GSAP aplica cuando detecta lag — útil en general, pero aquí introduce una capa más de suavizado que no queremos.
+Con `autoRaf: false` le dices a Lenis "tú no manejes tu propio loop". Luego lo conectas al ticker de GSAP pasándole el tiempo en cada frame. Y con `lagSmoothing(0)` eliminas una interpolación extra que GSAP aplica cuando detecta lag, útil en general, pero aquí introduce una capa más de suavizado que no queremos.
 
 El resultado es que Lenis y ScrollTrigger comparten exactamente el mismo frame. :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Cero desincronía].
 
@@ -149,7 +147,7 @@ export default defineNuxtPlugin(() => {
 
 ### El problema del navbar
 
-El navbar se oculta al hacer scroll hacia abajo y reaparece al subir. Comportamiento estándar. Mi primera implementación usaba un ScrollTrigger con `onUpdate` para detectar la dirección del scroll. Funcionaba bien... excepto en la primera carga.
+El navbar se oculta al hacer scroll hacia abajo y reaparece al subir. Comportamiento estándar. Mi primera implementación usaba un ScrollTrigger con `onUpdate` para detectar la dirección del scroll. Funcionaba bien en condiciones normales. No en la primera carga.
 
 Al entrar a la página, antes de que el usuario hubiera hecho scroll, el navbar a veces desaparecía solo. El problema era un race condition: Lenis todavía no había emitido eventos de scroll cuando ScrollTrigger intentaba registrar el trigger, y los primeros eventos se perdían o llegaban con un estado incorrecto.
 
@@ -180,14 +178,14 @@ El `scroll > 80` previene que el navbar se oculte en micro-scrolls cuando el usu
 
 ---
 
-## 3. El Hero — letras que caen y una "h" dibujada a mano
+## 3. El Hero: letras que caen y una "h" dibujada a mano
 
-La animación principal del hero es esto: el título muestra "SAMUEL LOPEZ" al cargar. Al hacer scroll, las letras E, L, espacio, P, E, Z caen fuera de pantalla. El espacio que ocupaban colapsa. Y en ese hueco aparece una "h" dibujada como con bolígrafo — creando ".SAMUh.LO".
+La animación principal del hero es esto: el título muestra "SAMUEL LOPEZ" al cargar. Al hacer scroll, las letras E, L, espacio, P, E, Z caen fuera de pantalla. El espacio que ocupaban colapsa. Y en ese hueco aparece una "h" dibujada como con bolígrafo, creando ".SAMUh.LO".
 
 ::blog-media
 ---
 src: blog/animated-portfolio/samuhlo_intro_2.mp4
-caption: Animación del hero — letras cayendo y la "h" dibujada a mano
+caption: Animación del hero, letras cayendo y la "h" dibujada a mano
 maxWidth: 80%
 align: center
 ---
@@ -258,7 +256,7 @@ El hueco se mide en `em`, no en píxeles. Eso significa que si el título es eno
 
 **Capa 2: el componente HeroSubtitle**
 
-Mientras el título hace lo suyo, el subtítulo tiene su propio timeline: aparece el texto "Front-end Developer", se tacha con una línea, y alrededor van apareciendo palabras dibujadas a mano — "front", "back", "design", "ux/ui", "ai", "brand". Cada palabra es un SVG dibujado con la técnica de strokeDashoffset que explico en la sección de doodles.
+Mientras el título hace lo suyo, el subtítulo tiene su propio timeline: aparece el texto "Front-end Developer", se tacha con una línea, y alrededor van apareciendo palabras dibujadas a mano: "front", "back", "design", "ux/ui", "ai", "brand". Cada palabra es un SVG dibujado con la técnica de strokeDashoffset que explico en la sección de doodles.
 
 **Capa 3: HeroSection orquesta todo con un único ScrollTrigger**
 
@@ -293,15 +291,15 @@ El ScrollTrigger controla el progreso de cada timeline según cuánto ha scrolla
 
 ---
 
-## 4. El PinSpacer fix — la animación que no te obliga a rebobinar
+## 4. El PinSpacer fix: la animación que no te obliga a rebobinar
 
 Este fue el problema de UX que más me molestó cuando lo descubrí en otras webs.
 
-Cuando GSAP pinea un elemento — lo fija en pantalla mientras el usuario hace scroll — crea un elemento auxiliar llamado :hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around"}[pin-spacer]. Este spacer ocupa el espacio vertical del contenido durante todo el tiempo que dura la animación. Si la animación dura 2500px de scroll, el spacer tiene 2500px de alto.
+Cuando GSAP pinea un elemento (lo fija en pantalla mientras el usuario hace scroll) crea un elemento auxiliar llamado :hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around"}[pin-spacer]. Este spacer ocupa el espacio vertical del contenido durante todo el tiempo que dura la animación. Si la animación dura 2500px de scroll, el spacer tiene 2500px de alto.
 
 El problema: una vez completada la animación, si el usuario quiere volver al principio de la página, tiene que hacer scroll hacia arriba pasando por esos 2500px. Y mientras lo hace, la animación se reproduce al revés. Las letras "des-caen", el subtítulo se "des-dibuja". Es horrible.
 
-La solución intuitiva es matar el ScrollTrigger en `onLeave` — cuando el usuario termina la animación y sale por abajo. Pero hay un problema: en ese momento la sección acaba de salir del viewport. Está demasiado cerca. Matar el trigger y reposicionar el scroll en ese instante causa un micro-salto visible.
+La solución intuitiva es matar el ScrollTrigger en `onLeave`, cuando el usuario termina la animación y sale por abajo. Pero hay un problema: en ese momento la sección acaba de salir del viewport. Está demasiado cerca. Matar el trigger y reposicionar el scroll en ese instante causa un micro-salto visible.
 
 La solución real es esperar más. Esperar a que el usuario haya scrollado al menos un viewport entero más allá de donde terminó la animación. En ese punto la sección está completamente fuera de pantalla, y el reposicionado es invisible.
 
@@ -347,7 +345,7 @@ ScrollTrigger.create({
 })
 ```
 
-La secuencia importa. Primero se mata el trigger (el pin-spacer desaparece del DOM, el contenido sube). Luego se corrige la posición del scroll síncronamente para compensar exactamente esos píxeles que desaparecieron. Luego se recalculan los triggers con el DOM ya estable. Y por último se sincroniza Lenis, que tiene su propio estado interno de posición de scroll — sin esto, Lenis pensaría que está en una posición diferente a donde realmente está la página.
+La secuencia importa. Primero se mata el trigger (el pin-spacer desaparece del DOM, el contenido sube). Luego se corrige la posición del scroll síncronamente para compensar exactamente esos píxeles que desaparecieron. Luego se recalculan los triggers con el DOM ya estable. Y por último se sincroniza Lenis, que tiene su propio estado interno de posición de scroll. Sin esto, Lenis pensaría que está en una posición diferente a donde realmente está la página.
 
 El resultado: una vez que el usuario ha visto la animación completa y ha seguido scrollando, la sección se convierte en HTML estático. Puede volver arriba a la velocidad que quiera sin rebobinar nada.
 
@@ -383,20 +381,20 @@ if (isMobile) {
 
 ---
 
-## 5. Matter.js — física real para la sección de Contacto
+## 5. Matter.js: física real para la sección de Contacto
 
-La sección de Contacto tiene el texto "CONTACT" escrito en letras grandes que caen desde arriba con física real — rebote, rotación, gravedad. Si haces click, las letras salen volando hacia arriba.
+La sección de Contacto tiene el texto "CONTACT" escrito en letras grandes que caen desde arriba con física real: rebote, rotación, gravedad. Si haces click, las letras salen volando hacia arriba.
 
 ::blog-media
 ---
 src: blog/animated-portfolio/contact_section_2.mp4
-caption: Sección Contact — letras con física Matter.js
+caption: Sección Contact, letras con física Matter.js
 maxWidth: 80%
 align: center
 ---
 ::
 
-Para esto usé Matter.js, un motor de física 2D para el navegador. La idea es sencilla: un canvas encima de la sección, y dentro del canvas un mundo físico con cuerpos rectangulares que representan las letras. El canvas solo dibuja — no tiene nada en el DOM que se pueda seleccionar.
+Para esto usé Matter.js, un motor de física 2D para el navegador. La idea es sencilla: un canvas encima de la sección, y dentro del canvas un mundo físico con cuerpos rectangulares que representan las letras. El canvas solo dibuja, no tiene nada en el DOM que se pueda seleccionar.
 
 ### El setup básico
 
@@ -442,7 +440,7 @@ const draw = () => {
 requestAnimationFrame(draw)
 ```
 
-Cada frame se leen las posiciones y ángulos que calcula Matter.js, y se pintan las letras en el canvas en esas coordenadas. Matter.js no sabe nada de renderizado — solo hace los cálculos de física. El canvas solo pinta — no sabe nada de física. Separación limpia.
+Cada frame se leen las posiciones y ángulos que calcula Matter.js, y se pintan las letras en el canvas en esas coordenadas. Matter.js no sabe nada de renderizado: solo hace los cálculos de física. El canvas solo pinta, no sabe nada de física. Separación limpia.
 
 ::code-preview
 ---
@@ -565,7 +563,7 @@ También aumenté la gravedad en móvil a 8.5 (vs 4.5 en desktop). El motivo: en
 
 ### Lazy init con IntersectionObserver
 
-La física no arranca hasta que la sección es visible. Tiene sentido: ¿para qué calcular física de algo que nadie está viendo?
+La física no arranca hasta que la sección es visible. No tiene sentido calcular física de algo que nadie está viendo.
 
 ```typescript
 const observer = new IntersectionObserver((entries) => {
@@ -614,7 +612,7 @@ Simple. A cada cuerpo se le asigna una velocidad hacia arriba aleatoria entre -1
 
 ---
 
-## 6. Los doodles SVG — de Affinity a componente Vue
+## 6. Los doodles SVG: de Affinity a componente Vue
 
 Por todo el portfolio hay elementos dibujados a mano: subrayados, círculos, tachones, palabras escritas con letra. Los dibujé en Affinity y los exporté como SVG.
 
@@ -632,7 +630,7 @@ images:
 ---
 ::
 
-El efecto de "dibujo en tiempo real" — que el trazo aparezca progresivamente como si alguien lo estuviera trazando en ese momento — se consigue con una técnica CSS clásica: `strokeDasharray` y `strokeDashoffset`.
+El efecto de "dibujo en tiempo real", que el trazo aparezca progresivamente como si alguien lo estuviera trazando en ese momento, se consigue con una técnica CSS clásica: `strokeDasharray` y `strokeDashoffset`.
 
 ::code-preview
 ---
@@ -696,7 +694,7 @@ js: |
 
 Imagina que el trazo de un path SVG es una línea de puntos. `strokeDasharray` define el patrón: cuánto de línea, cuánto de espacio. Si pones un valor igual a la longitud total del path, tienes un solo "dash" tan largo como el path entero.
 
-`strokeDashoffset` desplaza ese patrón. Si el offset es igual a la longitud del path, el dash está completamente desplazado — no se ve nada. Si el offset es 0, el dash está en su posición — se ve todo.
+`strokeDashoffset` desplaza ese patrón. Si el offset es igual a la longitud del path, el dash está completamente desplazado: no se ve nada. Si el offset es 0, el dash está en su posición: se ve todo.
 
 Animar `strokeDashoffset` de la longitud del path hasta 0 crea el efecto de dibujo:
 
@@ -724,7 +722,7 @@ const drawPaths = (tl, paths, duration) => {
 }
 ```
 
-El `+20` de margen en la longitud es un detalle que descubrí a las malas. Cuando el path tiene `stroke-linecap: round`, los extremos del trazo son semicírculos que sobresalen un poco más allá del endpoint. Sin ese margen, al inicio de la animación se ve un puntito — el cap redondeado asomando antes de que empiece el trazo.
+El `+20` de margen en la longitud es un detalle que descubrí a las malas. Cuando el path tiene `stroke-linecap: round`, los extremos del trazo son semicírculos que sobresalen un poco más allá del endpoint. Sin ese margen, al inicio de la animación se ve un puntito: el cap redondeado asomando antes de que empiece el trazo.
 
 El `visibility: hidden` antes de que empiece la animación (en lugar de `opacity: 0`) también es intencional. Con `opacity: 0` el elemento sigue ocupando espacio visualmente en algunos contextos de compositing. Con `visibility: hidden` desaparece limpiamente.
 
@@ -754,7 +752,7 @@ tl.to(paths, { strokeDashoffset: 0, visibility: 'visible', duration })
 
 ### Duración proporcional a la longitud del path
 
-Hay SVGs que tienen múltiples paths de longitudes muy distintas. Un subrayado simple tiene un path. Un círculo puede tener tres o cuatro. Si animas todos con la misma duración, los paths cortos terminan antes que los largos — y visualmente queda raro, como si algunos trazos se dibujaran a cámara rápida.
+Hay SVGs que tienen múltiples paths de longitudes muy distintas. Un subrayado simple tiene un path. Un círculo puede tener tres o cuatro. Si animas todos con la misma duración, los paths cortos terminan antes que los largos, y visualmente queda raro, como si algunos trazos se dibujaran a cámara rápida.
 
 La solución es escalar la duración de cada path según su longitud relativa:
 
@@ -807,11 +805,9 @@ Usando `currentColor` para el stroke en lugar de un color hardcodeado, los doodl
 
 ---
 
-## 7. Performance — que no pete
+## 7. Performance: que no pete
 
-Con todo esto encima, la pregunta es inevitable: ¿carga bien?
-
-La respuesta es que no fue gratis. Hubo decisiones conscientes en cada pieza del sistema para que el resultado final fuera fluido.
+No fue gratis. Hubo decisiones conscientes en cada pieza del sistema para que el resultado final fuera fluido.
 
 ### El ignoreMobileResize que ya mencioné
 
@@ -869,7 +865,7 @@ Cuando el cuerpo lleva 60 frames consecutivos casi sin moverse (speed < 0.05), s
 
 ### Debounce del resize
 
-Cuando el usuario redimensiona la ventana, muchos componentes necesitan recalcular cosas — tamaño del canvas de física, posición de ScrollTriggers, etc. Sin debounce, cada pixel de resize dispara un recálculo.
+Cuando el usuario redimensiona la ventana, muchos componentes necesitan recalcular cosas: tamaño del canvas de física, posición de ScrollTriggers. Sin debounce, cada pixel de resize dispara un recálculo.
 
 ```typescript
 let resizeTimer = null
@@ -886,7 +882,7 @@ window.addEventListener('resize', () => {
 
 300ms de debounce. El recálculo solo ocurre una vez, cuando el usuario termina de redimensionar.
 
-Para la física, además, solo se reinicializa si el ancho cambió significativamente — más de 50px. Esto ignora los cambios de altura que provoca la barra de URL del navegador en móvil sin el `ignoreMobileResize` de ScrollTrigger:
+Para la física, además, solo se reinicializa si el ancho cambió significativamente, más de 50px. Esto ignora los cambios de altura que provoca la barra de URL del navegador en móvil sin el `ignoreMobileResize` de ScrollTrigger:
 
 ```typescript
 const newWidth = container.clientWidth
@@ -895,25 +891,22 @@ if (Math.abs(newWidth - prevWidth) < 50) return // ignorar cambios pequeños
 
 ### Limpieza automática con gsap.context
 
-Todo lo mencionado en la sección 1 — el contexto de GSAP que limpia automáticamente los tweens y ScrollTriggers al desmontar el componente — es fundamental en una SPA. En una navegación sin recarga de página, los componentes se montan y desmontan constantemente. Sin limpieza, los triggers se acumulan y la memoria crece.
+Todo lo mencionado en la sección 1: el contexto de GSAP que limpia automáticamente los tweens y ScrollTriggers al desmontar el componente, es fundamental en una SPA. En una navegación sin recarga de página, los componentes se montan y desmontan constantemente. Sin limpieza, los triggers se acumulan y la memoria crece.
 
 ---
 
-## Cierre — :hand-drawn{svg="/blog/doodles/blog_inter.svg" placement="right" width="0.9em" count="2"}[¿valió la pena?]
+## Cierre :hand-drawn{svg="/blog/doodles/blog_inter.svg" placement="right" width="0.9em" count="2"}[¿valió la pena?]
 
 Sí. Pero no fue gratis ni fue rápido.
 
+La parte que más tiempo me llevó no fue escribir código: fue afinar los detalles. Conseguir que las animaciones se vieran bien en todos los tamaños de pantalla, que no se descolocaran en móviles raros, que el PinSpacer fix no causara saltos, que la física arrancara en el momento correcto.
 
-La parte que más tiempo me llevó no fue escribir código — fue afinar y darle mimo a los detalles. Conseguir que las animaciones se vieran bien en todos los tamaños de pantalla, que no se descolocaran en móviles raros, que el PinSpacer fix no causara saltos, que la física arrancara en el momento correcto.
+GSAP es sólido. La documentación es buena, los errores son predecibles, y `gsap.context()` hace que trabajar con Vue sea limpio. La integración con Lenis requiere un par de ajustes específicos, pero una vez configurada no da problemas.
 
-GSAP es sólido. La documentación es buena, los errores son predecibles, y `gsap.context()` hace que trabajar con Vue sea limpio. La integración con Lenis requiere un par de ajustes específicos, pero una vez que está configurada, simplemente funciona.
-
-Matter.js me sorprendió por lo directo que es para casos de uso básicos. Motor, cuerpos, mundo, loop de render. Sin magia. El canvas rendering manual te da control total pero también significa que tú eres responsable de cada pixel.
+Matter.js me sorprendió por lo directo que es para casos de uso básicos. Motor, cuerpos, mundo, loop de render. Sin magia. El canvas rendering manual te da control total, pero también significa que tú eres responsable de cada pixel.
 
 Los doodles SVG son mi parte favorita. La técnica de strokeDashoffset tiene décadas, pero sigue siendo elegante. El detalle de hacerlos a mano y convertirlos a componentes Vue con un script le da al portfolio algo que es difícil de conseguir con herramientas generativas: que parezca :hand-drawn{svg="/blog/doodles/blog_long_underline.svg"}[hecho por una persona].
 
-Si lo repitiera, probablemente encapsularía mejor el scroll horizontal — tiene una instancia de Lenis propia que a veces interfiere con la global y requiere cuidado. Y pensaría antes si toda la animación del Hero merece el PinSpacer, o si hay una forma más simple de conseguir el mismo efecto.
+Si lo repitiera, probablemente encapsularía mejor el scroll horizontal: tiene una instancia de Lenis propia que a veces interfiere con la global y requiere cuidado. Y pensaría antes si toda la animación del Hero merece el PinSpacer, o si hay una forma más simple de conseguir el mismo efecto.
 
 Pero en general, estoy contento con cómo quedó. Y sobre todo, con lo que aprendí peleándome con ello.
-
-> La parte que más tiempo me llevó no fue escribir código — fue afinar y darle mimo a los detalles,

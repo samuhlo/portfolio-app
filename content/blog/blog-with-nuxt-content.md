@@ -11,13 +11,13 @@ slug: blog-with-nuxt-content
 
 ## No sabía que existía
 
-Cuando me senté a hacer el blog, tenía en mente algo straightforward: Notion como CMS, una webhook que disparara cuando publicara algo, una IA que procesara el contenido, y que se guardara en la base de datos. El mismo flujo que ya usaba para los proyectos del portfolio. Conocido, probado, listo para copiar y pegar.
+Cuando me senté a hacer el blog, tenía en mente algo directo: Notion como CMS, un webhook que disparara cuando publicara algo, una IA que procesara el contenido, y guardarlo en base de datos. El mismo flujo que ya usaba para los proyectos del portfolio. Conocido, probado, listo para copiar y pegar.
 
 Entonces me crucé con :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Nuxt Content].
 
 Media hora de investigación después, el plan original estaba en el cajón. Nuxt tiene un sistema de contenido integrado que lee archivos markdown, los parsea, permite validarlos con esquemas, renderizar componentes Vue dentro del texto, y sirve todo desde el mismo servidor. Sin base de datos extra, sin webhooks, sin middleware de por medio.
 
-No fue amor a primera vista — fue más bien "espera, esto resuelve exactamente lo que necesitaba". Para un blog personal donde el objetivo principal es almacenar lo que aprendo (y compartirlo con quien quiera verlo), tiene mucho más sentido que montar toda una infraestructura de sincronización.
+No fue amor a primera vista. Fue más bien "espera, esto resuelve exactamente lo que necesitaba". Para un blog personal donde el objetivo es almacenar lo que aprendo (y compartirlo con quien quiera verlo), tiene mucho más sentido que montar toda una infraestructura de sincronización.
 
 Lo que sí me sorprendió fue la parte de los componentes. No es solo "escribes markdown y lo renderiza". Puedes usar componentes Vue directamente dentro del artículo, como si fueran tags HTML pero con toda la lógica de Vue detrás. Imágenes con lazy loading, sliders, demos de código en vivo, lo que se te ocurra.
 
@@ -27,7 +27,7 @@ Ahí decidí: esto es lo que quiero.
 
 ## Qué es Nuxt Content (en simples palabras)
 
-Nuxt Content es un sistema de archivos usado como CMS. Escribís un archivo `.md` en una carpeta, y Nuxt lo transforma en una página web.
+Nuxt Content es un sistema de archivos usado como CMS. Escribes un archivo `.md` en una carpeta, y Nuxt lo transforma en una página web.
 
 La estructura básica es esta:
 
@@ -46,7 +46,7 @@ Esto es un párrafo normal.
 
 Ese archivo vive en `content/blog/`, y Nuxt Content automáticamente lo convierte en una ruta `/blog/mi-articulo`. Sin configurar rutas, sin crear páginas adicionales. Solo el archivo.
 
-Lo interesante viene con el schema. Podés definir qué campos esperás en el frontmatter y qué tipos tienen. Si un artículo no tiene título, o tiene una categoría que no existe, el sistema lo rechaza en build time. Es como tener :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[TypeScript] para tus artículos.
+Lo interesante viene con el schema. Puedes definir qué campos esperas en el frontmatter y qué tipos tienen. Si un artículo no tiene título, o tiene una categoría que no existe, el sistema lo rechaza en build time. Es como tener :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[TypeScript] para tus artículos.
 
 ```typescript
 // content.config.ts
@@ -72,7 +72,7 @@ export default defineContentConfig({
 });
 ```
 
-Con esto, cada vez que cargás un artículo sabés exactamente qué campos tiene y qué tipos tienen. Autocompletado en el editor, typecheck en build time, y cero campos `undefined` apareciendo donde no los esperás.
+Con esto, cada vez que cargas un artículo sabes exactamente qué campos tiene y qué tipos tienen. Autocompletado en el editor, typecheck en build time, y cero campos `undefined` apareciendo donde no los esperas.
 
 Y después está el rendering. Nuxt Content incluye `<ContentRenderer>` que parsea el markdown y lo convierte en HTML. Pero también permite usar componentes Vue directamente en el texto. Eso es lo que le da el poder real.
 
@@ -100,15 +100,15 @@ Aquí va un texto normal y luego algo inline: :hand-drawn{svg="/blog/doodles/und
 
 Eso renderiza una imagen optimizada con caption, y un doodle SVG animado debajo de la palabra.
 
-No es magia. Es Vue. Cada componente es un `.vue` normal con sus props, su lifecycle, lo que quieras. La única diferencia es que lo invocás desde el markdown en lugar de desde otro componente.
+No es magia. Es Vue. Cada componente es un `.vue` normal con sus props, su lifecycle, lo que quieras. La única diferencia es que lo invocas desde el markdown en lugar de desde otro componente.
 
-Querés un carrusel de imágenes? Lo hacés como componente Vue y lo usás en el artículo. Un demo de código en vivo? Componente Vue. Lo que necesites. El límite lo ponés vos.
+¿Quieres un carrusel de imágenes? Lo haces como componente Vue y lo usas en el artículo. ¿Un demo de código en vivo? Componente Vue. Puedes hacer lo que te de la gana y seas capaz de imaginar.
 
 ---
 
 ## Los componentes que creé
 
-Para el blog hice varios componentes que se usan en los artículos. No están pensados para ser genéricos — están pensados para cómo yo escribo. Eso es lo que más me gusta de este sistema: cada componente hace exactamente lo que necesito, sin más.
+Para el blog hice varios componentes que se usan en los artículos. No están pensados para ser genéricos: están pensados para cómo yo escribo. Eso es lo que más me gusta de este sistema. Cada componente hace exactamente lo que necesito, sin más.
 
 ### BlogMedia — imágenes y vídeos
 
@@ -175,7 +175,9 @@ js: |
 
 Detecta si en el JS hay referencias a librerías externas (GSAP, Matter.js, ScrollTrigger, Draggable) y las inyecta desde CDN automáticamente. El demo funciona sin configuración adicional.
 
-También tiene highlighting via Shiki — el mismo que usa Nuxt Content para el código inline, así todo queda con el mismo estilo visual.
+También tiene highlighting via Shiki, el mismo que usa Nuxt Content para el código inline, así todo queda con el mismo estilo visual.
+
+Y como todo lo personalice con mi estilo del blog.
 
 ::code-preview
 ---
@@ -212,7 +214,7 @@ js: |
 
 ### ImageSlider — carrusel técnico
 
-Un slider con estética de "asset viewer". No es un carousel genérico — está diseñado para mostrar múltiples screenshots o recursos visuales de un proyecto. Cada imagen puede tener un label, y se navega con click, swipe o teclado.
+Un slider con estética de "asset viewer". No es un carousel genérico, está diseñado para mostrar múltiples screenshots o recursos visuales de un proyecto. Cada imagen puede tener un label, y se navega con click, swipe o teclado.
 
 ```markdown
 ::image-slider
@@ -259,7 +261,7 @@ El más personal. Envuelve texto con un SVG que se anima como si se estuviera di
 
 ```
 
-Es la misma técnica de `stroke-dashoffset` que ya usaba en el portfolio. La diferencia es que ahora puedo usarla en cualquier artículo sin copiar código. Solo escribís el tag y :hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="right" trigger="scroll" duration="2" width="90%"}[listo]
+Es la misma técnica de `stroke-dashoffset` que ya usaba en el portfolio. La diferencia es que ahora puedo usarla en cualquier artículo sin copiar código. Solo escribes el tag y :hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="right" trigger="scroll" duration="2" width="90%"}[listo]
 
 ---
 
@@ -267,13 +269,13 @@ Es la misma técnica de `stroke-dashoffset` que ya usaba en el portfolio. La dif
 
 Además de los componentes "grandes", personalicé los que Nuxt Content usa por defecto para renderizar el markdown estándar.
 
-- **ProseH2 / ProseH3** — los headings tienen estilo propio que va con la estética del blog
-- **ProsePre** — los bloques de código usan el color de categoría del post como acento
-- **ProseBlockquote** — las citas tienen un estilo distintivo
-- **ProseA** — los links internos se ven distintos a los externos
-- **ProseCodeInline** — el código inline tiene su propio tratamiento visual
+- **ProseH2 / ProseH3** : los headings tienen estilo propio que va con la estética del blog
+- **ProsePre** : los bloques de código usan el color de categoría del post como acento
+- **ProseBlockquote** : las citas tienen un estilo distintivo
+- **ProseA** : los links internos se ven distintos a los externos
+- **ProseCodeInline** : el código inline tiene su propio tratamiento visual
 
-Cada uno es un componente Vue que overridea el default de Nuxt Content. No hace falta configuración especial — solo crear el componente en la carpeta correcta y Nuxt lo usa automáticamente.
+Cada uno es un componente Vue que overridea el default de Nuxt Content. No hace falta configuración especial: solo crear el componente en la carpeta correcta y Nuxt lo usa automáticamente.
 
 ---
 
@@ -285,7 +287,7 @@ El componente `BlogPostInfo` vive en el sidebar: muestra los H2 del artículo co
 
 **El problema de los IDs**
 
-Nuxt Content asigna IDs a los headings de forma asíncrona. El markdown se parsea, el HTML se monta, pero los atributos `id` de los `<h2>` aparecen un momento después — cuando el renderer de Nuxt Content ha terminado de procesar el AST. En una navegación SPA, si llegas a un artículo sin recargar la página, el DOM está ahí pero los IDs todavía no.
+Nuxt Content asigna IDs a los headings de forma asíncrona. El markdown se parsea, el HTML se monta, pero los atributos `id` de los `<h2>` aparecen un momento después, cuando el renderer de Nuxt Content ha terminado de procesar el AST. En una navegación SPA, si llegas a un artículo sin recargar la página, el DOM está ahí pero los IDs todavía no.
 
 La solución es esperar con un rAF recursivo hasta que los headings tienen ID:
 
@@ -351,7 +353,7 @@ nextTick(() => {
 
 El `nextTick` garantiza que Vue ha terminado su ciclo de renderizado, y el `refresh()` recalcula todas las posiciones desde cero con las métricas correctas de Lenis.
 
-Tres problemas distintos, todos relacionados con el timing — con qué está listo antes que qué. Ese es el tipo de cosa que no aparece en la documentación de ninguna de las librerías por separado. Lo encuentras cuando las juntas.
+Tres problemas distintos, todos relacionados con el timing: con qué está listo antes que qué. Ese es el tipo de cosa que no aparece en la documentación de ninguna de las librerías por separado. Lo encuentras cuando las juntas.
 
 ---
 
@@ -378,29 +380,29 @@ const posts = await queryCollection('blog')
 
 Dos queries y tienes todo. Nada de APIs externas, nada de estados de carga complicados. El contenido está ahí, disponible como cualquier otro dato en la app.
 
-Lo que más valoro es que no dependo de ninguna plataforma. Si mañana quiero cambiar algo, lo cambio. Si Notion cierra o cambia sus precios, me da igual — mis artículos son archivos markdown versionados en git. Eso tiene un valor que subestimé antes de tenerlo.
+Lo que más valoro es que no dependo de ninguna plataforma. Si mañana quiero cambiar algo, lo cambio. Si Notion cierra o cambia sus precios, me da igual: mis artículos son archivos markdown versionados en git. Eso tiene un valor que subestimé antes de tenerlo.
 
 ---
 
 ## El resultado
 
-El sistema permite escribir artículos que combinan redacción lineal con demos interactivos, video, imágenes optimizadas y animaciones — todo desde el mismo archivo markdown, sin salir del editor. Cuando lo necesitás, metés un componente. Cuando no, escribís texto normal.
+El sistema permite escribir artículos que combinan redacción lineal con demos interactivos, video, imágenes optimizadas y animaciones, todo desde el mismo archivo markdown, sin salir del editor. Cuando lo necesitas, metes un componente. Cuando no, escribes texto normal.
 
-Si querés verlo funcionando en un artículo más completo, el de [animated-portfolio](/blog/animated-portfolio) es un buen ejemplo: tiene CodePreview con GSAP y Matter.js corriendo en vivo, ImageSlider con capturas del proceso y videos, y HandDrawn integrado en el texto.
+Si quieres verlo funcionando en un artículo más completo, el de [animated-portfolio](/blog/animated-portfolio) es un buen ejemplo: tiene CodePreview con GSAP y Matter.js corriendo en vivo, ImageSlider con capturas del proceso y videos, y HandDrawn integrado en el texto.
 
 Lo que más valoro es que el sistema es mío. No dependo de una plataforma de terceros, no hay límites arbitrarios sobre qué puedo hacer, y si mañana quiero cambiar algo, lo cambio. El contenido vive en archivos versionados en el mismo repo. Eso tiene un valor que subestimé antes de tenerlo.
 
-Lo que sí requiere es que te banques el overhead inicial: configurar el schema, crear los componentes, entender la carpeta de prose. No es mucho trabajo, pero tampoco es cero.
+Lo que sí requiere es asumir el overhead inicial: configurar el schema, crear los componentes, entender la carpeta de prose. No es mucho trabajo, pero tampoco es cero.
 
 ---
 
 ## Para el futuro
 
-El plan original con Notion no desapareció — está en pausa.
+El plan original con Notion no desapareció: está en pausa.
 
 La idea era poder escribir en Notion (donde me resulta más cómodo para borradores largos), pasar el contenido por un prompt que lo formatee según mis componentes, revisar el resultado, y hacer push. Todo automatizado con n8n, sin fricción manual. Sigue siendo algo que me apetece montar.
 
-De hecho, ya tengo parte de eso funcionando: un agente de Claude Code configurado específicamente para este blog. Le paso mis ideas en sucio — sin estructura, con faltas de ortografía, notas mezcladas — y le indico qué componentes quiero y dónde. El agente devuelve el artículo formateado: frontmatter correcto, componentes MDC colocados, headings con la jerarquía adecuada, ortografía resuelta. Yo reviso, ajusto lo que no me convence, y hago push. El trabajo aburrido de formatear lo hace él. El criterio sobre qué va y cómo se cuenta sigue siendo mío.
+De hecho, ya tengo parte de eso funcionando: un agente de Claude Code configurado específicamente para este blog. Le paso mis ideas en sucio, sin estructura, con faltas de ortografía, notas mezcladas, e indico qué componentes quiero y dónde. El agente devuelve el artículo formateado: frontmatter correcto, componentes MDC colocados, headings con la jerarquía adecuada, ortografía resuelta. Yo reviso, ajusto lo que no me convence, y hago push. El trabajo aburrido de formatear lo hace él. El criterio sobre qué va y cómo se cuenta sigue siendo mío.
 
 Cuando monte el flujo con n8n, ese prompt del agente es probablemente el punto de partida.
 

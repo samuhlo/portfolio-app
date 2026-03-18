@@ -9,25 +9,23 @@ published: true
 slug: atipo-foundry
 ---
 
-## El síndrome del asset lejano
+## El asset que tenías al lado
 
-Cuando construyes productos digitales, llega un punto en el que las tipografías de Google Fonts, aunque cumplen su función, se quedan cortas. Necesitas algo con más carácter, con más pesos, o simplemente algo que no esté en tres millones de webs más.
+Cuando construyes productos digitales, las tipografías de Google Fonts acaban por quedarse cortas. No porque sean malas, sino porque necesitas algo con más carácter, más pesos, o simplemente algo que no esté en tres millones de webs más.
 
-La inercia automática es abrir Typewolf, mirar qué fundición de Brooklyn, Berlín o Suiza está de moda este mes, y preparar la tarjeta. 
+El reflejo automático es abrir Typewolf, ver qué fundición de Brooklyn, Berlín o Suiza está de moda este mes y preparar la tarjeta.
 
-Pero a veces, la solución técnica y visual perfecta está literalmente aquí al lado. Cruzando a Asturias.
-
-Descubrí :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] hace un tiempo y me rompió un poco los esquemas. Es un estudio de Gijón que lleva años sacando tipografías de una calidad técnica y estética brutal. No es solo que las letras sean bonitas — es que los kerning pairs, la legibilidad en pantallas de alta densidad y la estructura geométrica aguantan cualquier test de estrés que les eches en una interfaz densa.
+Descubrí :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] hace un tiempo y me rompió un poco los esquemas. Es un estudio de Gijón que lleva años sacando tipografías de una calidad técnica y estética brutal. No es solo que las letras sean bonitas: los kerning pairs, la legibilidad en pantallas de alta densidad y la estructura geométrica aguantan cualquier test de estrés que les eches en una interfaz densa. Y están a dos horas en coche.
 
 ## Mis tres licencias de Atipo
 
 No llegué a estas tres por descarte. Llegué porque cada una resuelve algo concreto que no encontraba en otras.
 
-**Strawford** la uso como tipografía base de interfaces. Lo que me engancha de ella es que es geométrica pero no aséptica — tiene una calidez que las geométricas puras suelen sacrificar por la coherencia formal. En entornos de alto contraste, en titulares, en bloques de lectura densa: se asienta sin llamar la atención, o cautiva la mirada según el peso que le des, que es exactamente lo que necesitas de una tipografía de UI.
+**Strawford** la uso como tipografía base de interfaces. Lo que me engancha de ella es que es geométrica pero no aséptica: tiene una calidez que las geométricas puras suelen sacrificar por la coherencia formal. En entornos de alto contraste, en titulares, en bloques de lectura densa, se asienta sin llamar la atención o cautiva la mirada según el peso que le des. Que es exactamente lo que necesitas de una tipografía de UI.
 
-**Silka Mono** la tengo en casi todas las partes de la interfaz que necesitan comunicar precisión: etiquetas, fechas, datos numéricos, micro-copys técnicos. No es que sea bonita ( que lo es tambien ) — es que hace que esos elementos parezcan que pertenecen a un sistema, no que fueron añadidos a última hora. Hay monoespaciadas que cargan visualmente el layout. Ésta no.
+**Silka Mono** la tengo en casi todas las partes de la interfaz que necesitan comunicar precisión: etiquetas, fechas, datos numéricos, micro-copys técnicos. No es que sea bonita (que también) sino que hace que esos elementos parezcan que pertenecen a un sistema, no que fueron añadidos a última hora. Hay monoespaciadas que cargan visualmente el layout. Ésta no.
 
-**Bariol Icons** ya está en producción. La usé para el logotipo de [TinyShow](https://tinyshow.vercel.app/) y fue la decisión más rápida de todo el proceso de diseño ya que cuando la vi se me enamore y se me ocurrio la idea de usarla en un spinner.
+**Bariol Icons** ya está en producción. La usé para el logotipo de [TinyShow](https://tinyshow.vercel.app/) y fue la decisión más rápida de todo el proceso de diseño: cuando la vi se me ocurrió usarla en un spinner y no hubo más deliberación.
 
 ::image-slider
 ---
@@ -188,16 +186,14 @@ js: |
 
 ## El modelo "Pay what you want"
 
-Hay algo más que me hizo conectar con su filosofía. Atipo tiene un modelo de distribución muy inteligente. 
+Atipo tiene un modelo de distribución muy honesto. Para casi todas sus familias, te permiten descargar un peso gratis (normalmente el Regular o Medium), o pagando lo que quieras. Si quieres la familia completa con todos los pesos, itálicas y licencias web, el precio base es ridículamente accesible para la calidad que entregan.
 
-Para casi todas sus familias, te permiten descargar un peso (normalmente el Regular o Medium) gratis, o pagando lo que quieras con un simple tweet o donación. Si quieres la familia completa (todos los pesos, itálicas, licencias web/desktop), el precio base es ridículamente accesible para la calidad que entregan. 
-
-Es un modelo honesto. Te dejan probar el producto real en tu entorno de diseño, ver si encaja, y si te funciona, pagas por la herramienta completa. Como inversión en "activos" para tu equipo o stack personal, es un retorno absoluto. Dinero bien invertido en tu propio código y diseño.
+Te dejan probar el producto real en tu entorno de diseño, ver si encaja, y si te funciona, pagas. Como inversión en activos para tu stack personal, el retorno es absoluto.
 
 ## Menos hype, más ejecución
 
-Quería escribir esto simplemente para dejar constancia y darles las gracias desde aquí. A veces nos cegamos buscando la excelencia fuera, asumiendo que el mejor diseño o la mejor ingeniería solo ocurre en los grandes hubs internacionales.
+Quería escribir esto para dejar constancia y darles las gracias. A veces nos cegamos buscando la excelencia fuera, asumiendo que el mejor diseño o la mejor ingeniería solo ocurre en los grandes hubs internacionales.
 
-Si estás montando un producto, tu portfolio, o simplemente estás harto de usar Inter y Roboto, échale un ojo a su catálogo. 
+Si estás montando un producto, tu portfolio, o estás harto de usar Inter y Roboto: échale un ojo a su catálogo.
 
 :hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="right" trigger="scroll" duration="2" width="2em"}[**Están en [atipofoundry.com](https://www.atipofoundry.com/)**]
