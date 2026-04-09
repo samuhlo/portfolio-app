@@ -8,6 +8,9 @@
     "label_read_time": "Tiempo de lectura",
     "label_topics": "Temas",
     "label_copy_link": "Copiar enlace",
-    "label_back": "Volver"
+    "label_back": "Volver",
+    "label_link_copied": "Enlace copiado",
+    "label_no_posts_in_category": "No hay posts en esta categoria",
+    "label_locale_not_available": "Aun no esta disponible"
   }
 }

@@ -26,7 +26,14 @@ export default defineNuxtConfig({
       devSourcemap: true,
     },
   },
-  modules: ['@nuxtjs/i18n', '@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
+  modules: [
+    '@nuxtjs/i18n',
+    '@nuxt/image',
+    '@nuxt/fonts',
+    '@pinia/nuxt',
+    '@nuxt/content',
+    '@nuxtjs/sitemap',
+  ],
 
   // =========================================================================
   // █ I18N: Blog locale routing
@@ -34,10 +41,11 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'prefix_except_default',
     defaultLocale: 'es',
+    detectBrowserLanguage: false,
     locales: [
       { code: 'es', language: 'es-ES', name: 'Castellano', file: 'es.json' },
       { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
-      { code: 'gz', language: 'gl-ES', name: 'Galego', file: 'gz.json' },
+      { code: 'gl', language: 'gl-ES', name: 'Galego', file: 'gl.json' },
     ],
     bundle: { compositionOnly: true },
     langDir: 'locales',
@@ -116,7 +124,6 @@ export default defineNuxtConfig({
   // =========================================================================
   app: {
     head: {
-      htmlAttrs: { lang: 'es' },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       titleTemplate: '%s // SAMUHLO',
