@@ -3,22 +3,23 @@
  * ========================================================================
  * [UI_ATOM] :: BLOG LANGUAGE SWITCHER
  * ========================================================================
- * DESC:   Muestra los 3 locales disponibles para el post actual.
- *         Activo: locale corriente. Disponible: link a switchLocalePath.
- *         No disponible: deshabilitado (no hay traducción para ese slug).
+ * DESC:   Muestra los locales disponibles para el post actual.
+ *         Usa translationKey (slug traducido por idioma) para resolver links.
+ *         No disponible: deshabilitado si no existe traducción publicada.
  * STATUS: STABLE
  * ========================================================================
  */
 
-import { ref, watch } from 'vue';
-import { useI18n, useSwitchLocalePath } from '#imports';
+import { computed } from 'vue';
+import { useI18n, useLocalePath } from '#imports';
+import type { BlogPostTranslation } from '~/types/blog';
 
 const props = defineProps<{
-  slug: string;
+  translations: BlogPostTranslation[];
 }>();
 
 const { locale, locales } = useI18n();
-const switchLocalePath = useSwitchLocalePath();
+const localePath = useLocalePath();
 
 type LocaleStatus = {
   code: string;
@@ -28,35 +29,23 @@ type LocaleStatus = {
   available: boolean;
 };
 
-const localeStatuses = ref<LocaleStatus[]>([]);
+const localeStatuses = computed<LocaleStatus[]>(() =>
+  locales.value.map((loc) => {
+    const code = loc.code;
+    const name = loc.name ?? loc.code.toUpperCase();
+    const translation = props.translations.find((item) => item.lang === code);
+    const active = code === locale.value;
+    const available = active || Boolean(translation);
 
-async function checkAvailability() {
-  const results = await Promise.all(
-    locales.value.map(async (loc) => {
-      let available = false;
-      if (loc.code === locale.value) {
-        available = true;
-      } else {
-        const result = await queryCollection('blog')
-          .where('slug', '=', props.slug)
-          .where('lang', '=', loc.code)
-          .first();
-        available = !!result;
-      }
-      return {
-        code: loc.code,
-        name: loc.name ?? loc.code.toUpperCase(),
-        path: switchLocalePath(loc.code),
-        active: loc.code === locale.value,
-        available,
-      };
-    }),
-  );
-  localeStatuses.value = results;
-}
-
-await checkAvailability();
-watch(() => props.slug, checkAvailability);
+    return {
+      code,
+      name,
+      path: translation ? localePath(`/blog/${translation.slug}`, code) : '',
+      active,
+      available,
+    };
+  }),
+);
 </script>
 
 <template>
@@ -84,7 +73,7 @@ watch(() => props.slug, checkAvailability);
         <span
           v-else
           class="text-[0.6rem] font-mono uppercase tracking-[0.15em] opacity-20 cursor-not-allowed"
-          :title="`Not available in ${loc.name} yet`"
+          :title="`${loc.name} · ${$t('blog.label_locale_not_available')}`"
         >
           {{ loc.code }}
         </span>

@@ -29,6 +29,7 @@ defineProps<{
 // █ REFS & GSAP
 // =============================================================================
 const { gsap, initGSAP } = useGSAP();
+const localePath = useLocalePath();
 const { getBufferedLength } = useDoodleDraw();
 
 // Obtener color de categoría
@@ -159,7 +160,11 @@ function handlePrevLeave() {
           @mouseenter="handlePrevEnter"
           @mouseleave="handlePrevLeave"
         >
-          <NuxtLink :to="`/blog/${prevPost.slug}`" :aria-label="`Previous post: ${prevPost.title}`" class="block group">
+          <NuxtLink
+            :to="localePath(`/blog/${prevPost.slug}`)"
+            :aria-label="`${$t('blog.nav_previous')}: ${prevPost.title}`"
+            class="block group"
+          >
             <div class="nav-arrow-wrapper justify-start mb-1 h-5">
               <span
                 class="nav-label text-xs font-mono uppercase tracking-[0.15em] opacity-30 whitespace-nowrap"
@@ -192,7 +197,11 @@ function handlePrevLeave() {
           @mouseenter="handleNextEnter"
           @mouseleave="handleNextLeave"
         >
-          <NuxtLink :to="`/blog/${nextPost.slug}`" :aria-label="`Next post: ${nextPost.title}`" class="block group">
+          <NuxtLink
+            :to="localePath(`/blog/${nextPost.slug}`)"
+            :aria-label="`${$t('blog.nav_next')}: ${nextPost.title}`"
+            class="block group"
+          >
             <div class="nav-arrow-wrapper justify-end md:justify-end mb-1 h-5">
               <!-- LABEL -> Se oculta al hover, la flecha se dibuja encima -->
               <span

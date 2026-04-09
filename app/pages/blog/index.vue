@@ -12,7 +12,6 @@
 
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
 import { SITE } from '~/config/site';
-import { useI18n } from '#imports';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
@@ -26,16 +25,10 @@ definePageMeta({
   layout: 'blog',
   middleware(to, from) {
     // [NOTE] Animar header solo en primera carga o desde fuera del blog.
-    const isFromBlogPost =
-      from.name !== undefined && from.path.startsWith('/blog/') && from.path !== '/blog/';
+    const isFromBlogPost = /^\/(?:[a-z]{2}\/)?blog\/[^/]+\/?$/.test(from.path);
     to.meta.skipHeaderAnimation = isFromBlogPost;
   },
 });
-
-const { locale } = useI18n();
-
-// Override global lang="es" with active locale
-useHead({ htmlAttrs: { lang: locale } });
 
 const isLoading = ref(true);
 

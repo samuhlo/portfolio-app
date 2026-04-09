@@ -14,14 +14,18 @@
 import { computed } from 'vue';
 import { createError } from '#app';
 import { useI18n } from '#imports';
-import { type BlogPost } from '~/types/blog';
+import { type BlogPost, type BlogPostTranslation } from '~/types/blog';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 
 export function useBlogPost(slug: string) {
   const { locale } = useI18n();
 
-  const { data: post, status, refresh } = useAsyncData(
-    `blog-post-${locale.value}-${slug}`,
+  const {
+    data: post,
+    status,
+    refresh,
+  } = useAsyncData(
+    () => `blog-post-${locale.value}-${slug}`,
     async () => {
       const result = await queryCollection('blog')
         .where('slug', '=', slug)
@@ -32,6 +36,7 @@ export function useBlogPost(slug: string) {
       }
       return result as BlogPost;
     },
+    { watch: [locale] },
   );
 
   // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
@@ -40,10 +45,45 @@ export function useBlogPost(slug: string) {
     refresh();
   }
 
+  const translationKey = computed(() => post.value?.translationKey ?? '');
+
+  const { data: translationItems, refresh: refreshTranslations } = useAsyncData(
+    () => `blog-post-translations-${translationKey.value}`,
+    async () => {
+      if (!translationKey.value) return [];
+      const results = await queryCollection('blog')
+        .where('translationKey', '=', translationKey.value)
+        .where('published', '=', true)
+        .select('lang', 'slug', 'title')
+        .all();
+      return results as BlogPostTranslation[];
+    },
+    { watch: [translationKey] },
+  );
+
+  if (import.meta.client && translationKey.value && translationItems.value == null) {
+    void refreshTranslations();
+  }
+
+  const translations = computed<BlogPostTranslation[]>(() => {
+    const items = (translationItems.value as BlogPostTranslation[] | null) ?? [];
+    if (!post.value) return items;
+    if (items.some((item) => item.lang === post.value!.lang)) return items;
+
+    return [
+      ...items,
+      {
+        lang: post.value.lang,
+        slug: post.value.slug,
+        title: post.value.title,
+      },
+    ];
+  });
+
   // Reusar el cache de useBlogPosts — misma key dinámica, sin doble fetch
   const { posts: allPosts } = useBlogPosts();
 
-  const currentIndex = computed(() => allPosts.value.findIndex((p) => p.slug === slug));
+  const currentIndex = computed(() => allPosts.value.findIndex((p) => p.slug === post.value?.slug));
 
   // "next" = más reciente (índice inferior en array ordenado desc)
   const nextPost = computed<BlogPost | null>(() =>
@@ -57,5 +97,5 @@ export function useBlogPost(slug: string) {
       : null,
   );
 
-  return { post, prevPost, nextPost, status };
+  return { post, prevPost, nextPost, status, translations };
 }

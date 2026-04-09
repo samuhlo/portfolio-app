@@ -11,7 +11,8 @@
  */
 
 import { ref, watch, onUnmounted } from 'vue';
-import type { BlogPost, TocHeading } from '~/types/blog';
+import { useI18n, useLocalePath } from '#imports';
+import type { BlogPost, TocHeading, BlogPostTranslation } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
 import { useLenis } from '~/composables/useLenis';
@@ -22,9 +23,18 @@ const props = defineProps<{
   showTitle?: boolean;
   revealedHeadings?: TocHeading[];
   activeHeadingId?: string;
+  translations?: BlogPostTranslation[];
 }>();
 
 const lenis = useLenis();
+const localePath = useLocalePath();
+const { locale } = useI18n();
+
+const dateLocale = computed(() => {
+  if (locale.value === 'gl') return 'gl-ES';
+  if (locale.value === 'es') return 'es-ES';
+  return 'en-US';
+});
 
 function scrollToHeading(id: string) {
   const el = document.getElementById(id);
@@ -68,7 +78,11 @@ watch(
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return '—';
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(dateLocale.value, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
@@ -89,7 +103,7 @@ async function copyLink() {
 
 onUnmounted(() => {
   if (copyTimer) clearTimeout(copyTimer);
-})
+});
 </script>
 
 <template>
@@ -97,7 +111,11 @@ onUnmounted(() => {
     <!-- Back link -->
     <div class="info-section-anim mb-10">
       <RandomDoodleHover :stroke-width="3" :stroke-color="categoryColor">
-        <NuxtLink to="/blog" aria-label="Back to blog" class="nav-link inline-flex items-center gap-2">
+        <NuxtLink
+          :to="localePath('/blog')"
+          :aria-label="$t('blog.label_back')"
+          class="nav-link inline-flex items-center gap-2"
+        >
           <span>←</span>
           <span>{{ $t('blog.label_back') }}</span>
         </NuxtLink>
@@ -203,18 +221,24 @@ onUnmounted(() => {
       </div>
 
       <!-- Language switcher -->
-      <BlogLanguageSwitcher :slug="post.slug" />
+      <BlogLanguageSwitcher :translations="translations ?? []" />
 
       <!-- Share -->
       <div class="info-section-anim pt-4">
-        <button aria-label="Copy link to this post" class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
+        <button
+          :aria-label="$t('blog.label_copy_link')"
+          class="group flex items-center gap-2 cursor-pointer"
+          @click="copyLink"
+        >
           <span
             class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
           >
             {{ $t('blog.label_copy_link') }}
           </span>
         </button>
-        <span aria-live="polite" class="sr-only">{{ copied ? 'Link copied' : '' }}</span>
+        <span aria-live="polite" class="sr-only">{{
+          copied ? $t('blog.label_link_copied') : ''
+        }}</span>
       </div>
     </div>
   </div>

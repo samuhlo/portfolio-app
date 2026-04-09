@@ -15,11 +15,11 @@ definePageMeta({ layout: 'blog' });
 
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
-<<<<<<< HEAD
-import { useI18n } from '#imports';
-=======
+
+import { useSetI18nParams } from '#imports';
+
 import { SITE, BREAKPOINTS } from '~/config/site';
->>>>>>> main
+
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import type { TocHeading } from '~/types/blog';
@@ -28,15 +28,30 @@ import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
 import BlogPostNavigation from '~/components/blog/BlogPostNavigation.vue';
 
-const { locale } = useI18n();
-
-// Override global lang="es" with active locale
-useHead({ htmlAttrs: { lang: locale } });
+const setI18nParams = useSetI18nParams();
 
 const route = useRoute();
 const slugValue = route.params.slug as string;
 
-const { post, prevPost, nextPost } = useBlogPost(slugValue);
+const { post, prevPost, nextPost, translations } = useBlogPost(slugValue);
+
+watch(
+  [post, translations],
+  ([currentPost, currentTranslations]) => {
+    if (!currentPost) return;
+
+    const params: Record<string, { slug: string }> = Object.fromEntries(
+      currentTranslations.map((item) => [item.lang, { slug: item.slug }]),
+    );
+
+    if (!params[currentPost.lang]) {
+      params[currentPost.lang] = { slug: currentPost.slug };
+    }
+
+    setI18nParams(params);
+  },
+  { immediate: true },
+);
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const containerRef = ref<HTMLElement | null>(null);
@@ -123,11 +138,7 @@ function setupGSAP() {
         { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease },
         ANIM.title.overlap,
       );
-      tl.from(
-        '.post-body-accent-line',
-        { scaleY: 0, duration: 0.7, ease: 'power2.inOut' },
-        '<',
-      );
+      tl.from('.post-body-accent-line', { scaleY: 0, duration: 0.7, ease: 'power2.inOut' }, '<');
       tl.from(
         '.post-body-excerpt',
         { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
@@ -279,6 +290,7 @@ onUnmounted(() => {
           :show-title="showTitleInSidebar"
           :revealed-headings="revealedHeadings"
           :active-heading-id="activeHeadingId"
+          :translations="translations"
         />
       </template>
 
