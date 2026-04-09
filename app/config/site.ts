@@ -10,6 +10,9 @@
 
 export const SITE = {
   url: 'https://samuhlo.dev',
+  name: 'SAMUHLO.sh',
+  author: 'Samuel López',
+  authorHandle: 'samuhlo',
   email: 'hola@samuhlo.dev',
   github: 'https://github.com/samuhlo',
   linkedin: 'https://www.linkedin.com/in/samuhlo/',

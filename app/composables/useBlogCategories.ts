@@ -18,14 +18,15 @@ const ALL_CATEGORIES: BlogCategory[] = ['weekly_log', 'find', 'breakdown', 'root
 export function useBlogCategories() {
   const { posts } = useBlogPosts();
 
-  const categories = computed<CategoryItem[]>(() => [
-    { id: 'all', label: 'all', count: posts.value.length },
-    ...ALL_CATEGORIES.map((cat) => ({
+  const categories = computed<CategoryItem[]>(() => {
+    const withCounts = ALL_CATEGORIES.map((cat) => ({
       id: cat,
       label: CATEGORY_LABELS[cat],
       count: posts.value.filter((p) => p.category === cat).length,
-    })),
-  ]);
+    })).filter((cat) => cat.count > 0);
+
+    return [{ id: 'all', label: 'all', count: posts.value.length }, ...withCounts];
+  });
 
   return { categories };
 }

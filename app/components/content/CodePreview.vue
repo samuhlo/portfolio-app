@@ -77,11 +77,13 @@ const EXTERNAL_SCRIPTS: Record<string, string> = {
   Matter: 'https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js',
 };
 
-// Estilos base inyectados en el iframe — reset mínimo, sin imponer diseño
+// Estilos base inyectados en el iframe — reset mínimo, sin imponer diseño.
+// overflow-x: auto → si la demo tiene contenido más ancho que el iframe,
+// se puede scrollear horizontalmente dentro del preview en lugar de cliparse.
 const IFRAME_BASE_CSS = `
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: sans-serif; }
+  body { font-family: sans-serif; overflow-x: auto; }
 `.trim();
 
 // =============================================================================
@@ -223,7 +225,9 @@ onUnmounted(() => {
 // =============================================================================
 // █ HELPERS
 // =============================================================================
-const iframeHeight = computed(() => `${Number(props.height)}px`);
+const iframeHeight = computed(() =>
+  typeof props.height === 'number' ? `${props.height}px` : props.height,
+);
 </script>
 
 <template>
@@ -235,6 +239,9 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
       <button
         v-for="tab in availableTabs"
         :key="tab"
+        role="tab"
+        :aria-selected="active === tab"
+        :aria-label="`Show ${tab} tab`"
         class="cp-tab"
         :class="{ 'cp-tab--active': active === tab }"
         @click="active = tab"
@@ -245,6 +252,7 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
       <!-- Copy: solo visible en tabs de código, no en preview -->
       <button
         v-if="active !== 'preview'"
+        aria-label="Copy code"
         class="cp-copy"
         :class="{ 'cp-copy--copied': copied }"
         @click="handleCopy"
@@ -281,6 +289,7 @@ const iframeHeight = computed(() => `${Number(props.height)}px`);
       <iframe
         :srcdoc="srcdoc"
         sandbox="allow-scripts"
+        title="Code preview"
         :style="{ height: iframeHeight }"
         class="cp-iframe"
       />

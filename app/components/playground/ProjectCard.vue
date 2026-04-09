@@ -100,11 +100,11 @@ function openProject() {
       @mousemove="handleMouseMove"
       @click="openProject"
     >
-      <NuxtImg :src="image" :alt="name" class="w-full h-auto block" />
+      <NuxtImg :src="image" :alt="name" :width="800" :height="600" loading="lazy" class="w-full h-auto block" />
 
       <!-- Avatar SVG: visible al hacer hover -->
       <div v-if="avatar" class="project-avatar">
-        <component :is="avatar" />
+        <component :is="avatar" aria-hidden="true" />
       </div>
 
       <!-- Label flotante que sigue al cursor con retraso -->

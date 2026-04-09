@@ -13,6 +13,7 @@
 import gsap from 'gsap';
 import Lenis from 'lenis';
 import { useWindowSize, onKeyStroke } from '@vueuse/core';
+import { BREAKPOINTS } from '~/config/site';
 import { storeToRefs } from 'pinia';
 
 const route = useRoute();
@@ -124,7 +125,7 @@ function onLeave(_el: Element, done: () => void) {
 // █ 3. Lenis Local para Scroll Horizontal
 // =============================================================================
 const { width } = useWindowSize();
-const isMobile = computed(() => width.value < 1024);
+const isMobile = computed(() => width.value < BREAKPOINTS.tablet);
 
 interface ScrollExposed {
   scrollContainerRef: HTMLElement | null;
@@ -248,6 +249,9 @@ const projectYear = computed(() => selectedProject.value?.year || new Date().get
           >
             <div
               ref="contentRef"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-project-title"
               class="w-full bg-foreground text-background relative z-10 origin-center shadow-2xl"
               :class="isMobile ? 'min-h-dvh h-auto pb-12' : 'h-[75vh] py-16'"
             >

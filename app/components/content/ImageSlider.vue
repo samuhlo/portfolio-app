@@ -32,6 +32,9 @@
  *   y el guard `hasHover` que evita registrar los handlers innecesariamente.
  *
  * TAMAÑO Y ALINEACIÓN:
+ *   El viewport usa aspect-ratio — el alto escala con el ancho automáticamente.
+ *   Todas las imágenes del slider comparten el mismo ratio (sin saltos de altura).
+ *   El ratio por defecto es '16/9'. Para imágenes portrait usar '4/3', '1/1', etc.
  *   Sin maxWidth → ocupa el 100% del contenedor.
  *   Con maxWidth → acepta px, %, rem, etc. La alineación se controla con
  *   `align` ('left' | 'center' | 'right', default 'center') via margin auto.
@@ -45,6 +48,12 @@
  *       label: DASHBOARD_MAIN
  *     - src: blog/mi-post/screenshot-02.webp
  *       alt: Vista mobile
+ *   ---
+ *   ::
+ *
+ *   ::image-slider{aspect-ratio="4/3"}   ← para imágenes cuadradas/portrait
+ *   ---
+ *   images: [...]
  *   ---
  *   ::
  *
@@ -72,8 +81,12 @@ interface SliderImage {
 const props = withDefaults(
   defineProps<{
     images: SliderImage[];
-    /** Alto del viewport de imagen. Acepta número (px) o string CSS. */
-    height?: string | number;
+    /**
+     * Ratio del viewport. Acepta cualquier valor CSS válido: '16/9', '4/3', '1/1', '9/16'…
+     * El alto se calcula automáticamente a partir del ancho → escala en todos los dispositivos.
+     * Default: '16/9'
+     */
+    aspectRatio?: string;
     /**
      * Ancho máximo del componente completo.
      * Acepta cualquier unidad CSS válida (px, %, rem…).
@@ -87,7 +100,7 @@ const props = withDefaults(
      */
     align?: 'left' | 'center' | 'right';
   }>(),
-  { height: 420, align: 'center' },
+  { aspectRatio: '16/9', align: 'center' },
 );
 
 // Calcula marginLeft/marginRight para centrar, alinear a izquierda o derecha.
@@ -298,7 +311,6 @@ function extractLabel(src: string): string {
   return (file.split('.')[0] ?? file).toUpperCase().replace(/-/g, '_');
 }
 
-const viewportHeight = computed(() => `${Number(props.height)}px`);
 </script>
 
 <template>
@@ -312,7 +324,7 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
     <div
       ref="containerRef"
       class="is-viewport"
-      :style="{ height: viewportHeight }"
+      :style="{ aspectRatio: aspectRatio }"
       tabindex="0"
       role="img"
       :aria-label="images[current]?.alt"
@@ -380,7 +392,8 @@ const viewportHeight = computed(() => `${Number(props.height)}px`);
 <style scoped>
 /* ================================================================
    VIEWPORT
-   overflow:hidden recorta los slides que entran/salen por arriba/abajo.
+   aspect-ratio viene del prop → escala con el ancho en todos los
+   dispositivos. overflow:hidden recorta los slides que entran/salen.
    user-select:none previene selección de texto accidental en swipe.
    ================================================================ */
 .is-viewport {

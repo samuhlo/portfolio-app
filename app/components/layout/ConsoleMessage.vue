@@ -7,7 +7,7 @@
  * =====================================================================
  */
 import { onMounted } from 'vue';
-import { SITE } from '~/config/site';
+import { SITE, COLORS } from '~/config/site';
 
 onMounted(async () => {
   // [NOTE] Lazy import → figlet + font Doom (~30KB+) solo se cargan tras el mount,
@@ -19,24 +19,24 @@ onMounted(async () => {
 
   figlet.parseFont('Doom', standard);
 
-  figlet.text('samuhlo', { font: 'Doom' }, (err, art) => {
+  figlet.text(SITE.authorHandle, { font: 'Doom' }, (err, art) => {
     if (err || !art) return;
 
     console.log(
       `%c${art}`,
-      'color:#ffca40;font-family:monospace;font-size:13px;line-height:1.3;font-weight:bold',
+      `color:${COLORS.accent};font-family:monospace;font-size:13px;line-height:1.3;font-weight:bold`,
     );
     console.log('%cProduct Architect', 'color:#888;font-family:sans-serif;font-size:11px');
     console.log('%c ', '');
     console.log(
       '%c GitHub   %c' + SITE.github,
       'font-weight:bold;font-family:sans-serif',
-      'color:#ffca40;font-family:sans-serif',
+      `color:${COLORS.accent};font-family:sans-serif`,
     );
     console.log(
       '%c Email    %c' + SITE.email,
       'font-weight:bold;font-family:sans-serif',
-      'color:#ffca40;font-family:sans-serif',
+      `color:${COLORS.accent};font-family:sans-serif`,
     );
     console.log('%c ', '');
   });

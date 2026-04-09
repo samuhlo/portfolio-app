@@ -10,7 +10,7 @@
  * ========================================================================
  */
 
-import { ref, watch } from 'vue';
+import { ref, watch, onUnmounted } from 'vue';
 import type { BlogPost, TocHeading } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
@@ -73,11 +73,23 @@ function formatDate(dateStr: string): string {
 
 const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
 
+const copied = ref(false);
+let copyTimer: ReturnType<typeof setTimeout> | null = null;
+
 async function copyLink() {
   if (import.meta.client) {
     await navigator.clipboard.writeText(window.location.href);
+    copied.value = true;
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      copied.value = false;
+    }, 2000);
   }
 }
+
+onUnmounted(() => {
+  if (copyTimer) clearTimeout(copyTimer);
+})
 </script>
 
 <template>
@@ -85,7 +97,7 @@ async function copyLink() {
     <!-- Back link -->
     <div class="info-section-anim mb-10">
       <RandomDoodleHover :stroke-width="3" :stroke-color="categoryColor">
-        <NuxtLink to="/blog" class="nav-link inline-flex items-center gap-2">
+        <NuxtLink to="/blog" aria-label="Back to blog" class="nav-link inline-flex items-center gap-2">
           <span>←</span>
           <span>{{ $t('blog.label_back') }}</span>
         </NuxtLink>
@@ -195,13 +207,14 @@ async function copyLink() {
 
       <!-- Share -->
       <div class="info-section-anim pt-4">
-        <button class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
+        <button aria-label="Copy link to this post" class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
           <span
             class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
           >
             {{ $t('blog.label_copy_link') }}
           </span>
         </button>
+        <span aria-live="polite" class="sr-only">{{ copied ? 'Link copied' : '' }}</span>
       </div>
     </div>
   </div>

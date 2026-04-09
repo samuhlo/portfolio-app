@@ -178,7 +178,7 @@ const openMail = (): void => {
     <div
       class="relative z-10 w-full py-10 px-6 md:px-12 font-bold tracking-widest md:mt-20 flex flex-col items-end gap-4 text-sm md:grid md:grid-cols-3 md:gap-0 md:text-[1.75rem] md:items-end md:h-full"
     >
-      <NuxtLink :to="`mailto:${SITE.email}`" class="md:text-left md:col-start-1 md:row-start-1">
+      <a :href="`mailto:${SITE.email}`" class="md:text-left md:col-start-1 md:row-start-1">
         <span class="relative inline-block w-fit">
           {{ SITE.email }}
           <DoodleCircleGeneral
@@ -186,7 +186,7 @@ const openMail = (): void => {
             class="absolute top-1/2 left-1/2 w-[115%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
           />
         </span>
-      </NuxtLink>
+      </a>
 
       <RandomDoodleHover class="md:col-start-2 md:row-start-1 md:justify-self-center">
         <NuxtLink :to="SITE.github" target="_blank">github</NuxtLink>

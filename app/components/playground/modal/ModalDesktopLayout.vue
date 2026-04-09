@@ -46,6 +46,7 @@ defineExpose({
         <div class="h-full flex flex-col justify-between w-[45vw] shrink-0">
           <div class="space-y-8">
             <h1
+              id="modal-project-title"
               class="text-[7vw] font-black uppercase leading-none tracking-tight wrap-break-word pr-4"
             >
               {{ projectName }}
