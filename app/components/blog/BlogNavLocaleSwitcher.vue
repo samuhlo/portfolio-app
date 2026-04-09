@@ -27,6 +27,8 @@ const route = useRoute();
 const localePath = useLocalePath();
 const switchLocalePath = useSwitchLocalePath();
 
+const displayLocaleCode = (code: string): string => (code === 'gl' ? 'gz' : code);
+
 const slugParam = computed(() => {
   const slug = route.params.slug;
   return typeof slug === 'string' ? slug : '';
@@ -85,12 +87,12 @@ const localizedRoutes = computed(() =>
 <template>
   <div class="flex items-center gap-3 text-xs uppercase tracking-widest font-medium">
     <template v-for="loc in localizedRoutes" :key="loc.code">
-      <span v-if="loc.active" class="opacity-100 font-bold">{{ loc.code }}</span>
+      <span v-if="loc.active" class="opacity-100 font-bold">{{ displayLocaleCode(loc.code) }}</span>
       <NuxtLink
         v-else
         :to="loc.path"
         class="opacity-30 hover:opacity-80 transition-opacity duration-200"
-        >{{ loc.code }}</NuxtLink
+        >{{ displayLocaleCode(loc.code) }}</NuxtLink
       >
     </template>
   </div>
