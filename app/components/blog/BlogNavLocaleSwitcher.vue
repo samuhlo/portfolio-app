@@ -14,7 +14,6 @@ import { computed, ref, watch } from 'vue';
 import { useI18n, useLocalePath, useRoute, useRouter, useSwitchLocalePath } from '#imports';
 import { useBlogNavigationContext } from '~/composables/useBlogNavigationContext';
 import { useBlogHeaderAnimationGate } from '~/composables/useBlogHeaderAnimationGate';
-import { useGSAP } from '~/composables/useGSAP';
 
 type TranslationEntry = {
   lang: string;
@@ -32,7 +31,6 @@ const localePath = useLocalePath();
 const switchLocalePath = useSwitchLocalePath();
 const { markLocaleSwitch } = useBlogNavigationContext();
 const { isAnimating } = useBlogHeaderAnimationGate();
-const { gsap } = useGSAP();
 
 const displayLocaleCode = (code: string): string => (code === 'gl' ? 'gz' : code);
 
@@ -51,37 +49,6 @@ const isSwitching = ref(false);
 // la animación del header principal.
 const isBlogIndexRoute = computed(() => /^\/(?:[a-z]{2}\/)?blog\/?$/.test(route.path));
 
-function animateBeforeLocaleChange(): Promise<void> {
-  // [NOTE] Salida visual antes de cambiar de locale en post detail.
-  // Evita el "texto nuevo aparece mientras se desvanece el viejo".
-  return new Promise((resolve) => {
-    if (!import.meta.client) {
-      resolve();
-      return;
-    }
-
-    // [NOTE] Targets comunes para salida coherente en artículo.
-    const targets = Array.from(
-      document.querySelectorAll(
-        '.post-body-title, .post-body-excerpt, .post-content, .info-section-anim, .blog-post-nav, .post-body-line, .post-body-accent-line',
-      ),
-    );
-
-    if (targets.length === 0) {
-      resolve();
-      return;
-    }
-
-    gsap.to(targets, {
-      opacity: 0.4,
-      duration: 0.32,
-      ease: 'power3.inOut',
-      stagger: 0.014,
-      onComplete: () => resolve(),
-    });
-  });
-}
-
 async function executeLocaleNavigation(code: string, path: string) {
   // [NOTE] Guard anti-race: evita 2 pushes en paralelo.
   if (isSwitching.value) return;
@@ -89,11 +56,6 @@ async function executeLocaleNavigation(code: string, path: string) {
   isSwitching.value = true;
 
   try {
-    if (isBlogPostRoute.value) {
-      // PRE-SALIDA -> Solo para post detail.
-      await animateBeforeLocaleChange();
-    }
-
     // [NOTE] Señal consumida por páginas blog para ajustar loaders/animación.
     markLocaleSwitch();
 

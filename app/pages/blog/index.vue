@@ -39,7 +39,7 @@ const isLocaleSwitchNavigation = ref(consumeLocaleSwitch());
 const { locale } = useI18n();
 
 // [NOTE] Si venimos de un locale switch, ocultar loader de inmediato.
-// OBJETIVO -> Evitar blink de overlay entre idiomas.
+// OBJETIVE -> Evitar blink de overlay entre idiomas.
 if (isLocaleSwitchNavigation.value) {
   isLoading.value = false;
 }

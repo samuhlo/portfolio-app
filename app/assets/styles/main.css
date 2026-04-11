@@ -71,9 +71,18 @@
 }
 
 @layer base {
+  /* [FIX] scrollbar-gutter: stable + min-height evitan que el viewport
+     collapse durante transiciones (locale switch, router.push).
+     El scrollbar nunca desaparece, evitando el "blink" feo. */
+  html {
+    scrollbar-gutter: stable;
+    min-height: 100vh;
+  }
+
   body {
     @apply bg-background text-foreground antialiased font-sans;
     @apply selection:bg-accent selection:text-foreground;
+    min-height: 100vh;
   }
 }
 
