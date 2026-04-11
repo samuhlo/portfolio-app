@@ -34,6 +34,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxt/content',
     '@nuxtjs/sitemap',
+    '@vercel/analytics',
   ],
 
   // =========================================================================
