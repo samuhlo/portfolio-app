@@ -58,7 +58,7 @@ El blog usa Nuxt Content con tres idiomas (ES/EN/GL). Cada post tiene su propio 
 El cambio de idioma en el blog no es un parpadeo duro. Cada switcher ejecuta un fade-out previo a la navegación (`animateBeforeLocaleChange`), consume una señal one-shot (`useBlogNavigationContext`) en la página destino, y despliega una animación de entrada diferenciada: el índice mantiene categorías estáticas y solo anima la lista de posts; el post detail usa un timeline GSAP coordiado donde título y sidebar entran con opacidad pura y el contenido de lectura con micro-desplazamiento. `useBlogHeaderAnimationGate` bloquea el switch en `/blog` hasta que termina la animación de entrada del header.
 
 **Scroll Animado Monolítico Unilateral**
-Hero y Bio se descomponen con scrubbing de scroll reteniendo el avance (`completed[]`) para no deshacer la animación en scroll inverso. Los doodles SVG se dibujan via `dashOffset` orquestados desde `useDoodleDraw`, con `resetPaths`/`erasePaths` reutilizables para hover, scroll indicators y estados activos de categoría.
+Hero y Bio se descomponen con scrubbing de scroll reteniendo el avance (`completed[]`) para no deshacer la animación en scroll inverso. Al terminar el pin, el trigger se asienta en `start`, se desactiva (`disable()`), fija las fases al estado final y recalcula (`ScrollTrigger.refresh()` + sync con Lenis) para recuperar el espacio de pin y evitar tramos de scroll en blanco al volver hacia arriba. Los doodles SVG se dibujan via `dashOffset` orquestados desde `useDoodleDraw`, con `resetPaths`/`erasePaths` reutilizables para hover, scroll indicators y estados activos de categoría.
 
 ---
 

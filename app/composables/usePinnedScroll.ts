@@ -4,22 +4,13 @@
  * DESC:   Crea una animación pineada vinculada al scroll con fases
  *         secuenciales de timeline. Cada fase solo avanza, nunca retrocede.
  *
- * ESTRATEGIA ANTI-SALTO (v4)
- * ──────────────────────────
- * El problema de las versiones anteriores: onLeave se dispara cuando la
- * sección acaba de salir del viewport — demasiado cerca. El kill+reposicionado
- * ocurría con la sección todavía "caliente" y causaba un micro-golpe visible.
- *
- * Solución: diferir el kill hasta que el usuario haya scrollado al menos
- * un viewport entero MÁS ALLÁ del bloque pineado. En ese punto la sección
- * está garantizadamente fuera de pantalla y el reposicionado es invisible.
- *
- * Flujo:
- *   1. mainTrigger controla la animación pineada normalmente.
- *   2. Un "deferred kill trigger" se activa solo cuando
- *      scroll > triggerEnd + window.innerHeight.
- *   3. En ese punto: kill → window.scrollTo síncrono → refresh → lenis sync.
- *   4. Post-kill la sección es HTML estático, sin warps ni lógica extra.
+ * ESTRATEGIA (v5)
+ * ───────────────
+ * Mantiene el "one-way progress" durante el pin y simplifica la salida:
+ * al terminar (onLeave), se fija el estado final de cada fase, se desactiva
+ * el ScrollTrigger y se reajusta el scroll al "start" para recuperar el
+ * espacio de pin. Resultado: al volver hacia arriba no hay replay ni tramo
+ * largo de scroll en blanco.
  * =====================================================================
  */
 import gsap from 'gsap';
@@ -70,7 +61,7 @@ export const usePinnedScroll = () => {
 
     // ── DESKTOP ──────────────────────────────────────────────────────────────
     const completed = phases.map(() => false);
-    let killScheduled = false;
+    let settled = false;
 
     const mainTrigger = ScrollTrigger.create({
       trigger,
@@ -91,42 +82,28 @@ export const usePinnedScroll = () => {
       },
 
       onLeave: (self) => {
-        // Animación completada, el usuario acaba de salir por abajo.
-        // NO matamos aquí — la sección aún está demasiado cerca del viewport.
-        // Programamos el kill diferido para cuando esté seguro fuera de pantalla.
-        if (killScheduled) return;
-        killScheduled = true;
+        if (settled) return;
+        settled = true;
 
-        const pinSpacerHeight = self.end - self.start;
+        const settledScroll = self.start;
 
-        // El kill se dispara cuando el scroll supera triggerEnd + 1 viewport.
-        // En ese punto la sección está al menos 100vh por encima del viewport
-        // → completamente invisible → el reposicionado no se nota.
-        const safeKillPoint = self.end + window.innerHeight;
-
-        const killTrigger = ScrollTrigger.create({
-          trigger: document.body,
-          start: () => `top+=${safeKillPoint}px top`,
-          once: true,
-          onEnter: () => {
-            const scrollNow = window.scrollY;
-            const targetScroll = scrollNow - pinSpacerHeight;
-
-            // Kill del trigger principal — pin-spacer desaparece del DOM
-            self.kill();
-
-            // Reposicionar de forma síncrona en el mismo frame
-            window.scrollTo(0, targetScroll);
-
-            // Recalcular con DOM ya estable
-            ScrollTrigger.refresh();
-
-            // Sincronizar estado interno de Lenis sin animar
-            lenis?.scrollTo(targetScroll, { immediate: true });
-
-            killTrigger.kill();
-          },
+        // Fijar estado final ANTES del snap para evitar onUpdate intermedio
+        phases.forEach((phase, i) => {
+          if (completed[i]) return;
+          gsap.set(phase.timeline, { progress: 1 });
+          completed[i] = true;
         });
+
+        // Recolocar el scroller en el start y desactivar el pin
+        self.scroll(settledScroll);
+        self.disable();
+
+        // Recalcular offsets tras eliminar el pin-spacer
+        ScrollTrigger.refresh();
+
+        // Ajustar posición final de scroll (window + Lenis)
+        window.scrollTo(0, settledScroll);
+        lenis?.scrollTo(settledScroll, { immediate: true });
       },
     });
 
