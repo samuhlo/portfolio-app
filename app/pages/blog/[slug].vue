@@ -20,6 +20,7 @@ import { useSetI18nParams } from '#imports';
 
 import { SITE, BREAKPOINTS } from '~/config/site';
 
+import { useBlogNavigationContext } from '~/composables/useBlogNavigationContext';
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import type { TocHeading } from '~/types/blog';
@@ -29,6 +30,8 @@ import BlogPostBody from '~/components/blog/BlogPostBody.vue';
 import BlogPostNavigation from '~/components/blog/BlogPostNavigation.vue';
 
 const setI18nParams = useSetI18nParams();
+const { consumeLocaleSwitch } = useBlogNavigationContext();
+const wasLocaleSwitchNavigation = ref(false);
 
 const route = useRoute();
 const slugValue = route.params.slug as string;
@@ -39,6 +42,9 @@ watch(
   [post, translations],
   ([currentPost, currentTranslations]) => {
     if (!currentPost) return;
+
+    // [NOTE] Slugs traducidos por locale.
+    // Sin este mapeo, switchLocalePath puede resolver params incorrectos.
 
     const params: Record<string, { slug: string }> = Object.fromEntries(
       currentTranslations.map((item) => [item.lang, { slug: item.slug }]),
@@ -111,53 +117,197 @@ function setupGSAP() {
   initGSAP(() => {
     if (!containerRef.value) return;
 
+    const navEl = containerRef.value.querySelector('.blog-post-nav');
+
     const savedScroll = sessionStorage.getItem(SCROLL_KEY);
-    const hasRestoredScroll = savedScroll && parseInt(savedScroll, 10) > 0;
+    const hasRestoredScroll =
+      !wasLocaleSwitchNavigation.value && savedScroll && parseInt(savedScroll, 10) > 0;
 
     if (hasRestoredScroll) {
       // [NOTE] La nav empieza con opacity:0 en HTML para evitar flash antes de GSAP.
       // Si restauramos scroll, no hay animación → revelar inmediatamente.
-      gsap.set('.blog-post-nav', { opacity: 1 });
+      if (navEl) {
+        gsap.set(navEl, { opacity: 1 });
+      }
       window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
+    } else if (wasLocaleSwitchNavigation.value) {
+      // [NOTE] Cambio de locale dentro del blog:
+      // transición suave sin replay completo de la entrada principal.
+      if (navEl) {
+        gsap.set(navEl, { opacity: 1 });
+      }
+
+      // [NOTE] syncFadeTargets -> SOLO opacidad (sin desplazamiento).
+      // REQUISITO UX -> título + sidebar acompasados con mismo timing.
+      const syncFadeTargets = [
+        ...Array.from(containerRef.value.querySelectorAll('.post-body-title')),
+        ...Array.from(containerRef.value.querySelectorAll('.info-section-anim')),
+      ];
+
+      // [NOTE] movingTextTargets -> opacidad + desplazamiento suave.
+      // Mantiene sensación de transición de contenido principal.
+      const movingTextTargets = [
+        ...Array.from(containerRef.value.querySelectorAll('.post-body-excerpt')),
+        ...Array.from(containerRef.value.querySelectorAll('.post-content')),
+        ...Array.from(containerRef.value.querySelectorAll('.blog-post-nav')),
+      ];
+
+      const horizontalLineTargets = Array.from(
+        containerRef.value.querySelectorAll('.post-body-line'),
+      );
+      const accentLineTargets = Array.from(
+        containerRef.value.querySelectorAll('.post-body-accent-line'),
+      );
+
+      if (syncFadeTargets.length > 0 || movingTextTargets.length > 0) {
+        const localeTl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+        // PRESET ESTADO DE ENTRADA.
+        // [WHY] El fade-out real ocurre ANTES de router.push (switchers).
+        // Aquí solo preparamos el estado para el fade-in destino.
+        if (syncFadeTargets.length > 0) {
+          gsap.set(syncFadeTargets, { opacity: 0.48 });
+        }
+
+        if (movingTextTargets.length > 0) {
+          gsap.set(movingTextTargets, { opacity: 0.48, y: 10 });
+        }
+
+        if (horizontalLineTargets.length > 0) {
+          gsap.set(horizontalLineTargets, { opacity: 0.2, scaleX: 0.82 });
+        }
+
+        if (accentLineTargets.length > 0) {
+          gsap.set(accentLineTargets, { opacity: 0.22, scaleY: 0.8 });
+        }
+
+        if (syncFadeTargets.length > 0) {
+          // Fade-in acompasado -> título + blogpostinfo.
+          localeTl.to(syncFadeTargets, {
+            opacity: 1,
+            duration: 0.84,
+            ease: 'power2.out',
+            stagger: 0.028,
+          });
+        }
+
+        if (movingTextTargets.length > 0) {
+          // Fade-in + micro desplazamiento -> bloques de lectura.
+          localeTl.to(
+            movingTextTargets,
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.84,
+              ease: 'power2.out',
+              stagger: 0.028,
+              clearProps: 'transform',
+            },
+            syncFadeTargets.length > 0 ? '<' : undefined,
+          );
+        }
+
+        if (horizontalLineTargets.length > 0) {
+          // Línea horizontal sincronizada, sin "pop" seco.
+          localeTl.to(
+            horizontalLineTargets,
+            {
+              opacity: 1,
+              scaleX: 1,
+              duration: 0.9,
+              ease: 'power3.out',
+              clearProps: 'transform',
+            },
+            '<0.06',
+          );
+        }
+
+        if (accentLineTargets.length > 0) {
+          // Accent line sincronizada con la entrada textual.
+          localeTl.to(
+            accentLineTargets,
+            {
+              opacity: 1,
+              scaleY: 1,
+              duration: 0.9,
+              ease: 'power3.out',
+              clearProps: 'transform',
+            },
+            '<',
+          );
+        }
+      }
     } else {
       const tl = gsap.timeline({ defaults: { ease: ANIM.defaultEase } });
 
-      tl.from('.info-section-anim', {
-        x: ANIM.sidebar.x,
-        opacity: 0,
-        duration: ANIM.sidebar.duration,
-        stagger: ANIM.sidebar.stagger,
-      });
-      tl.from(
-        '.post-body-eyebrow',
-        { y: ANIM.eyebrow.y, opacity: 0, duration: ANIM.eyebrow.duration },
-        ANIM.eyebrow.overlap,
-      );
-      tl.from(
-        '.post-body-title',
-        { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease },
-        ANIM.title.overlap,
-      );
-      tl.from('.post-body-accent-line', { scaleY: 0, duration: 0.7, ease: 'power2.inOut' }, '<');
-      tl.from(
-        '.post-body-excerpt',
-        { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
-        ANIM.excerpt.overlap,
-      );
-      tl.from(
-        '.post-body-line',
-        { scaleX: 0, duration: ANIM.line.duration, ease: ANIM.line.ease },
-        ANIM.line.overlap,
-      );
-      tl.from(
-        '.post-content',
-        { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration },
-        ANIM.content.overlap,
-      );
+      const sidebarEls = containerRef.value.querySelectorAll('.info-section-anim');
+      // [NOTE] Guard por selector opcional.
+      // post-body-eyebrow está comentado en template y puede no existir.
+      const eyebrowEl = containerRef.value.querySelector('.post-body-eyebrow');
+      const titleAnimEl = containerRef.value.querySelector('.post-body-title');
+      const accentLineEl = containerRef.value.querySelector('.post-body-accent-line');
+      const excerptEl = containerRef.value.querySelector('.post-body-excerpt');
+      const bodyLineEl = containerRef.value.querySelector('.post-body-line');
+      const contentEl = containerRef.value.querySelector('.post-content');
+
+      if (sidebarEls.length > 0) {
+        tl.from(sidebarEls, {
+          x: ANIM.sidebar.x,
+          opacity: 0,
+          duration: ANIM.sidebar.duration,
+          stagger: ANIM.sidebar.stagger,
+        });
+      }
+
+      if (eyebrowEl) {
+        tl.from(
+          eyebrowEl,
+          { y: ANIM.eyebrow.y, opacity: 0, duration: ANIM.eyebrow.duration },
+          ANIM.eyebrow.overlap,
+        );
+      }
+
+      if (titleAnimEl) {
+        tl.from(
+          titleAnimEl,
+          { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease },
+          ANIM.title.overlap,
+        );
+      }
+
+      if (accentLineEl) {
+        tl.from(accentLineEl, { scaleY: 0, duration: 0.7, ease: 'power2.inOut' }, '<');
+      }
+
+      if (excerptEl) {
+        tl.from(
+          excerptEl,
+          { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
+          ANIM.excerpt.overlap,
+        );
+      }
+
+      if (bodyLineEl) {
+        tl.from(
+          bodyLineEl,
+          { scaleX: 0, duration: ANIM.line.duration, ease: ANIM.line.ease },
+          ANIM.line.overlap,
+        );
+      }
+
+      if (contentEl) {
+        tl.from(
+          contentEl,
+          { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration },
+          ANIM.content.overlap,
+        );
+      }
       // [NOTE] La nav empieza en opacity:0 (inline style en BlogPostNavigation).
       // Se revela al final del timeline para que no flicker antes de que el
       // contenido principal esté animado.
-      tl.to('.blog-post-nav', { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.2');
+      if (navEl) {
+        tl.to(navEl, { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.2');
+      }
     }
 
     // ScrollTrigger: muestra el título en la sidebar cuando el h1 sale del viewport
@@ -257,6 +407,14 @@ function setupHeadingTriggers(attempt = 0) {
 }
 
 onMounted(() => {
+  wasLocaleSwitchNavigation.value = consumeLocaleSwitch();
+
+  if (wasLocaleSwitchNavigation.value && import.meta.client) {
+    // [NOTE] Invalida restore de scroll en locale switch.
+    // UX: siempre empezar arriba en idioma nuevo.
+    sessionStorage.removeItem(SCROLL_KEY);
+  }
+
   if (post.value) {
     nextTick(() => requestAnimationFrame(setupGSAP));
     requestAnimationFrame(() => setupHeadingTriggers());

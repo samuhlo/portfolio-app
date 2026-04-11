@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
+import { SITE } from './app/config/site';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-03-13',
@@ -41,6 +42,7 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'prefix_except_default',
     defaultLocale: 'es',
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? SITE.url,
     detectBrowserLanguage: false,
     locales: [
       { code: 'es', language: 'es-ES', name: 'Castellano', file: 'es.json' },

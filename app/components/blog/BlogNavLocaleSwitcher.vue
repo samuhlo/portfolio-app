@@ -10,8 +10,11 @@
  * ========================================================================
  */
 
-import { computed } from 'vue';
-import { useI18n, useLocalePath, useRoute, useSwitchLocalePath } from '#imports';
+import { computed, ref, watch } from 'vue';
+import { useI18n, useLocalePath, useRoute, useRouter, useSwitchLocalePath } from '#imports';
+import { useBlogNavigationContext } from '~/composables/useBlogNavigationContext';
+import { useBlogHeaderAnimationGate } from '~/composables/useBlogHeaderAnimationGate';
+import { useGSAP } from '~/composables/useGSAP';
 
 type TranslationEntry = {
   lang: string;
@@ -24,10 +27,104 @@ type TranslationKeyEntry = {
 
 const { locale, locales } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const localePath = useLocalePath();
 const switchLocalePath = useSwitchLocalePath();
+const { markLocaleSwitch } = useBlogNavigationContext();
+const { isAnimating } = useBlogHeaderAnimationGate();
+const { gsap } = useGSAP();
 
 const displayLocaleCode = (code: string): string => (code === 'gl' ? 'gz' : code);
+
+type PendingLocaleNavigation = {
+  code: string;
+  path: string;
+};
+
+const pendingNavigation = ref<PendingLocaleNavigation | null>(null);
+const isSwitching = ref(false);
+
+// =============================================================================
+// █ ROUTE GUARDS
+// =============================================================================
+// [NOTE] Solo en /blog index se bloquea click hasta que termine
+// la animación del header principal.
+const isBlogIndexRoute = computed(() => /^\/(?:[a-z]{2}\/)?blog\/?$/.test(route.path));
+
+function animateBeforeLocaleChange(): Promise<void> {
+  // [NOTE] Salida visual antes de cambiar de locale en post detail.
+  // Evita el "texto nuevo aparece mientras se desvanece el viejo".
+  return new Promise((resolve) => {
+    if (!import.meta.client) {
+      resolve();
+      return;
+    }
+
+    // [NOTE] Targets comunes para salida coherente en artículo.
+    const targets = Array.from(
+      document.querySelectorAll(
+        '.post-body-title, .post-body-excerpt, .post-content, .info-section-anim, .blog-post-nav, .post-body-line, .post-body-accent-line',
+      ),
+    );
+
+    if (targets.length === 0) {
+      resolve();
+      return;
+    }
+
+    gsap.to(targets, {
+      opacity: 0.4,
+      duration: 0.32,
+      ease: 'power3.inOut',
+      stagger: 0.014,
+      onComplete: () => resolve(),
+    });
+  });
+}
+
+async function executeLocaleNavigation(code: string, path: string) {
+  // [NOTE] Guard anti-race: evita 2 pushes en paralelo.
+  if (isSwitching.value) return;
+
+  isSwitching.value = true;
+
+  try {
+    if (isBlogPostRoute.value) {
+      // PRE-SALIDA -> Solo para post detail.
+      await animateBeforeLocaleChange();
+    }
+
+    // [NOTE] Señal consumida por páginas blog para ajustar loaders/animación.
+    markLocaleSwitch();
+
+    await router.push(path);
+  } finally {
+    isSwitching.value = false;
+  }
+}
+
+function handleLocaleClick(code: string, path: string) {
+  if (code === locale.value) return;
+
+  // [NOTE] En /blog esperar a que termine la animación del header.
+  if (isBlogIndexRoute.value && isAnimating.value) {
+    pendingNavigation.value = { code, path };
+    return;
+  }
+
+  // [NOTE] Flujo normal cuando no hay gating por header.
+  executeLocaleNavigation(code, path);
+}
+
+watch(isAnimating, (animating) => {
+  // [NOTE] Cuando termina header animation, dispara navegación pendiente.
+  if (animating || !pendingNavigation.value) return;
+
+  const nextNavigation = pendingNavigation.value;
+  pendingNavigation.value = null;
+
+  executeLocaleNavigation(nextNavigation.code, nextNavigation.path);
+});
 
 const slugParam = computed(() => {
   const slug = route.params.slug;
@@ -92,6 +189,7 @@ const localizedRoutes = computed(() =>
         v-else
         :to="loc.path"
         class="opacity-30 hover:opacity-80 transition-opacity duration-200"
+        @click.prevent="handleLocaleClick(loc.code, loc.path)"
         >{{ displayLocaleCode(loc.code) }}</NuxtLink
       >
     </template>

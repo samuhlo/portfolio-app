@@ -1,7 +1,7 @@
 ---
 title: Atipo Foundry — tipografía de alto nivel preto da casa
 description: Ás veces buscamos assets premium fóra e esquecemos mirar preto. O meu descubrimento de Atipo, o estudo asturiano detrás de Silka Mono e Strawford.
-date: '2026-03-17'
+date: '2026-03-25'
 category: find
 topics: ['tipografia', 'deseño', 'ui', 'atipo', 'recursos']
 time_to_read: 5

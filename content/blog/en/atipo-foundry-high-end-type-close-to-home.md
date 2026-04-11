@@ -1,7 +1,7 @@
 ---
 title: Atipo Foundry -- High-End Type Two Hours from Home
 description: Sometimes we search for premium assets abroad and forget to look nearby. This is how I discovered Atipo, the Asturias studio behind Silka Mono and Strawford.
-date: '2026-03-17'
+date: '2026-03-25'
 category: find
 topics: ['typography', 'design', 'ui', 'atipo', 'resources']
 time_to_read: 5
