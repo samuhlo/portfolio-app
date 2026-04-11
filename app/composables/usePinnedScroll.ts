@@ -87,18 +87,16 @@ export const usePinnedScroll = () => {
 
         const settledScroll = self.start;
 
-        // Recolocar el scroller en el start antes de desactivar el pin
-        self.scroll(settledScroll);
-
-        // Desactivar pin y listeners del trigger (sin lógica diferida)
-        self.disable();
-
-        // Fijar estado final de todas las fases para que no haya replay
+        // Fijar estado final ANTES del snap para evitar onUpdate intermedio
         phases.forEach((phase, i) => {
           if (completed[i]) return;
           gsap.set(phase.timeline, { progress: 1 });
           completed[i] = true;
         });
+
+        // Recolocar el scroller en el start y desactivar el pin
+        self.scroll(settledScroll);
+        self.disable();
 
         // Recalcular offsets tras eliminar el pin-spacer
         ScrollTrigger.refresh();
