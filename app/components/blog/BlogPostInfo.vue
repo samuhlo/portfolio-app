@@ -76,7 +76,13 @@ watch(
 );
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
+  let date: Date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    date = new Date(year, month - 1, day);
+  } else {
+    date = new Date(dateStr);
+  }
   if (isNaN(date.getTime())) return '—';
   return date.toLocaleDateString(dateLocale.value, {
     month: 'long',

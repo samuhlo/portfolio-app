@@ -74,7 +74,7 @@ html: |
       <span class="line">];</span>
     </div>
 
-    <button class="replay-btn font-silka">Ejecutar Timeline</button>
+    <button class="replay-btn font-silka">Executar Timeline</button>
   </div>
 css: |
   body {

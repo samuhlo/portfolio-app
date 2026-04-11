@@ -49,11 +49,6 @@ const localeStatuses = computed<LocaleStatus[]>(() =>
     };
   }),
 );
-
-function handleLocaleClick(code: string, path: string) {
-  if (code === locale.value) return;
-  navigateTo(path);
-}
 </script>
 
 <template>
@@ -73,7 +68,6 @@ function handleLocaleClick(code: string, path: string) {
           v-else-if="loc.available"
           :to="loc.path"
           class="text-[0.6rem] font-mono uppercase tracking-[0.15em] opacity-45 hover:opacity-85 transition-opacity duration-200"
-          @click.prevent="handleLocaleClick(loc.code, loc.path)"
         >
           {{ loc.code }}
         </NuxtLink>

@@ -19,7 +19,7 @@
 
 Portfolio personal construido como un ejercicio de ingeniería de animación y automatización sobre Nuxt 4. El objetivo inicial era conseguir scroll-linked animations complejas (pinned sections, SVG draw-on-scroll, simulación de físicas 2D) manteniendo tres restricciones: SSR funcional, 60 FPS estables en móvil, y una arquitectura de composables que permita escalar sin acoplar lógica de animación a los componentes de vista.
 
-Desde entonces ha crecido en tres ejes: un **pipeline de ingesta automatizada** (GitHub push → Octokit → DeepSeek → Zod → Neon) que auto-gestiona los proyectos del Playground, un **blog propio con Nuxt Content** con componentes personalizados y físicas en el header, y un **sistema i18n completo** con slugs traducidos por locale (ES/EN/GL), transiciones suaves coordiadas con GSAP y agentes de traducción locales para el flujo de escritura.
+Desde entonces ha crecido en tres ejes: un **pipeline de ingesta automatizada** (GitHub push → Octokit → DeepSeek → Zod → Neon) que auto-gestiona los proyectos del Playground, un **blog propio con Nuxt Content** con componentes personalizados y físicas en el header, y un **sistema i18n completo** con slugs traducidos por locale (ES/EN/GL), transiciones suaves coordinadas con GSAP y agentes de traducción locales para el flujo de escritura.
 
 > _Toda la lógica de animación vive aislada en composables puros. Los componentes `.vue` solo declaran qué animar, nunca cómo. Si se elimina un módulo, el resto no se rompe._
 

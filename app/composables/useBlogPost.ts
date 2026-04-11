@@ -11,7 +11,7 @@
  * ========================================================================
  */
 
-import { computed } from 'vue';
+import { computed, toRef } from 'vue';
 import { createError } from '#app';
 import { useI18n } from '#imports';
 import { type BlogPost, type BlogPostTranslation } from '~/types/blog';
@@ -19,24 +19,26 @@ import { useBlogPosts } from '~/composables/useBlogPosts';
 
 export function useBlogPost(slug: string) {
   const { locale } = useI18n();
+  const slugRef = toRef(() => slug);
 
   const {
     data: post,
     status,
     refresh,
   } = useAsyncData(
-    () => `blog-post-${locale.value}-${slug}`,
+    () => `blog-post-${locale.value}-${slugRef.value}`,
     async () => {
       const result = await queryCollection('blog')
         .where('slug', '=', slug)
         .where('lang', '=', locale.value)
+        .where('published', '=', true)
         .first();
       if (!result) {
         throw createError({ statusCode: 404, statusMessage: 'Post not found' });
       }
       return result as BlogPost;
     },
-    { watch: [locale] },
+    { watch: [locale, slugRef] },
   );
 
   // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
