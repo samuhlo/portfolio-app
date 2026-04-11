@@ -1,4 +1,5 @@
 import tailwindcss from '@tailwindcss/vite';
+import { SITE } from './app/config/site';
 
 export default defineNuxtConfig({
   compatibilityDate: '2026-03-13',
@@ -26,7 +27,31 @@ export default defineNuxtConfig({
       devSourcemap: true,
     },
   },
-  modules: ['@nuxt/image', '@nuxt/fonts', '@pinia/nuxt', '@nuxt/content', '@nuxtjs/sitemap'],
+  modules: [
+    '@nuxtjs/i18n',
+    '@nuxt/image',
+    '@nuxt/fonts',
+    '@pinia/nuxt',
+    '@nuxt/content',
+    '@nuxtjs/sitemap',
+  ],
+
+  // =========================================================================
+  // █ I18N: Blog locale routing
+  // =========================================================================
+  i18n: {
+    strategy: 'prefix_except_default',
+    defaultLocale: 'es',
+    baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? SITE.url,
+    detectBrowserLanguage: false,
+    locales: [
+      { code: 'es', language: 'es-ES', name: 'Castellano', file: 'es.json' },
+      { code: 'en', language: 'en-US', name: 'English', file: 'en.json' },
+      { code: 'gl', language: 'gl-ES', name: 'Galego', file: 'gl.json' },
+    ],
+    bundle: { compositionOnly: true },
+    langDir: 'locales',
+  },
 
   // =========================================================================
   // █ RUNTIME CONFIG
@@ -101,7 +126,6 @@ export default defineNuxtConfig({
   // =========================================================================
   app: {
     head: {
-      htmlAttrs: { lang: 'es' },
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
       titleTemplate: '%s // SAMUHLO',

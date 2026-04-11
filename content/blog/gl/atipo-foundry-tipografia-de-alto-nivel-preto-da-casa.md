@@ -1,31 +1,33 @@
 ---
-title: Atipo Foundry — tipografía de alto nivel a dos horas de casa
-description: A veces buscamos assets premium fuera y se nos olvida mirar cerca. Mi descubrimiento de Atipo, el estudio asturiano detrás de Silka Mono y Strawford.
-date: '2026-03-17'
+title: Atipo Foundry — tipografía de alto nivel preto da casa
+description: Ás veces buscamos assets premium fóra e esquecemos mirar preto. O meu descubrimento de Atipo, o estudo asturiano detrás de Silka Mono e Strawford.
+date: '2026-03-25'
 category: find
-topics: ['tipografía', 'diseño', 'ui', 'atipo', 'recursos']
+topics: ['tipografia', 'deseño', 'ui', 'atipo', 'recursos']
 time_to_read: 5
 published: true
-slug: atipo-foundry
+lang: gl
+translationKey: atipo-foundry
+slug: atipo-foundry-tipografia-de-alto-nivel-preto-da-casa
 ---
 
-## El asset que tenías al lado
+## O asset que tiñas ao lado
 
-Cuando construyes productos digitales, las tipografías de Google Fonts acaban por quedarse cortas. No porque sean malas, sino porque necesitas algo con más carácter, más pesos, o simplemente algo que no esté en tres millones de webs más.
+Cando constrúes produtos dixitais, as tipografías de Google Fonts acaban quedando curtas. Non porque sexan malas, senón porque precisas algo con máis carácter, máis pesos, ou simplemente algo que non estea en tres millóns de webs máis.
 
-El reflejo automático es abrir Typewolf, ver qué estudio tipográfico de Brooklyn, Berlín o Suiza está de moda este mes y preparar la tarjeta.
+O reflexo automático é abrir Typewolf, ver que estudo tipográfico de Brooklyn, Berlín ou Suíza está de moda este mes e preparar a tarxeta.
 
-Descubrí :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] hace un tiempo y me rompió un poco los esquemas. Es un estudio de Gijón que lleva años sacando tipografías con un nivel técnico y estético altísimo. No es solo que las letras sean bonitas: el kerning, la legibilidad en pantalla y la estructura geométrica aguantan muy bien cuando las metes en una interfaz densa. Y están a dos horas en coche.
+Descubrín :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] hai un tempo e rompeume un pouco os esquemas. É un estudo de Xixón que leva anos sacando tipografías cun nivel técnico e estético altísimo. Non é só que as letras sexan bonitas: o kerning, a lexibilidade en pantalla e a estrutura xeométrica aguantan moi ben cando as metes nunha interface densa. E están a dúas horas en coche.
 
-## Mis tres licencias de Atipo
+## As miñas tres licenzas de Atipo
 
-No llegué a estas tres por descarte. Llegué porque cada una me resolvía algo concreto que no estaba encontrando en otras.
+Non cheguei a estas tres por descarte. Cheguei porque cada unha me resolvía algo concreto que non estaba atopando noutras.
 
-**Strawford** la uso como tipografía base de interfaces. Lo que me engancha de ella es que es geométrica pero no aséptica: tiene una calidez que muchas geométricas puras suelen sacrificar por mantenerlo todo bajo control. En entornos de alto contraste, en titulares o en bloques de lectura densa, se asienta sin molestar o tira de la mirada según el peso que le metas. Y eso, en una tipografía de UI, vale muchísimo.
+**Strawford** úsoa como tipografía base de interfaces. O que me engancha dela é que é xeométrica pero non aséptica: ten unha calidez que moitas xeométricas puras adoitan sacrificar por manter todo baixo control. En contornos de alto contraste, en titulares ou en bloques de lectura densa, aséntase sen molestar ou tira da mirada segundo o peso que lle metas. E iso, nunha tipografía de UI, vale moitísimo.
 
-**Silka Mono** la tengo en casi todas las partes de la interfaz que necesitan comunicar precisión: etiquetas, fechas, datos numéricos, microcopy técnico. No es solo que sea bonita, que también, sino que hace que esos elementos parezcan parte de un sistema y no un añadido de última hora. Hay monoespaciadas que cargan visualmente el layout. Esta no.
+**Silka Mono** téñoa en case todas as partes da interface que precisan comunicar precisión: etiquetas, datas, datos numéricos, microcopy técnico. Non é só que sexa bonita, que tamén, senón que fai que eses elementos parezan parte dun sistema e non un engadido de última hora. Hai monoespaciadas que cargan visualmente o layout. Esta non.
 
-**Bariol Icons** la usé para el logotipo de [TinyShow](https://tinyshow.vercel.app/) y fue probablemente la decisión más rápida de todo el proceso de diseño: la vi, se me ocurrió usarla en un spinner y no hubo más vueltas.
+**Bariol Icons** useina para o logotipo de [TinyShow](https://tinyshow.vercel.app/) e foi probablemente a decisión máis rápida de todo o proceso de deseño: vina, ocorréuseme usala nun spinner e non houbo máis voltas.
 
 ::image-slider
 ---
@@ -33,16 +35,16 @@ height: 750
 maxWidth: 1400px
 images:
   - src: https://www.atipofoundry.com/media/pages/fonts/strawford/3c088c2e7b-1620143428/strawford-font-03.jpg
-    alt: Espécimen de la familia Strawford
+    alt: Espécime da familia Strawford
     label: STRAWFORD_EXAMPLE_01
   - src: https://www.atipofoundry.com/media/pages/fonts/strawford/5bfabf34ec-1620143428/strawford-font-12.jpg
-    alt: Espécimen de la familia Strawford
+    alt: Espécime da familia Strawford
     label: STRAWFORD_EXAMPLE_02
   - src: https://www.atipofoundry.com/media/pages/fonts/silka-mono/f9334ad42b-1591511644/Silka-Mono-09.jpg
-    alt: Espécimen de la familia Silka Mono
+    alt: Espécime da familia Silka Mono
     label: SILKA_MONO_EXAMPLE_01
   - src: https://www.atipofoundry.com/media/pages/fonts/silka-mono/7998f2ef74-1591511642/Silka-Mono-12.jpg
-    alt: Espécimen de la familia Silka Mono
+    alt: Espécime da familia Silka Mono
     label: SILKA_MONO_EXAMPLE_02
 ---
 ::
@@ -72,7 +74,7 @@ html: |
       <span class="line">];</span>
     </div>
 
-    <button class="replay-btn font-silka">Ejecutar Timeline</button>
+    <button class="replay-btn font-silka">Executar Timeline</button>
   </div>
 css: |
   body {
@@ -206,16 +208,16 @@ js: |
 ---
 ::
 
-## El modelo "Pay what you want"
+## O modelo "Pay what you want"
 
-Atipo tiene un modelo de distribución muy honesto. En muchas familias te dejan descargar gratis uno de los pesos, y si quieres la familia completa con todos los pesos, itálicas y licencias web, entras en el modelo "pay what you want". Para la calidad que entregan, me parece una forma muy inteligente de dejarte probar sin obligarte a comprar a ciegas.
+Atipo ten un modelo de distribución moi honesto. En moitas familias deixan descargar gratis un dos pesos, e se queres a familia completa con todos os pesos, itálicas e licenzas web, entras no modelo "pay what you want". Para a calidade que entregan, paréceme unha forma moi intelixente de deixarche probar sen obrigarte a comprar ás cegas.
 
-Te dejan probar la fuente en tu entorno de diseño, ver si encaja y, si te funciona, pagar después. Como inversión en activos para tu stack personal, a mí me compensa muchísimo.
+Déixanche probar a fonte no teu contorno de deseño, ver se encaixa e, se che funciona, pagar despois. Como investimento en activos para o teu stack persoal, a min compénsame moitísimo.
 
-## Atipo y la buena tipografía
+## Atipo e a boa tipografía
 
-Quería escribir esto para dejar constancia y darles las gracias. A veces nos cegamos buscando la excelencia fuera, como si el mejor diseño o la mejor ingeniería solo pudiera salir de los grandes hubs internacionales, y se nos olvida mirar cerca cuando el nivel está ahí.
+Quería escribir isto para deixar constancia e darlles as grazas. Ás veces cegámonos buscando a excelencia fóra, coma se o mellor deseño ou a mellor enxeñaría só puidesen saír dos grandes hubs internacionais, e esquecemos mirar preto cando o nivel está aí.
 
-Si estás montando un producto, tu portfolio, o simplemente estás harto de tirar siempre de Inter y Roboto, échale un ojo a su catálogo.
+Se estás montando un produto, o teu portfolio, ou simplemente estás farto de tirar sempre de Inter e Roboto, bótalle un ollo ao seu catálogo.
 
 :hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="right" trigger="scroll" duration="2" width="2em"}[**Están en [atipofoundry.com](https://www.atipofoundry.com/)**]

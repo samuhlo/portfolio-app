@@ -4,20 +4,42 @@
  * ========================================================================
  * DESC:   Lista de posts publicados desde Nuxt Content, ordenados por
  *         fecha descendente. Filtrable por categoría en el cliente.
- *         La key 'blog-posts' es compartida — otras llamadas (useBlogPost,
- *         useBlogCategories) reusan el mismo cache sin doble fetch.
+ *         La clave incluye el locale activo — refetch automático al
+ *         cambiar idioma. Solo muestra posts del locale actual (sin fallback).
  * STATUS: STABLE
  * ========================================================================
  */
 
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useI18n } from '#imports';
 import { type BlogPost, type BlogCategory } from '~/types/blog';
 
 let clientRetryAttempted = false;
 
 export function useBlogPosts() {
-  const { data, status, refresh } = useAsyncData('blog-posts', () =>
-    queryCollection('blog').where('published', '=', true).order('date', 'DESC').all(),
+  const { locale } = useI18n();
+
+  const { data, status, refresh } = useAsyncData(
+    () => `blog-posts-${locale.value}`,
+    () =>
+      queryCollection('blog')
+        .where('published', '=', true)
+        .where('lang', '=', locale.value)
+        .order('date', 'DESC')
+        .all(),
+    { watch: [locale] },
+  );
+
+  const lastResolvedPosts = ref<BlogPost[]>([]);
+
+  watch(
+    data,
+    (value) => {
+      if (Array.isArray(value) && value.length > 0) {
+        lastResolvedPosts.value = value as BlogPost[];
+      }
+    },
+    { immediate: true },
   );
 
   // [FIX] En entornos serverless, queryCollection puede devolver null en SSR.
@@ -33,7 +55,12 @@ export function useBlogPosts() {
     void refresh();
   }
 
-  const posts = computed<BlogPost[]>(() => (data.value as BlogPost[]) ?? []);
+  const posts = computed<BlogPost[]>(() => {
+    if (Array.isArray(data.value)) {
+      return data.value as BlogPost[];
+    }
+    return lastResolvedPosts.value;
+  });
 
   function filterByCategory(category: BlogCategory | 'all'): BlogPost[] {
     if (category === 'all') return posts.value;

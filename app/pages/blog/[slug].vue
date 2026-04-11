@@ -15,7 +15,11 @@ definePageMeta({ layout: 'blog' });
 
 import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
+
+import { useSetI18nParams } from '#imports';
+
 import { SITE, BREAKPOINTS } from '~/config/site';
+
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import type { TocHeading } from '~/types/blog';
@@ -24,10 +28,33 @@ import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
 import BlogPostNavigation from '~/components/blog/BlogPostNavigation.vue';
 
+const setI18nParams = useSetI18nParams();
+
 const route = useRoute();
 const slugValue = route.params.slug as string;
 
-const { post, prevPost, nextPost } = useBlogPost(slugValue);
+const { post, prevPost, nextPost, translations } = useBlogPost(slugValue);
+
+watch(
+  [post, translations],
+  ([currentPost, currentTranslations]) => {
+    if (!currentPost) return;
+
+    // [NOTE] Slugs traducidos por locale.
+    // Sin este mapeo, switchLocalePath puede resolver params incorrectos.
+
+    const params: Record<string, { slug: string }> = Object.fromEntries(
+      currentTranslations.map((item) => [item.lang, { slug: item.slug }]),
+    );
+
+    if (!params[currentPost.lang]) {
+      params[currentPost.lang] = { slug: currentPost.slug };
+    }
+
+    setI18nParams(params);
+  },
+  { immediate: true },
+);
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
 const containerRef = ref<HTMLElement | null>(null);
@@ -62,9 +89,7 @@ useSeoMeta({
 // █ ANIMATION CONSTANTS — editar aquí para ajustar velocidad y tipo
 // =============================================================================
 const ANIM = {
-  // Ease por defecto del timeline
   defaultEase: 'power3.out',
-
   sidebar: { x: -24, duration: 0.4, stagger: 0.06 },
   eyebrow: { y: -10, duration: 0.35, overlap: '-=0.2' },
   title: { duration: 0.6, ease: 'power4.out', overlap: '-=0.15' },
@@ -74,9 +99,7 @@ const ANIM = {
 } as const;
 
 // =============================================================================
-// █ GSAP SETUP: se inicia cuando post está disponible y el DOM renderizado.
-//   Usa watch + nextTick para garantizar que funciona tanto en SSR como
-//   en navegación client-side (donde post puede llegar tras onMounted).
+// █ GSAP SETUP
 // =============================================================================
 let gsapInitialized = false;
 
@@ -87,62 +110,88 @@ function setupGSAP() {
   initGSAP(() => {
     if (!containerRef.value) return;
 
+    const navEl = containerRef.value.querySelector('.blog-post-nav');
+
     const savedScroll = sessionStorage.getItem(SCROLL_KEY);
     const hasRestoredScroll = savedScroll && parseInt(savedScroll, 10) > 0;
 
     if (hasRestoredScroll) {
-      // [NOTE] La nav empieza con opacity:0 en HTML para evitar flash antes de GSAP.
-      // Si restauramos scroll, no hay animación → revelar inmediatamente.
-      gsap.set('.blog-post-nav', { opacity: 1 });
+      // [NOTE] Scroll restaurado: revelar nav sin animación.
+      if (navEl) {
+        gsap.set(navEl, { opacity: 1 });
+      }
       window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
     } else {
+      // [NOTE] Animación normal de entrada.
       const tl = gsap.timeline({ defaults: { ease: ANIM.defaultEase } });
 
-      tl.from('.info-section-anim', {
-        x: ANIM.sidebar.x,
-        opacity: 0,
-        duration: ANIM.sidebar.duration,
-        stagger: ANIM.sidebar.stagger,
-      });
-      tl.from(
-        '.post-body-eyebrow',
-        { y: ANIM.eyebrow.y, opacity: 0, duration: ANIM.eyebrow.duration },
-        ANIM.eyebrow.overlap,
-      );
-      tl.from(
-        '.post-body-title',
-        { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease },
-        ANIM.title.overlap,
-      );
-      tl.from(
-        '.post-body-accent-line',
-        { scaleY: 0, duration: 0.7, ease: 'power2.inOut' },
-        '<',
-      );
-      tl.from(
-        '.post-body-excerpt',
-        { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
-        ANIM.excerpt.overlap,
-      );
-      tl.from(
-        '.post-body-line',
-        { scaleX: 0, duration: ANIM.line.duration, ease: ANIM.line.ease },
-        ANIM.line.overlap,
-      );
-      tl.from(
-        '.post-content',
-        { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration },
-        ANIM.content.overlap,
-      );
-      // [NOTE] La nav empieza en opacity:0 (inline style en BlogPostNavigation).
-      // Se revela al final del timeline para que no flicker antes de que el
-      // contenido principal esté animado.
-      tl.to('.blog-post-nav', { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.2');
+      const sidebarEls = containerRef.value.querySelectorAll('.info-section-anim');
+      const eyebrowEl = containerRef.value.querySelector('.post-body-eyebrow');
+      const titleAnimEl = containerRef.value.querySelector('.post-body-title');
+      const accentLineEl = containerRef.value.querySelector('.post-body-accent-line');
+      const excerptEl = containerRef.value.querySelector('.post-body-excerpt');
+      const bodyLineEl = containerRef.value.querySelector('.post-body-line');
+      const contentEl = containerRef.value.querySelector('.post-content');
+
+      if (sidebarEls.length > 0) {
+        tl.from(sidebarEls, {
+          x: ANIM.sidebar.x,
+          opacity: 0,
+          duration: ANIM.sidebar.duration,
+          stagger: ANIM.sidebar.stagger,
+        });
+      }
+
+      if (eyebrowEl) {
+        tl.from(
+          eyebrowEl,
+          { y: ANIM.eyebrow.y, opacity: 0, duration: ANIM.eyebrow.duration },
+          ANIM.eyebrow.overlap,
+        );
+      }
+
+      if (titleAnimEl) {
+        tl.from(
+          titleAnimEl,
+          { yPercent: 105, opacity: 0, duration: ANIM.title.duration, ease: ANIM.title.ease },
+          ANIM.title.overlap,
+        );
+      }
+
+      if (accentLineEl) {
+        tl.from(accentLineEl, { scaleY: 0, duration: 0.7, ease: 'power2.inOut' }, '<');
+      }
+
+      if (excerptEl) {
+        tl.from(
+          excerptEl,
+          { y: ANIM.excerpt.y, opacity: 0, duration: ANIM.excerpt.duration },
+          ANIM.excerpt.overlap,
+        );
+      }
+
+      if (bodyLineEl) {
+        tl.from(
+          bodyLineEl,
+          { scaleX: 0, duration: ANIM.line.duration, ease: ANIM.line.ease },
+          ANIM.line.overlap,
+        );
+      }
+
+      if (contentEl) {
+        tl.from(
+          contentEl,
+          { y: ANIM.content.y, opacity: 0, duration: ANIM.content.duration },
+          ANIM.content.overlap,
+        );
+      }
+
+      if (navEl) {
+        tl.to(navEl, { opacity: 1, duration: 0.4, ease: 'power2.out' }, '-=0.2');
+      }
     }
 
     // ScrollTrigger: muestra el título en la sidebar cuando el h1 sale del viewport
-    // [NOTE] Solo en desktop — en móvil el sidebar está en otro orden de layout
-    // y el título apareciendo causa un salto visual innecesario.
     const titleEl = containerRef.value.querySelector('.post-body-title');
     const isDesktop = window.matchMedia(`(min-width: ${BREAKPOINTS.mobile}px)`).matches;
     if (titleEl && isDesktop) {
@@ -169,9 +218,6 @@ function setupGSAP() {
 
 // =============================================================================
 // █ TOC HEADING TRIGGERS
-//   Separado de setupGSAP porque ContentRenderer puede tardar múltiples frames
-//   en pintar el markdown en SPA navigation. El retry con rAF resuelve el timing
-//   sin depender de nextTick ni de cuántos ciclos necesite el renderer.
 // =============================================================================
 interface Killable {
   kill(): void;
@@ -186,7 +232,6 @@ function setupHeadingTriggers(attempt = 0) {
     containerRef.value.querySelectorAll('.post-content h2'),
   ) as HTMLElement[];
 
-  // ContentRenderer no ha pintado aún — reintentar en el siguiente frame
   if (headingEls.length === 0) {
     if (attempt < 30) requestAnimationFrame(() => setupHeadingTriggers(attempt + 1));
     return;
@@ -200,8 +245,6 @@ function setupHeadingTriggers(attempt = 0) {
       level: 2 as const,
     }));
 
-  // Los h2 existen pero aún sin IDs (Nuxt Content los asigna en el siguiente
-  // ciclo de render tras la hidratación en SPA navigation) → reintentar
   if (headings.length === 0) {
     if (attempt < 30) requestAnimationFrame(() => setupHeadingTriggers(attempt + 1));
     return;
@@ -223,7 +266,6 @@ function setupHeadingTriggers(attempt = 0) {
         activeHeadingId.value = heading.id;
       },
       onLeaveBack: () => {
-        // El heading vuelve a ser visible → el activo es el anterior
         activeHeadingId.value = idx > 0 ? headings[idx - 1]!.id : '';
       },
     });
@@ -231,8 +273,6 @@ function setupHeadingTriggers(attempt = 0) {
     headingTriggers.push(trigger);
   });
 
-  // Re-evalúa triggers con la posición de scroll actual
-  // (necesario si el usuario llegó con scroll ya avanzado)
   ScrollTrigger.refresh();
 }
 
@@ -270,6 +310,7 @@ onUnmounted(() => {
           :show-title="showTitleInSidebar"
           :revealed-headings="revealedHeadings"
           :active-heading-id="activeHeadingId"
+          :translations="translations"
         />
       </template>
 

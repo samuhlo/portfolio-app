@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 
-const reqUrl = useRequestURL();
+const localeHead = useLocaleHead({ seo: true });
 
-useHead({
-  link: [{ rel: 'canonical', href: reqUrl.href }],
+useHead(() => {
+  const dir = localeHead.value.htmlAttrs?.dir;
+  const normalizedDir = dir === 'ltr' || dir === 'rtl' || dir === 'auto' ? dir : undefined;
+
+  return {
+    htmlAttrs: {
+      lang: localeHead.value.htmlAttrs?.lang,
+      dir: normalizedDir,
+    },
+    link: [...(localeHead.value.link ?? [])],
+    meta: [...(localeHead.value.meta ?? [])],
+  };
 });
 
 const isLoading = ref(true);

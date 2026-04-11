@@ -10,6 +10,7 @@
  */
 
 import { ref, computed } from 'vue';
+import { useI18n } from '#imports';
 import { CATEGORY_LABELS, CATEGORY_COLORS, type BlogCategory, type BlogPost } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
@@ -21,7 +22,15 @@ const props = defineProps<{
 }>();
 
 const { gsap } = useGSAP();
+const localePath = useLocalePath();
+const { locale } = useI18n();
 const { preparePaths, addDrawAnimation, erasePaths } = useDoodleDraw();
+
+const dateLocale = computed(() => {
+  if (locale.value === 'gl') return 'gl-ES';
+  if (locale.value === 'es') return 'es-ES';
+  return 'en-US';
+});
 
 // =============================================================================
 // █ CONSTANTS
@@ -50,7 +59,7 @@ const filteredPosts = computed(() => {
 // Formatear fecha
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(dateLocale.value, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -145,7 +154,7 @@ function onMouseLeave(slug: string) {
         class="post-item-anim group relative cursor-pointer"
       >
         <NuxtLink
-          :to="`/blog/${post.slug}`"
+          :to="localePath(`/blog/${post.slug}`)"
           class="block py-3 md:py-8"
           @mouseenter="onMouseEnter(post.slug)"
           @mouseleave="onMouseLeave(post.slug)"
@@ -212,7 +221,7 @@ function onMouseLeave(slug: string) {
 
       <!-- Empty state -->
       <div v-if="filteredPosts.length === 0" class="py-12 text-center opacity-55">
-        <p class="text-sm font-mono tracking-wide">No posts in this category</p>
+        <p class="text-sm font-mono tracking-wide">{{ $t('blog.label_no_posts_in_category') }}</p>
       </div>
     </div>
   </div>

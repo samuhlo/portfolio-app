@@ -8,6 +8,10 @@
 
 export type BlogCategory = 'weekly_log' | 'find' | 'breakdown' | 'roots';
 
+export type BlogLocale = 'es' | 'en' | 'gl';
+
+export const BLOG_LOCALES: BlogLocale[] = ['es', 'en', 'gl'];
+
 export type BlogPost = {
   slug: string;
   title: string;
@@ -17,10 +21,18 @@ export type BlogPost = {
   topics: string[];
   time_to_read: number;
   published: boolean;
+  lang: BlogLocale;
+  translationKey: string;
   image?: string;
   // Campos internos de Nuxt Content
   _path?: string;
   body?: unknown;
+};
+
+export type BlogPostTranslation = {
+  lang: BlogLocale;
+  slug: string;
+  title: string;
 };
 
 // Ítem de TOC — headings detectados en el contenido del post

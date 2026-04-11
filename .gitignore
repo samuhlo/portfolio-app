@@ -5,14 +5,19 @@
 .nitro
 .cache
 dist
+
+# Local AI tooling (project-only, not versioned)
 .agent
 .agents
-skills
-skills-lock.json
-docs
-.claude/agent-memory/style-enforcer/MEMORY.md
+opencode.json
 .claude
 CLAUDE.md
+docs
+
+# Legacy local skill artifacts
+skills
+skills-lock.json
+
 # Node dependencies
 node_modules
 

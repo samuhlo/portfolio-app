@@ -11,10 +11,12 @@
  */
 
 import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { useI18n } from '#imports';
 import { SITE } from '~/config/site';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
+import { useBlogNavigationContext } from '~/composables/useBlogNavigationContext';
 import { type BlogCategory } from '~/types/blog';
 import BlogHeader from '~/components/blog/BlogHeader.vue';
 import BlogIndex from '~/components/blog/BlogIndex.vue';
@@ -22,16 +24,25 @@ import BlogList from '~/components/blog/BlogList.vue';
 import PageLoader from '~/components/layout/PageLoader.vue';
 
 definePageMeta({
+  key: 'blog-index',
   layout: 'blog',
   middleware(to, from) {
     // [NOTE] Animar header solo en primera carga o desde fuera del blog.
-    const isFromBlogPost =
-      from.name !== undefined && from.path.startsWith('/blog/') && from.path !== '/blog/';
+    const isFromBlogPost = /^\/(?:[a-z]{2}\/)?blog\/[^/]+\/?$/.test(from.path);
     to.meta.skipHeaderAnimation = isFromBlogPost;
   },
 });
 
 const isLoading = ref(true);
+const { consumeLocaleSwitch } = useBlogNavigationContext();
+const isLocaleSwitchNavigation = ref(consumeLocaleSwitch());
+const { locale } = useI18n();
+
+// [NOTE] Si venimos de un locale switch, ocultar loader de inmediato.
+// OBJETIVE -> Evitar blink de overlay entre idiomas.
+if (isLocaleSwitchNavigation.value) {
+  isLoading.value = false;
+}
 
 const { posts, status, filterByCategory } = useBlogPosts();
 const { categories } = useBlogCategories();
@@ -88,15 +99,78 @@ function runAnimation() {
   }, containerRef.value);
 }
 
+function runSoftLocaleSwitchAnimation() {
+  initGSAP(() => {
+    isLoading.value = false;
+
+    if (!containerRef.value) return;
+
+    // [NOTE] Solo animamos lista de posts y divisores.
+    // Las categorías se mantienen estáticas en locale switch.
+    const listEl = containerRef.value.querySelector('.blog-list');
+    if (!listEl) return;
+
+    const postEls = containerRef.value.querySelectorAll('.post-item-anim');
+    const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
+
+    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
+    tl.fromTo(
+      listEl,
+      { opacity: 0.8, y: 14 },
+      { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out', clearProps: 'transform' },
+    );
+
+    if (postEls.length > 0) {
+      tl.fromTo(
+        postEls,
+        { opacity: 0.6, y: 18 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.78,
+          stagger: 0.065,
+          ease: 'power2.out',
+          clearProps: 'transform',
+        },
+        '<0.02',
+      );
+    }
+
+    if (dividerEls.length > 0) {
+      tl.fromTo(
+        dividerEls,
+        { opacity: 0.58, scaleX: 0.93 },
+        { opacity: 1, scaleX: 1, duration: 0.7, stagger: 0.055, ease: 'power2.out' },
+        '<0.04',
+      );
+    }
+  }, containerRef.value);
+}
+
 onMounted(() => {
+  // [NOTE] Primera entrada del componente.
+  // Si status ya está resuelto, animar en el próximo frame de Vue.
   if (status.value === 'success') {
-    nextTick(() => runAnimation());
+    nextTick(() => {
+      if (isLocaleSwitchNavigation.value) {
+        runSoftLocaleSwitchAnimation();
+        return;
+      }
+      runAnimation();
+    });
   } else if (status.value === 'error') {
     isLoading.value = false;
   } else {
     const unwatch = watch(status, (newStatus) => {
       if (newStatus === 'success') {
-        nextTick(() => runAnimation());
+        nextTick(() => {
+          if (isLocaleSwitchNavigation.value) {
+            runSoftLocaleSwitchAnimation();
+            return;
+          }
+          runAnimation();
+        });
         unwatch();
       } else if (newStatus === 'error') {
         isLoading.value = false;
@@ -105,12 +179,37 @@ onMounted(() => {
     });
   }
 });
+
+watch(locale, async (newLocale, oldLocale) => {
+  // [NOTE] Reacción local al cambio de locale SIN remount de página.
+  // key: 'blog-index' mantiene la instancia viva.
+  if (!oldLocale || newLocale === oldLocale) return;
+
+  isLocaleSwitchNavigation.value = true;
+  isLoading.value = false;
+
+  if (status.value === 'success') {
+    await nextTick();
+    runSoftLocaleSwitchAnimation();
+    return;
+  }
+
+  const stop = watch(status, async (newStatus) => {
+    if (newStatus === 'success') {
+      await nextTick();
+      runSoftLocaleSwitchAnimation();
+      stop();
+    } else if (newStatus === 'error') {
+      stop();
+    }
+  });
+});
 </script>
 
 <template>
   <div ref="containerRef" class="blog-page pb-24 md:pb-32">
     <PageLoader :visible="isLoading" />
-    <BlogHeader />
+    <BlogHeader :locale-switch="isLocaleSwitchNavigation" />
 
     <div class="blog-content grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
       <div class="md:col-span-3">

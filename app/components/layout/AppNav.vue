@@ -12,6 +12,7 @@ import { ref, onMounted, onUnmounted } from 'vue';
 import { SITE } from '~/config/site';
 
 const { gsap, initGSAP } = useGSAP();
+const localePath = useLocalePath();
 const { $lenis } = useNuxtApp() as any;
 
 const navRef = ref<HTMLElement | null>(null);
@@ -60,21 +61,19 @@ onUnmounted(() => {
   >
     <div class="flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink to="/" class="hover:font-bold transition-opacity"
-          >Home</NuxtLink
-        >
+        <NuxtLink :to="localePath('/')" class="hover:font-bold transition-opacity">Home</NuxtLink>
       </RandomDoodleHover>
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink to="/blog" class="hover:font-bold transition-opacity"
+        <NuxtLink :to="localePath('/blog')" class="hover:font-bold transition-opacity"
           >Logs</NuxtLink
         >
       </RandomDoodleHover>
     </div>
+    <slot />
+
     <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
-        <NuxtLink
-          :to="`mailto:${SITE.email}`"
-          class="hover:font-bold transition-opacity"
+        <NuxtLink :to="`mailto:${SITE.email}`" class="hover:font-bold transition-opacity"
           >Contact</NuxtLink
         >
       </RandomDoodleHover>

@@ -11,15 +11,28 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { useI18n } from '#imports';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogHeaderPhysics } from '~/composables/useBlogHeaderPhysics';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import { useBlogHeaderAnimationGate } from '~/composables/useBlogHeaderAnimationGate';
 import type { DoodleExposed } from '~/types/doodle';
+
+const props = withDefaults(
+  defineProps<{
+    localeSwitch?: boolean;
+  }>(),
+  {
+    localeSwitch: false,
+  },
+);
 
 const { gsap, initGSAP } = useGSAP();
 const { launch: launchBPhysics } = useBlogHeaderPhysics();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
+const { setAnimating } = useBlogHeaderAnimationGate();
+const { locale } = useI18n();
 
 const headerRef = ref<HTMLElement | null>(null);
 const doodleRef = ref<DoodleExposed | null>(null);
@@ -94,7 +107,8 @@ onMounted(() => {
     // GUARD: Si venimos de un blog post, aplicar estado final directo
     // con un fade-in sutil para que no quede estático.
     // =================================================================
-    if (route.meta.skipHeaderAnimation) {
+    if (route.meta.skipHeaderAnimation || props.localeSwitch) {
+      setAnimating(false);
       gsap.set(letterB, { opacity: 0 });
       wordLogs.style.marginLeft = `-${bWidthInEm}em`;
       titleContainer.style.overflow = 'visible';
@@ -105,13 +119,23 @@ onMounted(() => {
         doodlePaths.forEach((p) => gsap.set(p, { strokeDashoffset: 0, visibility: 'visible' }));
       }
 
-      // Fade-in sutil del header completo
-      gsap.from(headerRef.value, {
-        opacity: 0,
-        y: 20,
-        duration: 0.6,
-        ease: 'power3.out',
-      });
+      if (props.localeSwitch) {
+        // [NOTE] Cambio de idioma en /blog:
+        // mantener título en estado final y animar solo el subtítulo.
+        gsap.fromTo(
+          '.blog-header-desc',
+          { opacity: 0.16, y: 12 },
+          { opacity: 0.5, y: 0, duration: 0.72, ease: 'power2.out' },
+        );
+      } else {
+        // Fade-in sutil del header completo al volver desde post.
+        gsap.from(headerRef.value, {
+          opacity: 0,
+          y: 20,
+          duration: 0.6,
+          ease: 'power3.out',
+        });
+      }
       return;
     }
 
@@ -119,6 +143,7 @@ onMounted(() => {
     // TIMELINE PRINCIPAL — Entrance del header completo
     // =================================================================
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    setAnimating(true);
 
     // FASE 1 — TITLE "BLOGS": reveal desde abajo (yPercent clip effect)
     tl.from(
@@ -237,7 +262,25 @@ onMounted(() => {
         ...DOODLE_TIMING,
       });
     }
+
+    cartoonTl.eventCallback('onComplete', () => {
+      setAnimating(false);
+    });
   }, headerRef.value);
+});
+
+onUnmounted(() => {
+  setAnimating(false);
+});
+
+watch(locale, (newLocale, oldLocale) => {
+  if (!oldLocale || newLocale === oldLocale || !headerRef.value) return;
+
+  gsap.fromTo(
+    '.blog-header-desc',
+    { opacity: 0.18, y: 10 },
+    { opacity: 0.5, y: 0, duration: 0.68, ease: 'power2.out' },
+  );
 });
 </script>
 
@@ -275,7 +318,7 @@ onMounted(() => {
     <p
       class="blog-header-desc mt-8 text-base font-mono md:text-lg tracking-wide opacity-50 max-w-lg leading-relaxed"
     >
-      Lo que descubro, lo que rompo, y lo que guardo para no olvidar.
+      {{ $t('blog.header_desc') }}
     </p>
   </header>
 </template>

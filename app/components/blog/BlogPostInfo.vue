@@ -11,7 +11,8 @@
  */
 
 import { ref, watch, onUnmounted } from 'vue';
-import type { BlogPost, TocHeading } from '~/types/blog';
+import { useI18n, useLocalePath } from '#imports';
+import type { BlogPost, TocHeading, BlogPostTranslation } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
 import { useGSAP } from '~/composables/useGSAP';
 import { useLenis } from '~/composables/useLenis';
@@ -22,9 +23,18 @@ const props = defineProps<{
   showTitle?: boolean;
   revealedHeadings?: TocHeading[];
   activeHeadingId?: string;
+  translations?: BlogPostTranslation[];
 }>();
 
 const lenis = useLenis();
+const localePath = useLocalePath();
+const { locale } = useI18n();
+
+const dateLocale = computed(() => {
+  if (locale.value === 'gl') return 'gl-ES';
+  if (locale.value === 'es') return 'es-ES';
+  return 'en-US';
+});
 
 function scrollToHeading(id: string) {
   const el = document.getElementById(id);
@@ -66,9 +76,19 @@ watch(
 );
 
 function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
+  let date: Date;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    date = new Date(year, month - 1, day);
+  } else {
+    date = new Date(dateStr);
+  }
   if (isNaN(date.getTime())) return '—';
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  return date.toLocaleDateString(dateLocale.value, {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
 const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
@@ -89,7 +109,7 @@ async function copyLink() {
 
 onUnmounted(() => {
   if (copyTimer) clearTimeout(copyTimer);
-})
+});
 </script>
 
 <template>
@@ -97,9 +117,13 @@ onUnmounted(() => {
     <!-- Back link -->
     <div class="info-section-anim mb-10">
       <RandomDoodleHover :stroke-width="3" :stroke-color="categoryColor">
-        <NuxtLink to="/blog" aria-label="Back to blog" class="nav-link inline-flex items-center gap-2">
+        <NuxtLink
+          :to="localePath('/blog')"
+          :aria-label="$t('blog.label_back')"
+          class="nav-link inline-flex items-center gap-2"
+        >
           <span>←</span>
-          <span>Back</span>
+          <span>{{ $t('blog.label_back') }}</span>
         </NuxtLink>
       </RandomDoodleHover>
     </div>
@@ -157,7 +181,7 @@ onUnmounted(() => {
     <div class="flex flex-col">
       <!-- Category — el elemento de color del sidebar -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Category</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_category') }}</p>
         <div class="flex items-center gap-2">
           <!-- Dot en color de categoría -->
           <span
@@ -175,13 +199,13 @@ onUnmounted(() => {
 
       <!-- Published -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Published</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_published') }}</p>
         <p class="text-xs font-mono opacity-75">{{ formatDate(post.date) }}</p>
       </div>
 
       <!-- Read time -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-2">Read time</p>
+        <p class="meta-label mb-2">{{ $t('blog.label_read_time') }}</p>
         <p class="text-xs font-mono opacity-60">
           <span class="font-bold text-sm">{{ post.time_to_read }}</span>
           <span class="opacity-60"> min</span>
@@ -190,7 +214,7 @@ onUnmounted(() => {
 
       <!-- Topics -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
-        <p class="meta-label mb-3">Topics</p>
+        <p class="meta-label mb-3">{{ $t('blog.label_topics') }}</p>
         <div class="flex flex-col gap-1.5">
           <span
             v-for="topic in post.topics"
@@ -202,16 +226,25 @@ onUnmounted(() => {
         </div>
       </div>
 
+      <!-- Language switcher -->
+      <BlogLanguageSwitcher :translations="translations ?? []" />
+
       <!-- Share -->
       <div class="info-section-anim pt-4">
-        <button aria-label="Copy link to this post" class="group flex items-center gap-2 cursor-pointer" @click="copyLink">
+        <button
+          :aria-label="$t('blog.label_copy_link')"
+          class="group flex items-center gap-2 cursor-pointer"
+          @click="copyLink"
+        >
           <span
             class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
           >
-            Copy link
+            {{ $t('blog.label_copy_link') }}
           </span>
         </button>
-        <span aria-live="polite" class="sr-only">{{ copied ? 'Link copied' : '' }}</span>
+        <span aria-live="polite" class="sr-only">{{
+          copied ? $t('blog.label_link_copied') : ''
+        }}</span>
       </div>
     </div>
   </div>

@@ -14,6 +14,8 @@ export default defineContentConfig({
         time_to_read: z.number(),
         published: z.boolean(),
         slug: z.string(),
+        lang: z.enum(['es', 'en', 'gl']),
+        translationKey: z.string(),
         image: z.string().optional(),
       }),
     }),
