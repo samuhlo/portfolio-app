@@ -28,8 +28,8 @@ useSeoMeta({
   ogUrl: SITE.url,
   ogSiteName: SITE.name,
   ogLocale: 'en_US',
-  ogImage: `${SITE.url}/images/og-cover.png`,
-  ogImageSecureUrl: `${SITE.url}/images/og-cover.png`,
+  ogImage: `${SITE.url}/images/og-image.png`,
+  ogImageSecureUrl: `${SITE.url}/images/og-image.png`,
   ogImageType: 'image/png',
   ogImageWidth: 1200,
   ogImageHeight: 630,
@@ -37,7 +37,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: `${SITE.author} _ ${title}`,
   twitterDescription: description,
-  twitterImage: `${SITE.url}/images/og-cover.png`,
+  twitterImage: `${SITE.url}/images/og-image.png`,
   twitterImageAlt: `${SITE.author} — Code, Design & Much More`,
 });
 </script>
