@@ -13,6 +13,8 @@ export const SITE = {
   name: 'SAMUHLO.sh',
   author: 'Samuel López',
   authorHandle: 'samuhlo',
+  defaultOgImage: '/images/og-image.png',
+  defaultOgImageAlt: 'Samuel López — Code, Design & Much More',
   email: 'hola@samuhlo.dev',
   github: 'https://github.com/samuhlo',
   linkedin: 'https://www.linkedin.com/in/samuhlo/',

@@ -17,7 +17,7 @@ import { useGSAP } from '~/composables/useGSAP';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 import { useBlogCategories } from '~/composables/useBlogCategories';
 import { useBlogNavigationContext } from '~/composables/useBlogNavigationContext';
-import { type BlogCategory } from '~/types/blog';
+import { type BlogCategory, type BlogLocale } from '~/types/blog';
 import BlogHeader from '~/components/blog/BlogHeader.vue';
 import BlogIndex from '~/components/blog/BlogIndex.vue';
 import BlogList from '~/components/blog/BlogList.vue';
@@ -37,6 +37,34 @@ const isLoading = ref(true);
 const { consumeLocaleSwitch } = useBlogNavigationContext();
 const isLocaleSwitchNavigation = ref(consumeLocaleSwitch());
 const { locale } = useI18n();
+
+const BLOG_SEO_COPY: Record<BlogLocale, { title: string; description: string }> = {
+  es: {
+    title: `${SITE.author} _ Blog`,
+    description:
+      'Notas, aprendizajes y breakdowns sobre frontend, diseño y decisiones reales de producto.',
+  },
+  en: {
+    title: `${SITE.author} _ Blog`,
+    description:
+      'Notes, learnings, and breakdowns about frontend, design, and real product decisions.',
+  },
+  gl: {
+    title: `${SITE.author} _ Blog`,
+    description:
+      'Notas, aprendizaxes e breakdowns sobre frontend, deseño e decisións reais de produto.',
+  },
+};
+
+const OG_LOCALE_BY_BLOG_LOCALE: Record<BlogLocale, string> = {
+  es: 'es_ES',
+  en: 'en_US',
+  gl: 'gl_ES',
+};
+
+const seoCopy = computed(() => BLOG_SEO_COPY[(locale.value as BlogLocale) ?? 'es']);
+const ogLocale = computed(() => OG_LOCALE_BY_BLOG_LOCALE[(locale.value as BlogLocale) ?? 'es']);
+const defaultOgImageUrl = `${SITE.url}${SITE.defaultOgImage}`;
 
 // [NOTE] Si venimos de un locale switch, ocultar loader de inmediato.
 // OBJETIVE -> Evitar blink de overlay entre idiomas.
@@ -59,11 +87,24 @@ function handleCategorySelect(category: BlogCategory | 'all') {
 }
 
 useSeoMeta({
-  title: `${SITE.author} _ Blog`,
-  description: `Thoughts, updates, and design explorations from ${SITE.author}.`,
-  ogTitle: `${SITE.author} _ Blog`,
-  ogDescription: `Thoughts, updates, and design explorations from ${SITE.author}.`,
+  title: computed(() => seoCopy.value.title),
+  description: computed(() => seoCopy.value.description),
+  ogTitle: computed(() => seoCopy.value.title),
+  ogDescription: computed(() => seoCopy.value.description),
   ogType: 'website',
+  ogSiteName: SITE.name,
+  ogLocale: computed(() => ogLocale.value),
+  ogImage: defaultOgImageUrl,
+  ogImageSecureUrl: defaultOgImageUrl,
+  ogImageType: 'image/png',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: SITE.defaultOgImageAlt,
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => seoCopy.value.title),
+  twitterDescription: computed(() => seoCopy.value.description),
+  twitterImage: defaultOgImageUrl,
+  twitterImageAlt: SITE.defaultOgImageAlt,
 });
 
 function runAnimation() {
