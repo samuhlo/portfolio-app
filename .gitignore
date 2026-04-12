@@ -9,6 +9,8 @@ dist
 # Local AI tooling (project-only, not versioned)
 .agent
 .agents
+.agents-memory
+.agent-memory
 opencode.json
 .claude
 CLAUDE.md
