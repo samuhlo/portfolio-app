@@ -87,6 +87,14 @@ export default defineNuxtConfig({
   // █ NUXT CONTENT: Shiki syntax highlighting
   // =========================================================================
   content: {
+    database: {
+      type: 'sqlite',
+      // [FIX SSR][SERVERLESS]
+      // En runtimes serverless el filesystem del bundle es de solo lectura.
+      // Nuxt Content necesita una ruta escribible para montar/actualizar su SQLite.
+      // /tmp es la ruta estándar escribible en Vercel/Lambda.
+      filename: process.env.CONTENT_DB_PATH ?? '/tmp/contents.sqlite',
+    },
     build: {
       markdown: {
         highlight: {

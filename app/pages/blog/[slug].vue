@@ -13,27 +13,63 @@
 
 definePageMeta({ layout: 'blog' });
 
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, watch, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useRoute } from '#app';
 
-import { useSetI18nParams } from '#imports';
+import { useI18n, useSetI18nParams } from '#imports';
 
 import { SITE, BREAKPOINTS } from '~/config/site';
 
 import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
-import type { TocHeading } from '~/types/blog';
+import type { BlogLocale, TocHeading } from '~/types/blog';
 import BlogPostLayout from '~/components/blog/BlogPostLayout.vue';
 import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
 import BlogPostNavigation from '~/components/blog/BlogPostNavigation.vue';
 
 const setI18nParams = useSetI18nParams();
+const { locale } = useI18n();
 
 const route = useRoute();
 const slugValue = route.params.slug as string;
 
 const { post, prevPost, nextPost, translations } = useBlogPost(slugValue);
+
+const POST_SEO_FALLBACK: Record<BlogLocale, { title: string; description: string }> = {
+  es: {
+    title: `${SITE.author} _ Blog`,
+    description: 'Artículo del blog de Samuel López sobre desarrollo, diseño y proceso.',
+  },
+  en: {
+    title: `${SITE.author} _ Blog`,
+    description: "Samuel López's blog article about development, design, and process.",
+  },
+  gl: {
+    title: `${SITE.author} _ Blog`,
+    description: 'Artigo do blog de Samuel López sobre desenvolvemento, deseño e proceso.',
+  },
+};
+
+const OG_LOCALE_BY_BLOG_LOCALE: Record<BlogLocale, string> = {
+  es: 'es_ES',
+  en: 'en_US',
+  gl: 'gl_ES',
+};
+
+const defaultOgImageUrl = `${SITE.url}${SITE.defaultOgImage}`;
+
+const currentSeoFallback = computed(() => POST_SEO_FALLBACK[(locale.value as BlogLocale) ?? 'es']);
+
+const seoTitle = computed(() =>
+  post.value ? `${SITE.author} _ ${post.value.title}` : currentSeoFallback.value.title,
+);
+
+const seoDescription = computed(
+  () => post.value?.description ?? currentSeoFallback.value.description,
+);
+
+const ogLocale = computed(() => OG_LOCALE_BY_BLOG_LOCALE[(locale.value as BlogLocale) ?? 'es']);
 
 watch(
   [post, translations],
@@ -78,11 +114,27 @@ function saveScrollPosition() {
 
 // SEO
 useSeoMeta({
-  title: computed(() => (post.value ? `${SITE.author} _ ${post.value.title}` : 'Blog')),
-  description: computed(() => post.value?.description ?? ''),
-  ogTitle: computed(() => (post.value ? `${SITE.author} _ ${post.value.title}` : 'Blog')),
-  ogDescription: computed(() => post.value?.description ?? ''),
+  title: computed(() => seoTitle.value),
+  description: computed(() => seoDescription.value),
+  ogTitle: computed(() => seoTitle.value),
+  ogDescription: computed(() => seoDescription.value),
   ogType: 'article',
+  ogSiteName: SITE.name,
+  ogLocale: computed(() => ogLocale.value),
+  ogImage: defaultOgImageUrl,
+  ogImageSecureUrl: defaultOgImageUrl,
+  ogImageType: 'image/png',
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: SITE.defaultOgImageAlt,
+  twitterCard: 'summary_large_image',
+  twitterTitle: computed(() => seoTitle.value),
+  twitterDescription: computed(() => seoDescription.value),
+  twitterImage: defaultOgImageUrl,
+  twitterImageAlt: SITE.defaultOgImageAlt,
+  articlePublishedTime: computed(() => post.value?.date),
+  articleSection: computed(() => post.value?.category),
+  articleTag: computed(() => post.value?.topics),
 });
 
 // =============================================================================
