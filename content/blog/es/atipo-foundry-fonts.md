@@ -1,5 +1,5 @@
 ---
-title: Atipo Foundry: tipografía de alto nivel a dos horas de casa
+title: "Atipo Foundry: tipografía de alto nivel a dos horas de casa"
 description: A veces buscamos assets premium fuera y se nos olvida mirar cerca. Mi descubrimiento de Atipo, el estudio asturiano detrás de Silka Mono y Strawford.
 date: '2026-03-25'
 category: find
