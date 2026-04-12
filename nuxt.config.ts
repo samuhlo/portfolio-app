@@ -40,6 +40,11 @@ export default defineNuxtConfig({
     '@vercel/analytics',
   ],
 
+  sitemap: {
+    // URLs dinámicas de posts (Nuxt Content) para incluir artículos en sitemap
+    sources: ['/api/__sitemap__/blog'],
+  },
+
   // =========================================================================
   // █ I18N: Blog locale routing
   // =========================================================================
