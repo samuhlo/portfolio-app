@@ -1,27 +1,25 @@
 ---
-title: Como animei o portfolio con GSAP, Lenis e Matter.js
-description: Meter GSAP, Lenis e Matter.js nun portfolio con Nuxt SSR soaba moi ben ata que comezaron os problemas de timing, scroll e rendemento. Aquí conto que me funcionou e que non.
+title: Como animei o meu portfolio con GSAP, Lenis e Matter.js
+description: Meter GSAP, Lenis e Matter.js nun portfolio con Nuxt SSR soaba moi ben ata que empezaron a aparecer problemas de timing, scroll e performance. Aquí conto que me funcionou e que non.
 date: "2026-03-14"
 category: breakdown
-topics: ["GSAP", "Lenis", "Matter.js", "Vue", "Nuxt", "animacion", "rendemento"]
+topics: ["GSAP", "Lenis", "Matter.js", "Vue", "Nuxt", "animaciones", "performance"]
 time_to_read: 11
 published: true
 lang: gl
 translationKey: animated-portfolio
-slug: animando-portfolio-con-gsap-lenis-matterjs
+slug: animando-o-meu-portfolio-con-gsap-lenis-e-matterjs
 ---
 
 ## Quería que o portfolio tivese peso
 
-Levaba tempo con ganas de meterme en serio con GSAP, Lenis e Matter.js. Fixera probas soltas, pero faltábame un sitio real onde xuntalas sen converter un proxecto de cliente nun laboratorio. O portfolio era perfecto para iso: se a cousa se rompía, rompía no meu.
+Levaba tempo con ganas de meterme en serio con GSAP, Lenis e Matter.js. Fixera probas soltas, pero faltábame un sitio real onde xuntalas sen converter un proxecto de cliente nun laboratorio. O portfolio era perfecto para iso: se me pegaba unha leite, a leite era miña.
 
-Non buscaba só unha web bonita. Quería que se sentise viva de verdade. Que o scroll tivese inercia, que o hero non entrase como calquera landing, que algunhas letras parecesen obxectos e non texto plano, e que os doodles desen a sensación de estar trazándose nese momento.
+Non buscaba só unha web bonita. Quería que se sentise viva de verdade. Que o scroll tivese inercia, que o hero non entrase como calquera landing, que algunhas letras parecesen obxectos e non texto plano, e que os doodles desen a sensación de estarse trazando nese momento.
 
-Sobre o papel soaba ben. En Nuxt con SSR, tres librarías deste tipo xuntas poden converterse axiña nun xaleo de timings, listeners que quedan vivos, scroll desincronizado e rendemento mediocre en móbil.
+Sobre o papel soaba ben. En Nuxt con SSR, tres librarías deste tipo convértense rápido nun xaleo de timings, listeners que quedan vivos, scroll desincronizado e rendemento frouxo en móbil.
 
-Aquí non vou pegar o código real enteiro porque sería infumable. O que si fago é contar as decisións que tomei, os problemas concretos cos que me atopei e o tipo de snippets simplificados que me tería gustado ler antes de poñerme con isto.
-
----
+Aquí non vou pegar o código real enteiro porque sería infumable. O que si fago é contar as decisións que tomei, os problemas concretos que atopei e os snippets simplificados que me gustaría ter lido antes de poñerme.
 
 ## GSAP foi a base, pero a clave estaba na limpeza
 
@@ -35,7 +33,7 @@ import { SplitText } from 'gsap/SplitText'
 gsap.registerPlugin(ScrollTrigger, SplitText)
 ```
 
-O fácil era arrincar a primeira animación. O que me deu guerra foi outra cousa: non deixar lixo ao desmontar compoñentes. Nunha SPA isto pasa sen facer moito ruído. Vas navegando, montas un compoñente, logo outro, logo volves, e se non limpas ben, os triggers seguen aínda que o DOM xa non exista.
+O fácil era arrincar a primeira animación. O que me deu guerra foi outra cousa: non deixar lixo ao desmontar compoñentes. Nunha SPA iso pasa sen facer moito ruído. Vas navegando, montas un compoñente, logo outro, logo volves e, se non limpas ben, os triggers seguen aí aínda que o DOM xa non exista.
 
 `gsap.context()` arranxoume xusto iso. Agrupa todo o que se crea dentro e logo revérteo de golpe cando o compoñente desaparece. En Vue queda bastante limpo se o empaquetas nun composable:
 
@@ -61,7 +59,7 @@ export const useGSAP = () => {
 }
 ```
 
-Despois, en cada compoñente, todo o que caia dentro de `initGSAP()` queda baixo control:
+Logo, en cada compoñente, todo o que cae dentro de `initGSAP()` queda baixo control:
 
 ```typescript
 const { gsap, initGSAP } = useGSAP()
@@ -79,7 +77,7 @@ onMounted(() => {
 })
 ```
 
-Houbo outro detalle máis parvo, pero moi de móbil: a barra do navegador aparece e desaparece, cambia `window.innerHeight` e ScrollTrigger interpreta iso como un resize. O resultado eran pequenos tremores e recálculos constantes mentres o usuario facía scroll.
+Houbo outro detalle máis parvo, pero moi de móbil: a barra do navegador aparece e desaparece, cambia `window.innerHeight` e ScrollTrigger interprétao como un resize. O resultado eran pequenos tremores e recálculos constantes mentres a persoa usuaria facía scroll.
 
 Aquí salvoume unha liña:
 
@@ -87,13 +85,11 @@ Aquí salvoume unha liña:
 ScrollTrigger.config({ ignoreMobileResize: true })
 ```
 
-Parece unha parvada, pero quitou bastante ruído. Segue recalculando cando toca de verdade, como nun cambio de orientación, pero deixa de reaccionar a cada movemento mínimo do viewport.
-
----
+Parece unha tontería, pero quitou bastante ruído. Segue recalculando cando toca de verdade (por exemplo, nun cambio de orientación), pero deixa de reaccionar a cada movemento mínimo do viewport.
 
 ## Lenis e GSAP só van finos se comparten reloxo
 
-Lenis interesábame por unha razón simple: quería smooth scroll sen esa sensación de plugin pegado por enriba. O problema é que Lenis e GSAP, se os deixas pola súa conta, cada un intenta marcar o seu ritmo. Un leva o seu `requestAnimationFrame`, o outro o seu ticker, e a diferenza pode ser pequena, pero nótase.
+Lenis interesábame por unha razón simple: quería smooth scroll sen esa sensación de plugin pegado enriba. O problema é que, se deixas Lenis e GSAP ir cada un pola súa conta, cada un intenta marcar o seu ritmo. Un leva o seu `requestAnimationFrame`, o outro o seu ticker, e a diferenza pode ser pequena, pero nótase.
 
 A forma máis limpa que atopei foi desactivar o loop interno de Lenis e colgalo do ticker de GSAP. Así todo corre no mesmo frame:
 
@@ -113,7 +109,7 @@ gsap.ticker.add((time) => {
 gsap.ticker.lagSmoothing(0)
 ```
 
-`autoRaf: false` evita que Lenis cree o seu propio loop. Despois GSAP vai pasándolle o tempo en cada frame, e `lagSmoothing(0)` quita unha capa extra de suavizado que aquí non me interesaba. A partir de aí, scroll e triggers empezaron a ir acompasados de verdade.
+`autoRaf: false` evita que Lenis cree o seu propio loop. Logo GSAP pásalle o tempo en cada frame, e `lagSmoothing(0)` quita unha capa extra de suavizado que aquí non me interesaba. A partir de aí, scroll e triggers empezaron a ir acompasados de verdade.
 
 En Nuxt isto vive mellor nun plugin client-side para que a instancia de Lenis quede dispoñible en toda a app:
 
@@ -134,9 +130,9 @@ export default defineNuxtPlugin(() => {
 
 ### O navbar deixou de facer cousas raras cando deixei de forzalo
 
-O navbar escóndese ao baixar e reaparece ao subir. Nada especialmente orixinal. A miña primeira implementación resolvíao con ScrollTrigger e `onUpdate`. Funcionaba case sempre. O problema era ese "case". Na primeira carga, antes de que Lenis estivese de todo asentado, o navbar ás veces desaparecía só.
+O navbar escóndese ao baixar e reaparece ao subir. Nada especialmente orixinal. A miña primeira implementación resolvíao con ScrollTrigger e `onUpdate`. Funcionaba case sempre. O problema era ese “case”. Na primeira carga, antes de que Lenis estivese do todo asentado, o navbar ás veces desaparecía só.
 
-A saída foi máis simple ca idea orixinal: escoitar directamente o evento `scroll` de Lenis e esquecerme do trigger para este caso.
+A saída foi máis simple ca idea orixinal: escoitar directamente o evento `scroll` de Lenis e esquecerme de ScrollTrigger neste caso.
 
 ```typescript
 const { $lenis } = useNuxtApp()
@@ -159,11 +155,9 @@ $lenis?.on('scroll', ({ scroll, direction }) => {
 
 Ese `scroll > 80` foi importante. Sen el, calquera microxesto preto do top escondía o navbar e quedaba bastante cutre.
 
----
-
 ## O hero montouse en tres capas
 
-A parte máis vistosa do portfolio está no hero. O título arrinca como “SAMUEL LOPEZ” e, ao facer scroll, algunhas letras desplómanse, o oco recolócase e aparece unha `h` debuxada a man ata acabar en “SAMUh.LO”.
+A parte máis vistosa do portfolio está no hero. O título arrinca como “SAMUEL LOPEZ” e, ao facer scroll, algunhas letras desprómanse, o oco recolócase e aparece unha `h` debuxada a man ata acabar en “SAMUh.LO”.
 
 ::blog-media
 ---
@@ -174,11 +168,11 @@ align: center
 ---
 ::
 
-Dividino en tres pezas porque, se non, aquilo volvía inmanejable moi rápido.
+Dividino en tres pezas porque, se non, aquilo volvíaseme inmanejable moi rápido.
 
 ### HeroTitle: as letras que caen
 
-Cada letra que tiña que desaparecer vive no seu propio `<span>` con `ref`. Tamén hai un wrapper que empeza con ancho cero e despois fai sitio para a `h` debuxada.
+Cada letra que tiña que desaparecer vive no seu propio `<span>` con `ref`. Tamén hai un wrapper que empeza con ancho cero e logo fai sitio para a `h` debuxada.
 
 ```html
 <div class="inline-flex items-baseline">
@@ -237,15 +231,15 @@ tl.to(hPaths, {
 })
 ```
 
-O detalle importante aquí é que o oco está medido en `em`, non en píxeles. Parece pouca cousa, pero fixo que escalase só co tamaño do título e quitoume bastante traballo entre desktop e móbil.
+O detalle importante aquí é que o oco está medido en `em`, non en píxeles. Parece pouca cousa, pero fixo que escalase só co tamaño do título e aforroume bastante traballo entre desktop e móbil.
 
-### HeroSubtitle: o texto riscado e os doodles
+### HeroSubtitle: o texto tachado e os doodles
 
-Mentres o título fai o seu, o subtítulo entra por outro lado. Aparece “Front-end Developer”, táchase e arredor van entrando palabras debuxadas a man. Cada unha é un SVG animado coa mesma técnica de `strokeDashoffset` que despois reutilicei por todo o proxecto.
+Mentres o título fai o seu, o subtítulo entra por outro lado. Aparece “Front-end Developer”, táchase e arredor van entrando palabras debuxadas a man. Cada unha é un SVG animado coa mesma técnica de `strokeDashoffset` que logo reutilicei por todo o proxecto.
 
-### HeroSection: un só trigger mandando sobre todo
+### HeroSection: un só trigger mandando en todo
 
-O que máis me compensou aquí foi non ter varios ScrollTriggers pelexando. Tanto `HeroTitle` como `HeroSubtitle` expoñen o seu timeline con `defineExpose`, e despois o contedor principal reparte o progreso do scroll entre ambos.
+O que máis me compensou aquí foi non ter varios ScrollTriggers pelexando entre si. Tanto `HeroTitle` como `HeroSubtitle` expoñen o seu timeline con `defineExpose`, e logo o contedor principal reparte o progreso do scroll entre os dous.
 
 ```typescript
 // HeroTitle.vue
@@ -270,19 +264,17 @@ createPinnedScroll({
 })
 ```
 
-Un trigger, dous timelines e unha progresión bastante doada de afinar. Para unha animación tan cargada, iso deume moito máis control ca repartir a responsabilidade entre varios triggers independentes.
-
----
+Un trigger, dous timelines e unha progresión bastante fácil de afinar. Para unha animación tan cargada, iso deume moito máis control ca repartir a responsabilidade entre varios triggers independentes.
 
 ## O pin-spacer foi o maior problema de UX
 
-Aquí foi onde máis me parei. Non por dificultade técnica pura, senón porque a experiencia resultante era mala.
+Aquí foi onde máis me parei. Non por dificultade técnica pura, senón porque a experiencia que quedaba era mala.
 
-Cando GSAP pinea unha sección crea un :hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around"}[pin-spacer] que conserva o oco vertical mentres dura a animación. Se esa animación consome 2500px de scroll, ese oco tamén existe ao volver cara arriba. E aí vén o feo: o usuario come todo o rebobinado da animación ao revés.
+Cando GSAP pinea unha sección crea un :hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around"}[pin-spacer] que conserva o oco vertical mentres dura a animación. Se esa animación consume 2500px de scroll, ese oco tamén existe ao volver cara arriba. E aí vén o feo: a persoa usuaria cómese todo o rebobinado da animación ao revés.
 
-Ese comportamento moléstame bastante noutras webs, así que non quería deixalo tal cal. Matar o trigger xusto en `onLeave` parecía a resposta obvia, pero probeino e producía un microsalto visible porque a sección aínda estaba demasiado preto do viewport.
+Ese comportamento moléstame bastante noutras webs, así que non quería deixalo tal cal. Matar o trigger xusto en `onLeave` parecía a resposta obvia, pero probeino e producía un micro-salto visible, porque a sección aínda estaba demasiado preto do viewport.
 
-A boa solución foi esperar máis. Bastante máis. Ata que o usuario pasase polo menos outro viewport completo por debaixo da sección. Nese punto xa non se vía nada do hero e podía recolocar o scroll sen que cantase demasiado.
+A boa solución foi esperar máis. Bastante máis. Ata que a persoa usuaria pasase polo menos outro viewport completo por baixo da sección. Nese punto xa non se vía nada do hero e podía recolocar o scroll sen que cantase demasiado.
 
 ```typescript
 ScrollTrigger.create({
@@ -314,15 +306,15 @@ ScrollTrigger.create({
 })
 ```
 
-Aquí a orde importa bastante. Primeiro desaparece o trigger principal, logo compenso o scroll no mesmo frame, despois refresco ScrollTrigger e ao final sincronizo Lenis. Se cambias a orde, volven os saltos ou aparece desaxuste entre o scroll real e o interno de Lenis.
+Aquí a orde importa bastante. Primeiro desaparece o trigger principal, logo compenso o scroll no mesmo frame, despois refresco ScrollTrigger e ao final sincronizo Lenis. Se cambias a orde, volven os saltos ou aparece desaxuste entre o scroll real e o scroll interno de Lenis.
 
-O resultado é moito máis limpo: unha vez vista a animación, esa parte compórtase como HTML estático. Podes volver arriba rápido sen tragarte o hero marcha atrás.
+O resultado é moito máis limpo: unha vez vista a animación, esa parte compórtase como HTML estático. Podes volver arriba rápido sen tragarte o hero cara atrás.
 
 ### En móbil deixei de insistir co scroll-driven
 
 Fixen unha proba con xente usando o portfolio en móbil e a conclusión foi bastante clara: ninguén estaba “xogando” co scroll do hero. Simplemente facían swipe e seguían baixando. A animación, se dependía demasiado do xesto, quedaba a medias ou pasaba sen pena nin gloria.
 
-Aí non tiña sentido empeñarme. En móbil cambiei a autoplay:
+Aí non tiña sentido empeñarme. En móbil pasei a autoplay:
 
 ```typescript
 const isMobile = window.matchMedia('(max-width: 768px)').matches
@@ -343,9 +335,7 @@ if (isMobile) {
 }
 ```
 
-En desktop ten sentido que o usuario controle o ritmo co scroll. En móbil, non sempre. Ás veces hai que deixar de perseguir a idea bonita e adaptarse a como usa a xente a páxina de verdade.
-
----
+En desktop ten sentido que a persoa usuaria controle o ritmo co scroll. En móbil, non sempre. Ás veces toca deixar de perseguir a idea bonita e adaptarse a como usa a xente a páxina de verdade.
 
 ## Matter.js entrou para que o contacto non fose só decorado
 
@@ -404,7 +394,7 @@ const draw = () => {
 requestAnimationFrame(draw)
 ```
 
-Matter.js non debuxa nada por ti. Só calcula. E iso, para este caso, viñame perfecto porque o control visual quería levalo eu enteiro desde o canvas.
+Matter.js non debuxa nada por ti. Só calcula. E para este caso, viñame perfecto, porque o control visual quería levalo eu enteiro dende o canvas.
 
 ::code-preview
 ---
@@ -522,9 +512,9 @@ if (isMobile) {
 
 Tamén subín a gravidade en móbil a `8.5`. Non por realismo, senón por tempo de atención: se as letras tardaban demasiado en asentarse, a xente xa se fora á seguinte sección.
 
-### A física non arranca ata que toca
+### A física non arrinca ata que toca
 
-Non tiña ningún sentido ter Matter.js correndo cando esa sección nin sequera estaba en pantalla. Activeino con `IntersectionObserver` e, ademais, pauseino e reanudeino segundo visibilidade.
+Non tiña ningún sentido ter Matter.js correndo cando esa sección nin sequera estaba en pantalla. Activeino con `IntersectionObserver` e, ademais, pauseino e reanudeino segundo a visibilidade.
 
 ```typescript
 const observer = new IntersectionObserver((entries) => {
@@ -551,7 +541,7 @@ Ese dobre `requestAnimationFrame` é un deses trucos pequenos que che aforran bu
 
 ### O slam era a parte divertida
 
-Cando o usuario fai click na sección ou no email, as letras saen despedidas. Aquí non había demasiada ciencia: velocidade aleatoria cara arriba, algo de rotación e que Matter.js faga o resto.
+Cando a persoa usuaria fai click na sección ou no email, as letras saen despedidas. Aquí non había demasiada ciencia: velocidade aleatoria cara arriba, algo de rotación e que Matter.js faga o resto.
 
 ```typescript
 const slam = () => {
@@ -565,13 +555,13 @@ const slam = () => {
 }
 ```
 
-Simple, si. Pero é desas interaccións que fan que a sección deixe de ser só unha animación de fondo e pase a responder ao usuario.
+Simple, si. Pero é desas interaccións que fan que a sección deixe de ser só unha animación de fondo e pase a responder á persoa usuaria.
 
 ---
 
 ## Os doodles eran visuais, pero o traballo real estaba no SVG
 
-Por todo o portfolio hai subliñados, círculos, riscas e palabras debuxadas a man. Fixenos en Affinity e exporteinos como SVG porque quería que o trazo tivese un punto máis torpe e menos perfecto ca calquera icono xerado á présa.
+Por todo o portfolio hai subliñados, círculos, tachóns e palabras debuxadas a man. Fixenos en Affinity e exporteinos como SVG porque quería que o trazo tivese un punto máis torpe e menos perfecto ca calquera icono xerado á présa.
 
 ::image-slider
 ---
@@ -580,14 +570,14 @@ align: center
 images:
   - src: blog/animated-portfolio/doodles_letras.jpg
     alt: Doodles letras
-    label: Doodles de titulos
+    label: Doodles de títulos
   - src: blog/animated-portfolio/doodles_details.jpg
     alt: Doodles detalles
     label: Doodles de detalles
 ---
 ::
 
-A técnica para “debuxar” un path en tempo real non ten misterio novo. É a clásica de `strokeDasharray` e `strokeDashoffset`. O interesante non era descubrila, senón levala ben a SSR, a varios SVG distintos e a compoñentes reutilizables.
+A técnica para “debuxar” un path en tempo real non ten ningún misterio novo. É a clásica de `strokeDasharray` e `strokeDashoffset`. O interesante non era descubrila, senón levala ben a SSR, a varios SVG distintos e a compoñentes reutilizables.
 
 ::code-preview
 ---
@@ -648,7 +638,7 @@ js: |
 
 ### O detalle que me fastidiou: os caps redondeados
 
-Cando o path ten `stroke-linecap: round`, o extremo redondeado sobresae un pouco. Se calculas a lonxitude exacta e animas desde aí, ás veces aparece un puntiño antes de tempo. Pasoume varias veces ata que deixei de pelexar e lle sumei unha pequena marxe:
+Cando o path ten `stroke-linecap: round`, o extremo redondeado sobresae un pouco. Se calculas a lonxitude exacta e animas dende aí, ás veces aparece un puntiño antes de tempo. Pasoume varias veces ata que deixei de pelexar con iso e lle sumei unha pequena marxe:
 
 ```typescript
 const preparePaths = (svgEl: SVGElement) => {
@@ -665,24 +655,24 @@ const preparePaths = (svgEl: SVGElement) => {
 }
 ```
 
-Ese `+20` era xusto o que precisaba para que non asomase nada antes de comezar a animación.
+Ese `+20` era xusto o que necesitaba para que non asomase nada antes de empezar a animación.
 
 ### O flash de SSR tamén apareceu aquí
 
-En SSR o HTML inicial chega cos paths visibles. Se agardas a que Vue hidrate e daquela aplicas os `gsap.set()`, durante un intre o SVG vese enteiro. Un flash pequeno, pero suficiente para estragar o efecto.
+En SSR o HTML inicial chega cos paths visibles. Se esperas a que Vue hidrate e logo aplicas os `gsap.set()`, durante un intre o SVG vese enteiro. Un flash pequeno, pero suficiente para estragar o efecto.
 
-A forma máis limpa que atopei foi ocultar primeiro o SVG completo e despois preparar os paths.
+A forma máis limpa que atopei foi ocultar primeiro o SVG completo e logo preparar os paths.
 
 ```typescript
 const preparePaths = (svgEl: SVGElement) => {
   gsap.set(svgEl, { opacity: 0 })
 
   const paths = svgEl.querySelectorAll('path')
-  // ... preparar longitudes y offsets
+  // ... preparar longitudes e offsets
 }
 ```
 
-E cando toca debuxalo, fágoo visible no primeiro frame do timeline:
+E cando toca debuxalo, fágolle visible no primeiro frame do timeline:
 
 ```typescript
 tl.to(svgEl, { opacity: 1, duration: 0.01 })
@@ -695,7 +685,7 @@ tl.to(paths, {
 
 ### Pasalo a compoñente Vue aforroume repetir código por todas partes
 
-Acabei montando un script que transforma os SVG exportados en compoñentes Vue con `ref` exposta. Así o composable que anima doodles pode acceder ao elemento real do DOM sen romper a encapsulación a marteladas.
+Acabei montando un script que transforma os SVG exportados en compoñentes Vue cun `ref` exposto. Así o composable que anima doodles pode acceder ao elemento real do DOM sen romper a encapsulación a marteladas.
 
 ```vue
 <script setup>
@@ -717,17 +707,17 @@ defineExpose({ svg: svgRef })
 </template>
 ```
 
-Usar `currentColor` no canto dun color fixo tamén veu ben. Así os doodles herdan o color do contexto e non teño que manter variantes duplicadas para fondo escuro e claro.
+Usar `currentColor` no canto dunha cor fixa tamén viña ben. Así os doodles herdan a cor do contexto e non teño que manter variantes duplicadas para fondo escuro e fondo claro.
 
 ---
 
 ## Para que todo isto non petase, non houbo unha bala de prata
 
-O rendemento non saíu dunha optimización milagreira. Saíu de varias decisións pequenas, bastante pouco glamourosas, que xuntas fixeron que a páxina non se viñese abaixo.
+O rendemento non saíu dunha optimización milagrosa. Saíu de varias decisións pequenas, bastante pouco glamurosas, que xuntas fixeron que a páxina non se viñese abaixo.
 
 Xa comentei `ignoreMobileResize`, que quitou recálculos absurdos en móbil. Pero houbo máis.
 
-### Matter.js: pausar e reanudar é mellor ca destruír
+### Matter.js: pausar e reanudar é mellor que destruír
 
 Na sección de contacto non destrúo o motor cada vez que sae do viewport. Páusoo. Recrealo continuamente sae máis caro ca deixalo listo para volver.
 
@@ -770,11 +760,11 @@ const draw = () => {
 }
 ```
 
-Se pasa arredor dun segundo practicamente quieto, párase todo. Visualmente o usuario non perde nada e a páxina deixa de traballar en segundo plano.
+Se pasa arredor dun segundo practicamente quieto, párase todo. Visualmente a persoa usuaria non perde nada e a páxina deixa de traballar en segundo plano.
 
 ### O resize vai con debounce
 
-Redimensionar a xanela dispara un montón de cálculos: canvas, offsets, triggers. Se reaccionas a cada pixel de cambio, acabas refacendo traballo constantemente.
+Redimensionar a ventá dispara un montón de cálculos: canvas, offsets, triggers. Se reaccionas a cada píxel de cambio, acabas refacendo traballo constantemente.
 
 ```typescript
 let resizeTimer: ReturnType<typeof setTimeout> | null = null
@@ -797,18 +787,18 @@ const newWidth = container.clientWidth
 if (Math.abs(newWidth - prevWidth) < 50) return
 ```
 
-Non é unha técnica brillante. É simplemente poñer un límite sensato e non recalcular por deporte.
+Non é unha técnica brillante. É simplemente poñer un límite sensato e deixar de recalcular por deporte.
 
 ---
 
 ## O que repetiría e o que non
 
-Si, valeu a pena. Pero non porque todo saíse rodado, senón xusto porque me obrigou a resolver problemas que en demos pequenas non aparecen.
+Si, pagou a pena. Pero non porque todo saíse rodado, senón precisamente porque me obrigou a resolver problemas que en demos pequenas non aparecen.
 
 GSAP segue parecéndome a peza máis sólida do conxunto. A documentación é boa, os erros adoitan ser bastante lexibles e `gsap.context()` encaixa moi ben con Vue cando queres manter as cousas limpas. Lenis require deixar ben pechado o tema do loop e da sincronización, pero unha vez montado non dá demasiada guerra.
 
 Matter.js sorprendeume para ben. É bastante directo para este tipo de efectos: motor, corpos, mundo e un canvas que debuxa o que toca. Sen demasiada maxia. E os doodles seguen sendo probablemente a parte máis persoal de todo o portfolio. A técnica é vella, si, pero pasar trazos feitos a man a compoñentes reutilizables dálle un punto que sería difícil sacar dunha solución máis xenérica.
 
-Se o rehixese hoxe, revisaría un pouco mellor o scroll horizontal, porque leva a súa propia instancia de Lenis e iso obriga a ir con coidado para que non se cruce coa global. E tamén me volvería preguntar se toda a complexidade do hero precisa exactamente ese sistema de pinning ou se agora sería capaz de conseguir algo parecido con menos pezas.
+Se o rehixese hoxe, revisaría un pouco mellor o scroll horizontal, porque leva a súa propia instancia de Lenis e iso obriga a ir con coidado para que non se cruce coa global. E tamén me volvería preguntar se toda a complexidade do hero necesita exactamente ese sistema de pinning, ou se agora sería capaz de conseguir algo parecido con menos pezas.
 
-Pero vaia, non me arrepinto. O resultado síntese bastante próximo ao que quería desde o principio: unha web que non só se move, senón que parece construída con intención.
+Pero vaia, non me arrepinto. O resultado séntese bastante próximo ao que quería dende o principio: unha web que non só se move, senón que parece construída con intención.

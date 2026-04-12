@@ -1,9 +1,9 @@
 ---
-title: Atipo Foundry — tipografía de alto nivel preto da casa
+title: 'Atipo Foundry: tipografía de alto nivel preto da casa'
 description: Ás veces buscamos assets premium fóra e esquecemos mirar preto. O meu descubrimento de Atipo, o estudo asturiano detrás de Silka Mono e Strawford.
 date: '2026-03-25'
 category: find
-topics: ['tipografia', 'deseño', 'ui', 'atipo', 'recursos']
+topics: ['tipografía', 'diseño', 'ui', 'atipo', 'recursos']
 time_to_read: 5
 published: true
 lang: gl
@@ -11,23 +11,27 @@ translationKey: atipo-foundry
 slug: atipo-foundry-tipografia-de-alto-nivel-preto-da-casa
 ---
 
-## O asset que tiñas ao lado
+## A typo ao lado da casa
 
-Cando constrúes produtos dixitais, as tipografías de Google Fonts acaban quedando curtas. Non porque sexan malas, senón porque precisas algo con máis carácter, máis pesos, ou simplemente algo que non estea en tres millóns de webs máis.
+Moitas veces, cando constrúes produtos dixitais, e máis se vas rápido, tiras de Google Fonts. Pero cando queres un toque máis persoal e distintivo, queda curto. Non porque sexan fontes malas nin porque non teñan variedade, senón porque buscas algo máis especial, que non estea en tres millóns de webs.
 
-O reflexo automático é abrir Typewolf, ver que estudo tipográfico de Brooklyn, Berlín ou Suíza está de moda este mes e preparar a tarxeta.
+Podes facer unha busca e atopar rápido as tipografías máis usadas ou tendencias novas (por exemplo, eu sigo varios canais de deseño que che dan ideas moi boas). Podes entrar en Behance ou Dribbble a buscar inspiración, podes ir mirando en Awwwards as páxinas que che gustan e investigar as súas fontes... e con todo iso montar un "backlog" de tipografías que vaian contigo e cos usos onde poderían encaixar.
 
-Descubrín :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] hai un tempo e rompeume un pouco os esquemas. É un estudo de Xixón que leva anos sacando tipografías cun nivel técnico e estético altísimo. Non é só que as letras sexan bonitas: o kerning, a lexibilidade en pantalla e a estrutura xeométrica aguantan moi ben cando as metes nunha interface densa. E están a dúas horas en coche.
+Pero imos ser sinceros, isto é raro salvo que che guste moito ou sexa un proxecto bastante importante. A maioría entraríamos en Typewolf, miraríamos as 20 primeiras que están de moda e seleccionaríamos. Ou en FontShare, ou na que máis che guste. E isto é así, facémolo máis do que nos gustaría recoñecer e é normal (non sempre hai tempo, non todo o mundo lle dá tanto valor á tipografía, moitas parécenche iguais).
+
+Pero hai un tempo descubrín un estudo de deseño que me cambiou un pouco o chip. É un estudo de Xixón que leva anos sacando tipografías cun nivel técnico e estético altísimo. Non é só que as letras sexan bonitas. É que o kerning, a lexibilidade en pantalla e a estrutura xeométrica aguantan de luxo cando as metes nunha interface densa. E, ademais, están a dúas horas en coche da miña terra natal.
+
+Dende que os coñecín, primeiro miro aí por se algunha me encaixa e non adoito arrepentirme, porque sempre teñen algo que me encanta.
 
 ## As miñas tres licenzas de Atipo
 
-Non cheguei a estas tres por descarte. Cheguei porque cada unha me resolvía algo concreto que non estaba atopando noutras.
+De momento, para web (para deseño teño bastantes máis), usei tres. Tres que cada unha me resolvía algo concreto e que non atopaba noutras ata o momento no que as vin.
 
-**Strawford** úsoa como tipografía base de interfaces. O que me engancha dela é que é xeométrica pero non aséptica: ten unha calidez que moitas xeométricas puras adoitan sacrificar por manter todo baixo control. En contornos de alto contraste, en titulares ou en bloques de lectura densa, aséntase sen molestar ou tira da mirada segundo o peso que lle metas. E iso, nunha tipografía de UI, vale moitísimo.
+**Strawford** é a base de todo o blog e do portfolio. A base da interface. Gústame a calidez que ten, algo que moitas xeométricas puras sacrifican por manter todo baixo control. En contornos con contraste alto, en titulares ou en bloques de lectura máis densos, encaixa en todo sen molestar e arrástrate a mirada segundo o peso que lle metas. Isto é un win por partida dobre nunha tipografía de UI.
 
-**Silka Mono** téñoa en case todas as partes da interface que precisan comunicar precisión: etiquetas, datas, datos numéricos, microcopy técnico. Non é só que sexa bonita, que tamén, senón que fai que eses elementos parezan parte dun sistema e non un engadido de última hora. Hai monoespaciadas que cargan visualmente o layout. Esta non.
+**Silka Mono** é a tipografía estilo código, pero máis humana. Téñoa en case todas as partes da web que teñen que comunicar precisión (etiquetas, datas, datos numéricos, botóns...). Non carga nada a interface e flúe que dá gusto. Xunto con Strawford, paréceme que forman un combo que transmite unha calidez e unha sensación moi agradable á vista.
 
-**Bariol Icons** useina para o logotipo de [TinyShow](https://tinyshow.vercel.app/) e foi probablemente a decisión máis rápida de todo o proceso de deseño: vina, ocorréuseme usala nun spinner e non houbo máis voltas.
+**Bariol Icons** useina para o logotipo de [TinyShow](https://tinyshow.vercel.app/) e foi probablemente a decisión máis rápida de todo o proceso. Cando a vin souben o que quería facer con ela, e aí quedou: un spinner no logotipo. Penso usala como detalle en máis cousas no futuro porque me encanta.
 
 ::image-slider
 ---
@@ -74,7 +78,7 @@ html: |
       <span class="line">];</span>
     </div>
 
-    <button class="replay-btn font-silka">Executar Timeline</button>
+    <button class="replay-btn font-silka">Ejecutar Timeline</button>
   </div>
 css: |
   body {
@@ -210,13 +214,13 @@ js: |
 
 ## O modelo "Pay what you want"
 
-Atipo ten un modelo de distribución moi honesto. En moitas familias deixan descargar gratis un dos pesos, e se queres a familia completa con todos os pesos, itálicas e licenzas web, entras no modelo "pay what you want". Para a calidade que entregan, paréceme unha forma moi intelixente de deixarche probar sen obrigarte a comprar ás cegas.
+Atipo ten un modelo de distribución moi honesto. En moitas familias déixanche descargar gratis un dos pesos para que probes, e noutras déixancho se compartes o seu traballo (o cal me parece xenial). Así, con ese peso podes facer probas e, se ves que che convence, pillas a familia completa ou o que necesites. Hai que diferenciar tamén que licenza queres, se só para deseño ou se a queres meter nunha web. Son diferentes e hai que pillalas por separado, cun modelo "pay what you want".
 
-Déixanche probar a fonte no teu contorno de deseño, ver se encaixa e, se che funciona, pagar despois. Como investimento en activos para o teu stack persoal, a min compénsame moitísimo.
+Coa calidade que teñen, paréceme un modelo xenial. Onde outras fontes poderían custarche unha costela flotante, aquí cun mínimo xa as podes levar.
 
 ## Atipo e a boa tipografía
 
-Quería escribir isto para deixar constancia e darlles as grazas. Ás veces cegámonos buscando a excelencia fóra, coma se o mellor deseño ou a mellor enxeñaría só puidesen saír dos grandes hubs internacionais, e esquecemos mirar preto cando o nivel está aí.
+Apetecíame escribir isto para deixar constancia e darlles as grazas. Ás veces cegámonos buscando todo fóra, coma se o mellor deseño ou o mellor talento tivese que estar a miles de quilómetros. E deixamos de ver o talento que temos preto, ou de comprometernos a apoiar o noso. Ás veces nin sequera é só iso, simplemente custa máis atopar as cousas de aquí nun océano de referencias. Pero se lle poñes un pouco máis de ganas, podes atopar talento ao lado da casa e apoiar proxectos locais sen perder calidade (que carallo, e gañando calidade e orixinalidade).
 
 Se estás montando un produto, o teu portfolio, ou simplemente estás farto de tirar sempre de Inter e Roboto, bótalle un ollo ao seu catálogo.
 

@@ -38,13 +38,13 @@ alt: Mochila como armario
 
 10 camisetas básicas: negras, blancas y amarillas. Todas lisas o con poco detalle. Y no es por minimalismo, ni porque no me gusten las camisetas con diseños guapos. Es que estoy bastante tatuado y mezclar una camiseta con estampado o dibujitos acaba pareciéndome un batiburrillo de patrones que me chirría al ojo. Los tatuajes ya son una parte importante del vestuario sin ocupar espacio, y la ropa al final es el fondo.
 
-10 gallumbos. Aquí me gusta tenerlos bóxer sueltos, con fantasía y patrones raros. 10 calcetines: casi todos blancos de deporte, alguno bien hortera y especial. Son pequeños detalles que no se suelen ver, pero cuando se ven ( que siempre se me acaban viendo jajaja ) me gusta que destaquen y sean bonitos. Eso es lo básico para hacer la colada una vez a la semana. Me quedaría con menos, pero haciendo deporte, según el día y la hora, puede que necesite dos mudas.
+10 gallumbos. Aquí me gusta tenerlos bóxer sueltos, con fantasía y patrones raros. 10 calcetines: casi todos blancos de deporte, alguno bien hortera y especial. Son pequeños detalles que no se suelen ver, pero cuando se ven (que siempre se me acaban viendo jajaja) me gusta que destaquen y sean bonitos. Eso es lo básico para hacer la colada una vez a la semana. Me quedaría con menos, pero haciendo deporte, según el día y la hora, puede que necesite dos mudas.
 
 3 pantalones de chándal, 3 pantalones para vestir, 5 sudaderas. Todas con capucha: 2 con cremallera y 3 normales. Cada prenda seleccionada con mimo, cada pieza con su personalidad, con su historia y con su motivo para estar ahí.
 
 Con el calzado me quedé con tres pares: las zapatillas del gimnasio, que también son las del día a día; unas Nike blancas y amarillas a las que les tengo un cariño que no sé muy bien explicar, pero que encajan perfectamente con mis colores base (negro, amarillo y blanco), que combinan con absolutamente todo y no es casualidad; y unas Dr. Martens clásicas para cuando toca algo más.
 
-Con las chaquetas el criterio fue el mismo: una bomber negra, una de cuero personalizada, un chaleco y una chaqueta vaquera negros con parches, una vaquera clara con los rotos cosidos con tela amarilla de fondo ( porque un roto no tiene por qué ser el final de una prenda ) y un abrigo largo negro para el frío de verdad. Frío o calor, sin entretiempo, sin chaquetas “de por si acaso”. Si tengo frío me pongo una sudadera debajo; si tengo calor, me la quito.
+Con las chaquetas el criterio fue el mismo: una bomber negra, una de cuero personalizada, un chaleco y una chaqueta vaquera negros con parches, una vaquera clara con los rotos cosidos con tela amarilla de fondo (porque un roto no tiene por qué ser el final de una prenda) y un abrigo largo negro para el frío de verdad. Frío o calor, sin entretiempo, sin chaquetas “de por si acaso”. Si tengo frío me pongo una sudadera debajo; si tengo calor, me la quito.
 
 ## Comprar menos, cuidar más
 
