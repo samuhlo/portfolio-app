@@ -1,9 +1,9 @@
 ---
-title: Atipo Foundry -- High-End Type Two Hours from Home
-description: Sometimes we search for premium assets abroad and forget to look nearby. This is how I discovered Atipo, the Asturias studio behind Silka Mono and Strawford.
+title: "Atipo Foundry: High-End Type Close to Home"
+description: "Sometimes we look abroad for premium assets and forget to look closer to home. This is how I found Atipo, the Asturias studio behind Silka Mono and Strawford."
 date: '2026-03-25'
 category: find
-topics: ['typography', 'design', 'ui', 'atipo', 'resources']
+topics: ['tipografía', 'diseño', 'ui', 'atipo', 'recursos']
 time_to_read: 5
 published: true
 lang: en
@@ -11,23 +11,27 @@ translationKey: atipo-foundry
 slug: atipo-foundry-high-end-type-close-to-home
 ---
 
-## The asset you had next to you
+## The type sitting right next to you
 
-When you build digital products, Google Fonts eventually starts feeling limited. Not because those fonts are bad, but because you need more character, more weights, or simply something that is not already on three million other websites.
+A lot of the time, when you are building digital products, and even more if you are moving fast, you just rely on Google Fonts. But when you want something more personal and more distinctive, that starts to feel limited. Not because they are bad fonts, and not because there is no variety, but because you want something more special, something that is not already on three million websites.
 
-The default reflex is opening Typewolf, checking which type studio in Brooklyn, Berlin, or Switzerland is trending this month, and getting your card ready.
+You can search around and quickly find the most used typefaces or new trends (for example, I follow a few really good design channels that throw out great type ideas). You can jump into Behance or Dribbble for inspiration, you can browse Awwwards, find pages you like, and investigate their fonts... and from all that, build yourself a little type backlog that fits you and the kind of use cases where each one could work.
 
-I discovered :hand-drawn{svg="/blog/doodles/blog_medium_underline.svg"}[Atipo Foundry] a while ago, and it reset my expectations a bit. It is a studio from Gijon that has been releasing typefaces with very high technical and aesthetic quality for years. It is not just that the letterforms look good: kerning, on-screen readability, and geometric structure all hold up extremely well in dense interfaces. And they are two hours away by car.
+But let us be honest, that is rare unless you are really into type or the project actually matters a lot. Most of us would just open Typewolf, look at the first 20 trendy ones, and pick from there. Or FontShare, or whatever site you like most. And that is just how it goes. We do it more than we would like to admit, and it makes sense (you do not always have time, not everyone gives typography that much weight, and a lot of them start feeling the same).
+
+But a while ago I found a design studio that changed my mindset a bit. It is a studio from Gijon that has been releasing typefaces for years with a ridiculously high technical and aesthetic level. It is not just that the letterforms look good. It is that the kerning, the screen legibility, and the geometric structure hold up beautifully when you drop them into a dense interface. And on top of that, they are two hours away by car from the place I come from.
+
+Since I found them, they are the first place I check to see whether anything fits, and I usually do not regret it, because they always have something I end up loving.
 
 ## My three Atipo licenses
 
-I did not land on these three by elimination. I picked them because each one solved something specific I could not find elsewhere.
+For web, at least for now (for design work I have quite a few more), I have used three. Three that each solved something specific for me, and that I was not finding anywhere else until I saw them.
 
-**Strawford** is my base UI typeface. What hooks me is that it is geometric without feeling sterile: it keeps warmth that many strict geometric families usually sacrifice for control. In high-contrast environments, in headings, or in dense reading blocks, it can stay out of the way or pull attention depending on weight. That is huge value in a UI font.
+**Strawford** is the base of the whole blog and portfolio. The base of the interface. I love the warmth it has, which is something a lot of pure geometric typefaces sacrifice to keep everything under control. In high-contrast environments, in headings, or in denser reading blocks, it fits everywhere without getting in the way and pulls your eye depending on the weight you use. That is a win-win in a UI typeface.
 
-**Silka Mono** is in almost every interface area where I need to communicate precision: labels, dates, numeric data, technical microcopy. It is not only beautiful, which it is, but it makes those elements feel like part of a system instead of a last-minute add-on. Some monospaced fonts overload a layout visually. This one does not.
+**Silka Mono** is the code-style typeface, but more human. I use it in almost every part of the site that needs to communicate precision (labels, dates, numeric data, buttons...). It does not weigh the interface down at all and it flows beautifully. Together with Strawford, I think they make a combo that gives off a warmth and a visual feeling that is just really pleasant.
 
-**Bariol Icons** was what I used for the [TinyShow](https://tinyshow.vercel.app/) logotype, and it was probably the fastest decision in the entire design process: I saw it, imagined it in a spinner, and that was it.
+**Bariol Icons** is what I used for the [TinyShow](https://tinyshow.vercel.app/) logo, and it was probably the fastest design decision of the whole process. The moment I saw it, I knew what I wanted to do with it, and that was that: a spinner in the logo. I plan to use it as a detail in more things in the future because I love it.
 
 ::image-slider
 ---
@@ -210,14 +214,14 @@ js: |
 
 ## The "Pay what you want" model
 
-Atipo has a very honest distribution model. In many families, they let you download one weight for free, and if you want the full family with all weights, italics, and web licenses, you move into a "pay what you want" model. For the quality they deliver, it feels like a very smart way to let you test before forcing a blind purchase.
+Atipo has a really honest distribution model. In many families they let you download one of the weights for free so you can test it, and in others they let you get it if you share their work (which I think is great). That way, with that one weight you can run your tests and, if it clicks, you pick up the full family or whatever you need. You also need to know what kind of license you want, whether it is just for design work or whether you want to put it on a website. They are different, and you have to buy them separately, under a "pay what you want" model.
 
-They let you test the typeface in your design environment, check whether it fits, and if it works, pay afterward. As an investment in assets for my personal stack, it pays off for me.
+For the quality they have, I think it is a brilliant model. Where other typefaces might cost you a kidney, here you can get them for a very reasonable minimum.
 
-## Atipo and great typography
+## Atipo and good typography
 
-I wanted to write this to leave a record and say thanks. Sometimes we get blind chasing excellence abroad, as if great design or great engineering could only come from big international hubs, and we forget to look nearby when the quality is already there.
+I felt like writing this to leave a record and to thank them. Sometimes we get blinded looking for everything outside, as if the best design or the best talent had to be thousands of miles away. And we stop seeing the talent that is right next to us, or stop committing to support what is ours. Sometimes it is not even just that, it is simply harder to find the things that are here in an ocean of references. But if you put in a little more effort, you can find talent close to home and support local projects without losing quality (hell, while actually gaining quality and originality).
 
-If you are building a product, your portfolio, or you are just tired of always defaulting to Inter and Roboto, check their catalog.
+If you are building a product, your portfolio, or if you are just tired of reaching for Inter and Roboto every time, go take a look at their catalog.
 
 :hand-drawn{svg="/blog/doodles/blog_asterisk.svg" placement="right" trigger="scroll" duration="2" width="2em"}[**They are at [atipofoundry.com](https://www.atipofoundry.com/)**]

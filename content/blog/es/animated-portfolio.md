@@ -17,9 +17,9 @@ Llevaba tiempo con ganas de meterme en serio con GSAP, Lenis y Matter.js. Había
 
 No buscaba solo una web bonita. Quería que se sintiera viva de verdad. Que el scroll tuviera inercia, que el hero no entrara como cualquier landing, que algunas letras parecieran objetos y no texto plano, y que los doodles diesen la sensación de estar trazándose en ese momento.
 
-Sobre el papel sonaba bien. En Nuxt con SSR, tres librerías de este tipo juntas se pueden convertir rápido en un jaleo de timings, listeners que se quedan vivos, scroll desincronizado y rendimiento mediocre en móvil.
+Sobre el papel sonaba bien. En Nuxt con SSR, tres librerías de este tipo juntas se te convierten rápido en un jaleo de timings, listeners que se quedan vivos, scroll desincronizado y rendimiento flojo en móvil.
 
-Aquí no voy a pegar el código real entero porque sería infumable. Lo que sí hago es contar las decisiones que tomé, los problemas concretos que me encontré y el tipo de snippets simplificados que me habría gustado leer antes de ponerme con ello.
+Aquí no voy a pegar el código real entero porque sería infumable. Lo que sí hago es contar las decisiones que tomé, los problemas concretos que me encontré y los snippets simplificados que me habría gustado leer antes de ponerme.
 
 ---
 
@@ -35,7 +35,7 @@ import { SplitText } from 'gsap/SplitText'
 gsap.registerPlugin(ScrollTrigger, SplitText)
 ```
 
-Lo fácil era arrancar la primera animación. Lo que me dio guerra fue otra cosa: no dejar basura al desmontar componentes. En una SPA eso pasa sin hacer mucho ruido. Vas navegando, montas un componente, luego otro, luego vuelves, y si no limpias bien, los triggers siguen ahí aunque el DOM ya no exista.
+Lo fácil era arrancar la primera animación. Lo que me dio guerra fue otra cosa: no dejar basura al desmontar componentes. En una SPA eso pasa sin hacer mucho ruido. Vas navegando, montas un componente, luego otro, luego vuelves y, si no limpias bien, los triggers siguen ahí aunque el DOM ya no exista.
 
 `gsap.context()` me arregló justo eso. Agrupa todo lo que se crea dentro y luego lo revierte de golpe cuando el componente desaparece. En Vue queda bastante limpio si lo empaquetas en un composable:
 
@@ -87,7 +87,7 @@ Aquí me salvó una línea:
 ScrollTrigger.config({ ignoreMobileResize: true })
 ```
 
-Parece una tontería, pero quitó bastante ruido. Sigue recalculando cuando toca de verdad, como en un cambio de orientación, pero deja de reaccionar a cada movimiento mínimo del viewport.
+Parece una tontería, pero quitó bastante ruido. Sigue recalculando cuando toca de verdad (por ejemplo, en un cambio de orientación), pero deja de reaccionar a cada movimiento mínimo del viewport.
 
 ---
 
@@ -136,7 +136,7 @@ export default defineNuxtPlugin(() => {
 
 El navbar se esconde al bajar y reaparece al subir. Nada especialmente original. Mi primera implementación lo resolvía con ScrollTrigger y `onUpdate`. Funcionaba casi siempre. El problema era ese “casi”. En la primera carga, antes de que Lenis estuviera del todo asentado, el navbar a veces desaparecía solo.
 
-La salida fue más simple que la idea original: escuchar directamente el evento `scroll` de Lenis y olvidarme del trigger para este caso.
+La salida fue más simple que la idea original: escuchar directamente el evento `scroll` de Lenis y olvidarme de ScrollTrigger en este caso.
 
 ```typescript
 const { $lenis } = useNuxtApp()
@@ -276,11 +276,11 @@ Un trigger, dos timelines y una progresión bastante fácil de afinar. Para una 
 
 ## El pin-spacer fue el mayor problema de UX
 
-Aquí fue donde más me paré. No por dificultad técnica pura, sino porque la experiencia resultante era mala.
+Aquí fue donde más me paré. No por dificultad técnica pura, sino porque la experiencia que quedaba era mala.
 
 Cuando GSAP pinea una sección crea un :hand-drawn{svg="/blog/doodles/blog_medium_circle.svg" placement="around"}[pin-spacer] que conserva el hueco vertical mientras dura la animación. Si esa animación consume 2500px de scroll, ese hueco también existe al volver hacia arriba. Y ahí viene lo feo: el usuario se come todo el rebobinado de la animación al revés.
 
-Ese comportamiento me molesta bastante en otras webs, así que no quería dejarlo tal cual. Matar el trigger justo en `onLeave` parecía la respuesta obvia, pero lo probé y producía un micro-salto visible porque la sección todavía estaba demasiado cerca del viewport.
+Ese comportamiento me molesta bastante en otras webs, así que no quería dejarlo tal cual. Matar el trigger justo en `onLeave` parecía la respuesta obvia, pero lo probé y producía un micro-salto visible, porque la sección todavía estaba demasiado cerca del viewport.
 
 La solución buena fue esperar más. Bastante más. Hasta que el usuario hubiera pasado al menos otro viewport completo por debajo de la sección. En ese punto ya no se veía nada del hero y podía recolocar el scroll sin cantar demasiado.
 
@@ -314,7 +314,7 @@ ScrollTrigger.create({
 })
 ```
 
-Aquí el orden importa bastante. Primero desaparece el trigger principal, luego compenso el scroll en el mismo frame, después refresco ScrollTrigger y al final sincronizo Lenis. Si cambias el orden, vuelven los saltos o aparece desajuste entre el scroll real y el interno de Lenis.
+Aquí el orden importa bastante. Primero desaparece el trigger principal, luego compenso el scroll en el mismo frame, después refresco ScrollTrigger y al final sincronizo Lenis. Si cambias el orden, vuelven los saltos o aparece desajuste entre el scroll real y el scroll interno de Lenis.
 
 El resultado es mucho más limpio: una vez vista la animación, esa parte se comporta como HTML estático. Puedes volver arriba rápido sin tragarte el hero marcha atrás.
 
@@ -343,7 +343,7 @@ if (isMobile) {
 }
 ```
 
-En desktop tiene sentido que el usuario controle el ritmo con el scroll. En móvil, no siempre. A veces hay que dejar de perseguir la idea bonita y adaptarse a cómo usa la gente la página de verdad.
+En desktop tiene sentido que el usuario controle el ritmo con el scroll. En móvil, no siempre. A veces toca dejar de perseguir la idea bonita y adaptarse a cómo usa la gente la página de verdad.
 
 ---
 
@@ -587,7 +587,7 @@ images:
 ---
 ::
 
-La técnica para “dibujar” un path en tiempo real no tiene misterio nuevo. Es la clásica de `strokeDasharray` y `strokeDashoffset`. Lo interesante no era descubrirla, sino llevarla bien a SSR, a varios SVGs distintos y a componentes reutilizables.
+La técnica para “dibujar” un path en tiempo real no tiene misterio nuevo. Es la clásica de `strokeDasharray` y `strokeDashoffset`. Lo interesante no era descubrirla, sino llevarla bien a SSR, a varios SVG distintos y a componentes reutilizables.
 
 ::code-preview
 ---
@@ -717,7 +717,7 @@ defineExpose({ svg: svgRef })
 </template>
 ```
 
-Usar `currentColor` en vez de un color fijo también vino bien. Así los doodles heredan el color del contexto y no tengo que mantener variantes duplicadas para fondo oscuro y claro.
+Usar `currentColor` en vez de un color fijo también vino bien. Así los doodles heredan el color del contexto y no tengo que mantener variantes duplicadas para fondo oscuro y fondo claro.
 
 ---
 
@@ -797,7 +797,7 @@ const newWidth = container.clientWidth
 if (Math.abs(newWidth - prevWidth) < 50) return
 ```
 
-No es una técnica brillante. Es simplemente poner un límite sensato y no recalcular por deporte.
+No es una técnica brillante. Es simplemente poner un límite sensato y dejar de recalcular por deporte.
 
 ---
 
@@ -809,6 +809,6 @@ GSAP me sigue pareciendo la pieza más sólida del conjunto. La documentación e
 
 Matter.js me sorprendió para bien. Es bastante directo para este tipo de efectos: motor, cuerpos, mundo y un canvas que dibuja lo que toca. Sin demasiada magia. Y los doodles siguen siendo probablemente la parte más personal de todo el portfolio. La técnica es vieja, sí, pero pasar trazos hechos a mano a componentes reutilizables le da un punto que habría sido difícil sacar de una solución más genérica.
 
-Si lo rehaciera hoy, revisaría un poco mejor el scroll horizontal, porque lleva su propia instancia de Lenis y eso obliga a ir con cuidado para que no se cruce con la global. Y también me volvería a preguntar si toda la complejidad del hero necesita exactamente ese sistema de pinning o si ahora sería capaz de conseguir algo parecido con menos piezas.
+Si lo rehaciera hoy, revisaría un poco mejor el scroll horizontal, porque lleva su propia instancia de Lenis y eso obliga a ir con cuidado para que no se cruce con la global. Y también me volvería a preguntar si toda la complejidad del hero necesita exactamente ese sistema de pinning, o si ahora sería capaz de conseguir algo parecido con menos piezas.
 
 Pero vamos, no me arrepiento. El resultado se siente bastante cercano a lo que quería desde el principio: una web que no solo se mueve, sino que parece construida con intención.

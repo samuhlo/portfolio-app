@@ -51,6 +51,7 @@ import { useDoodleDraw } from '~/composables/useDoodleDraw';
 // █ TYPES
 // =============================================================================
 type Placement = 'under' | 'over' | 'around' | 'left' | 'right';
+type TextLayer = 'over' | 'under';
 
 // =============================================================================
 // █ PROPS
@@ -71,6 +72,8 @@ const props = withDefaults(
     strokeWidth?: string | number;
     /** Cómo se dispara la animación */
     trigger?: 'scroll' | 'load' | 'hover';
+    /** Si el doodle va por encima o por debajo del texto */
+    textLayer?: TextLayer;
     /** Duración total del dibujo en segundos */
     duration?: string | number;
     /** Easing GSAP */
@@ -94,6 +97,7 @@ const props = withDefaults(
   {
     placement: 'under',
     trigger: 'scroll',
+    textLayer: 'over',
     duration: 1.2,
     ease: 'power2.inOut',
     count: 1,
@@ -298,11 +302,16 @@ function handleHoverLeave() {
   <span
     ref="anchorRef"
     class="relative inline-block"
-    :class="{ 'cursor-pointer': trigger === 'hover' }"
+    :class="{
+      'cursor-pointer': trigger === 'hover',
+      'hand-drawn--under': textLayer === 'under',
+    }"
     @mouseenter="handleHoverEnter"
     @mouseleave="handleHoverLeave"
   >
-    <slot />
+    <span class="doodle-content" :class="{ 'doodle-content--under': textLayer === 'under' }">
+      <slot />
+    </span>
     <!-- Una copia del SVG por cada índice en countNum.
          El estilo de cada copia añade un offset acumulativo sobre el eje
          correcto según el placement, para que queden en línea. -->
@@ -311,6 +320,10 @@ function handleHoverLeave() {
       :key="i"
       :ref="setContainerRef(i - 1)"
       class="absolute block pointer-events-none doodle-svg-container [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
+      :class="{
+        'doodle-svg-container--custom-stroke': strokeWidth !== undefined,
+        'doodle-svg-container--under': textLayer === 'under',
+      }"
       :style="getNthContainerStyle(i - 1)"
       v-html="svgContent"
     />
@@ -318,6 +331,22 @@ function handleHoverLeave() {
 </template>
 
 <style>
+.hand-drawn--under {
+  isolation: isolate;
+}
+
+.doodle-content {
+  position: relative;
+}
+
+.doodle-content--under {
+  z-index: 1;
+}
+
+.doodle-svg-container--under {
+  z-index: -1;
+}
+
 .doodle-svg-container path,
 .doodle-svg-container circle,
 .doodle-svg-container line,
@@ -326,5 +355,15 @@ function handleHoverLeave() {
 .doodle-svg-container rect,
 .doodle-svg-container ellipse {
   stroke: var(--doodle-stroke-color, var(--color-accent, #ffca40)) !important;
+}
+
+.doodle-svg-container--custom-stroke path,
+.doodle-svg-container--custom-stroke circle,
+.doodle-svg-container--custom-stroke line,
+.doodle-svg-container--custom-stroke polyline,
+.doodle-svg-container--custom-stroke polygon,
+.doodle-svg-container--custom-stroke rect,
+.doodle-svg-container--custom-stroke ellipse {
+  stroke-width: var(--doodle-stroke-width) !important;
 }
 </style>
