@@ -8,7 +8,7 @@ time_to_read: 5
 published: true
 lang: es
 translationKey: atipo-foundry
-slug: atipo-foundry
+slug: atipo-foundry-tipografia-de-alto-nivel
 ---
 
 ## La typo al lado de casa

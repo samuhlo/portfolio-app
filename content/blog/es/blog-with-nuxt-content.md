@@ -8,7 +8,7 @@ time_to_read: 8
 published: true
 lang: es
 translationKey: blog-with-nuxt-content
-slug: blog-with-nuxt-content
+slug: como-cree-mi-blog-con-nuxt-content
 ---
 
 ## No sabía que existía

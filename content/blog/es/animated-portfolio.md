@@ -8,7 +8,7 @@ time_to_read: 11
 published: true
 lang: es
 translationKey: animated-portfolio
-slug: animated-portfolio
+slug: portfolio-animado-con-gsap-lenis-y-matterjs
 ---
 
 ## Quería que el portfolio tuviera peso
