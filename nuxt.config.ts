@@ -1,6 +1,9 @@
 import tailwindcss from '@tailwindcss/vite';
 import { SITE } from './app/config/site';
 
+const NODE_MAJOR = Number(process.versions.node.split('.')[0] ?? '0');
+const SQLITE_CONNECTOR = NODE_MAJOR >= 22 ? 'native' : 'better-sqlite3';
+
 export default defineNuxtConfig({
   compatibilityDate: '2026-03-13',
   ssr: true,
@@ -94,6 +97,11 @@ export default defineNuxtConfig({
       // Nuxt Content necesita una ruta escribible para montar/actualizar su SQLite.
       // /tmp es la ruta estándar escribible en Vercel/Lambda.
       filename: process.env.CONTENT_DB_PATH ?? '/tmp/contents.sqlite',
+    },
+    experimental: {
+      // Nuxt Content v3.6+: mejor fijar conector explícito.
+      // En Node >=22 priorizamos `native` para evitar problemas de binarios nativos.
+      sqliteConnector: SQLITE_CONNECTOR,
     },
     build: {
       markdown: {
