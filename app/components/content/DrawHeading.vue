@@ -26,6 +26,7 @@ import { useDoodleDraw } from '~/composables/useDoodleDraw';
 // █ TYPES
 // =============================================================================
 type Placement = 'under' | 'over' | 'around' | 'left' | 'right';
+type TextLayer = 'over' | 'under';
 
 // =============================================================================
 // █ PROPS
@@ -46,6 +47,8 @@ const props = withDefaults(
     strokeWidth?: string | number;
     /** Cómo se dispara la animación */
     trigger?: 'scroll' | 'load' | 'hover';
+    /** Si el doodle va por encima o por debajo del texto */
+    textLayer?: TextLayer;
     /** Duración total del dibujo en segundos */
     duration?: string | number;
     /** Easing GSAP */
@@ -62,6 +65,7 @@ const props = withDefaults(
     level: 2,
     placement: 'under',
     trigger: 'scroll',
+    textLayer: 'over',
     duration: 1.2,
     ease: 'power2.inOut',
   },
@@ -205,14 +209,26 @@ function handleHoverLeave() {
     :is="`h${levelNum}`"
     ref="anchorRef"
     class="draw-heading relative inline-block"
-    :class="{ 'cursor-pointer': trigger === 'hover' }"
+    :class="{
+      'cursor-pointer': trigger === 'hover',
+      'draw-heading--under': textLayer === 'under',
+    }"
     @mouseenter="handleHoverEnter"
     @mouseleave="handleHoverLeave"
   >
-    <slot />
+    <span
+      class="draw-heading__content"
+      :class="{ 'draw-heading__content--under': textLayer === 'under' }"
+    >
+      <slot />
+    </span>
     <span
       ref="containerRef"
       class="absolute block pointer-events-none doodle-svg-container [&>svg]:overflow-visible [&>svg]:block [&>svg]:w-full [&>svg]:h-auto"
+      :class="{
+        'doodle-svg-container--custom-stroke': strokeWidth !== undefined,
+        'doodle-svg-container--under': textLayer === 'under',
+      }"
       :style="svgContainerStyle"
       v-html="svgContent"
     />
@@ -220,6 +236,22 @@ function handleHoverLeave() {
 </template>
 
 <style>
+.draw-heading--under {
+  isolation: isolate;
+}
+
+.draw-heading__content {
+  position: relative;
+}
+
+.draw-heading__content--under {
+  z-index: 1;
+}
+
+.doodle-svg-container--under {
+  z-index: -1;
+}
+
 .doodle-svg-container path,
 .doodle-svg-container circle,
 .doodle-svg-container line,
@@ -228,6 +260,16 @@ function handleHoverLeave() {
 .doodle-svg-container rect,
 .doodle-svg-container ellipse {
   stroke: var(--doodle-stroke-color, var(--color-accent, #ffca40)) !important;
+}
+
+.doodle-svg-container--custom-stroke path,
+.doodle-svg-container--custom-stroke circle,
+.doodle-svg-container--custom-stroke line,
+.doodle-svg-container--custom-stroke polyline,
+.doodle-svg-container--custom-stroke polygon,
+.doodle-svg-container--custom-stroke rect,
+.doodle-svg-container--custom-stroke ellipse {
+  stroke-width: var(--doodle-stroke-width) !important;
 }
 </style>
 
