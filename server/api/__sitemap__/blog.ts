@@ -38,7 +38,7 @@ function toLastmod(date: string): string | undefined {
 }
 
 export default defineSitemapEventHandler(async (event) => {
-  const rawPosts = (await queryCollection('blog')
+  const rawPosts = (await queryCollection(event, 'blog')
     .where('published', '=', true)
     .where('slug', '<>', '')
     .select('slug', 'lang', 'date', 'translationKey')
