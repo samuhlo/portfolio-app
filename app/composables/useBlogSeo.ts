@@ -92,19 +92,6 @@ export function useBlogSeo(params: { post?: Ref<BlogPost | null> }) {
     articleTag: () => post.value?.topics,
   });
 
-  if (post.value) {
-    useSchemaOrg([
-      defineArticle({
-        headline: seoTitle,
-        description: seoDescription,
-        datePublished: () => post.value?.date,
-        dateModified: () => post.value?.date,
-        image: ogImageUrl,
-        author: { '@type': 'Person', name: SITE.author, url: SITE.url },
-      }),
-    ]);
-  }
-
   return {
     seoTitle,
     seoDescription,
