@@ -121,14 +121,4 @@ Cada entrada de blog recibe variables de layout aleatorias o configurables (grid
 
 </div>
 
-<!--
-PORTFOLIO:METADATA
-accent_color: #FFCA40
-hover_text_card: dev portfolio
-
-images_url:
-https://raw.githubusercontent.com/samuhlo/portfolio-app/main/public/images/portada.webp
-
-post_url:
-blog_url:
--->
+<!-- portfolio:hidden -->

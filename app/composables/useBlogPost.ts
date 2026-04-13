@@ -99,5 +99,5 @@ export function useBlogPost(slug: string) {
       : null,
   );
 
-  return { post, prevPost, nextPost, status, translations };
+  return { post: post as Ref<BlogPost | null>, prevPost, nextPost, status, translations };
 }
