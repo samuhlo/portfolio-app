@@ -79,7 +79,7 @@ function formatDate(dateStr: string): string {
   let date: Date;
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     const [year, month, day] = dateStr.split('-').map(Number);
-    date = new Date(year, month - 1, day);
+    date = new Date(year as number, (month as number) - 1, day as number);
   } else {
     date = new Date(dateStr);
   }

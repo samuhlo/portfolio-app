@@ -38,7 +38,16 @@ export default defineNuxtConfig({
     '@nuxt/content',
     '@nuxtjs/sitemap',
     '@vercel/analytics',
+    'nuxt-schema-org',
   ],
+
+  schemaOrg: {
+    identity: {
+      type: 'Person',
+      name: SITE.author,
+      url: SITE.url,
+    },
+  },
 
   sitemap: {
     // URLs dinámicas de posts (Nuxt Content) para incluir artículos en sitemap
