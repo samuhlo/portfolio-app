@@ -53,11 +53,19 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
   // Si el cliente monta con post null, reintentamos client-side donde la query sí funciona.
   if (import.meta.client && !post.value) {
-    void refresh();
+    await refresh();
   }
 
   if (error.value) {
-    throw createError({ statusCode: 404, statusMessage: 'Post not found' });
+    const statusCode =
+      (error.value as { statusCode?: number; status?: number }).statusCode ??
+      (error.value as { status?: number }).status;
+
+    if (statusCode === 404) {
+      throw createError({ statusCode: 404, statusMessage: 'Post not found' });
+    }
+
+    throw error.value;
   }
 
   if (!post.value) {
