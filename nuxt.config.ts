@@ -51,7 +51,7 @@ export default defineNuxtConfig({
   i18n: {
     strategy: 'prefix_except_default',
     defaultLocale: 'es',
-    baseUrl: process.env.NUXT_PUBLIC_SITE_URL ?? SITE.url,
+    baseUrl: SITE.url,
     detectBrowserLanguage: false,
     locales: [
       { code: 'es', language: 'es-ES', name: 'Castellano', file: 'es.json' },

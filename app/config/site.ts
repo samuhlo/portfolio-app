@@ -9,7 +9,7 @@
  */
 
 export const SITE = {
-  url: 'https://samuhlo.dev',
+  url: 'https://www.samuhlo.dev',
   name: 'SAMUHLO.sh',
   author: 'Samuel López',
   authorHandle: 'samuhlo',

@@ -1,4 +1,4 @@
 User-Agent: *
 Disallow:
 
-Sitemap: https://samuhlo.dev/sitemap.xml
+Sitemap: https://www.samuhlo.dev/sitemap.xml
