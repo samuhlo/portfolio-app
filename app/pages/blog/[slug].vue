@@ -34,7 +34,7 @@ const setI18nParams = useSetI18nParams();
 const route = useRoute();
 const slugValue = route.params.slug as string;
 
-const { post, prevPost, nextPost, translations } = useBlogPost(slugValue);
+const { post, prevPost, nextPost, translations } = await useBlogPost(slugValue);
 
 useBlogSeo({ post });
 
