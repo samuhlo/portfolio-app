@@ -11,7 +11,7 @@
  * ========================================================================
  */
 
-import { computed, toRef, type ComputedRef, type Ref } from 'vue';
+import { computed, ref, toRef, type ComputedRef, type Ref } from 'vue';
 import { createError } from '#app';
 import { useI18n } from '#imports';
 import { type BlogPost, type BlogPostTranslation } from '~/types/blog';
@@ -25,16 +25,19 @@ type UseBlogPostResult = {
   translations: ComputedRef<BlogPostTranslation[]>;
 };
 
-export function useBlogPost(slug: string): UseBlogPostResult {
+export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   const { locale } = useI18n();
   const slugRef = toRef(() => slug);
+
+  // Reusar el cache de useBlogPosts — misma key dinámica, sin doble fetch
+  const { posts: allPosts } = useBlogPosts();
 
   const {
     data: post,
     status,
     error,
     refresh,
-  } = useAsyncData(
+  } = await useAsyncData(
     () => `blog-post-${locale.value}-${slugRef.value}`,
     async () => {
       const result = await queryCollection('blog')
@@ -53,7 +56,11 @@ export function useBlogPost(slug: string): UseBlogPostResult {
   // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
   // Si el cliente monta con post null, reintentamos client-side donde la query sí funciona.
   if (import.meta.client && !post.value) {
-    void refresh();
+    try {
+      await refresh();
+    } catch {
+      // No romper render en cliente por errores transitorios.
+    }
   }
 
   if (error.value) {
@@ -70,42 +77,24 @@ export function useBlogPost(slug: string): UseBlogPostResult {
     throw createError({ statusCode: 404, statusMessage: 'Post not found' });
   }
 
-  const translationKey = computed(() => post.value?.translationKey ?? '');
+  const translationItems = ref<BlogPostTranslation[]>([]);
 
-  const { data: translationItems, refresh: refreshTranslations } = useAsyncData(
-    () => `blog-post-translations-${locale.value}-${slugRef.value}`,
-    async () => {
-      if (!translationKey.value || !post.value) {
-        return [];
-      }
-
+  if (post.value?.translationKey) {
+    try {
       const results = await queryCollection('blog')
-        .where('translationKey', '=', translationKey.value)
+        .where('translationKey', '=', post.value.translationKey)
         .where('published', '=', true)
         .select('lang', 'slug', 'title')
         .all();
 
-      if (!results.length) {
-        return [
-          {
-            lang: post.value.lang,
-            slug: post.value.slug,
-            title: post.value.title,
-          },
-        ];
-      }
-
-      return results as BlogPostTranslation[];
-    },
-    { watch: [locale, slugRef] },
-  );
-
-  if (import.meta.client && translationKey.value && translationItems.value == null) {
-    void refreshTranslations();
+      translationItems.value = (results as BlogPostTranslation[]) ?? [];
+    } catch {
+      translationItems.value = [];
+    }
   }
 
   const translations = computed<BlogPostTranslation[]>(() => {
-    const items = (translationItems.value as BlogPostTranslation[] | null) ?? [];
+    const items = translationItems.value;
     if (!post.value) return items;
     if (items.some((item) => item.lang === post.value!.lang)) return items;
 
@@ -118,9 +107,6 @@ export function useBlogPost(slug: string): UseBlogPostResult {
       },
     ];
   });
-
-  // Reusar el cache de useBlogPosts — misma key dinámica, sin doble fetch
-  const { posts: allPosts } = useBlogPosts();
 
   const currentIndex = computed(() => allPosts.value.findIndex((p) => p.slug === post.value?.slug));
 
