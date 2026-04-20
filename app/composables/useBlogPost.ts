@@ -13,7 +13,7 @@
 
 import { computed, toRef, type ComputedRef, type Ref } from 'vue';
 import { createError } from '#app';
-import { useI18n } from '#imports';
+import { useI18n, useNuxtApp } from '#imports';
 import { type BlogPost, type BlogPostTranslation } from '~/types/blog';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 
@@ -27,6 +27,7 @@ type UseBlogPostResult = {
 
 export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   const { locale } = useI18n();
+  const nuxtApp = useNuxtApp();
   const slugRef = toRef(() => slug);
 
   const {
@@ -74,38 +75,41 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
 
   const translationKey = computed(() => post.value?.translationKey ?? '');
 
-  const { data: translationItems, refresh: refreshTranslations } = await useAsyncData(
-    () => `blog-post-translations-${locale.value}-${slugRef.value}`,
-    async () => {
-      if (!translationKey.value) {
-        return [
-          {
-            lang: post.value!.lang,
-            slug: post.value!.slug,
-            title: post.value!.title,
-          },
-        ];
-      }
+  const { data: translationItems, refresh: refreshTranslations } = await nuxtApp.runWithContext(
+    () =>
+      useAsyncData(
+        () => `blog-post-translations-${locale.value}-${slugRef.value}`,
+        async () => {
+          if (!translationKey.value) {
+            return [
+              {
+                lang: post.value!.lang,
+                slug: post.value!.slug,
+                title: post.value!.title,
+              },
+            ];
+          }
 
-      const results = await queryCollection('blog')
-        .where('translationKey', '=', translationKey.value)
-        .where('published', '=', true)
-        .select('lang', 'slug', 'title')
-        .all();
+          const results = await queryCollection('blog')
+            .where('translationKey', '=', translationKey.value)
+            .where('published', '=', true)
+            .select('lang', 'slug', 'title')
+            .all();
 
-      if (!results.length) {
-        return [
-          {
-            lang: post.value!.lang,
-            slug: post.value!.slug,
-            title: post.value!.title,
-          },
-        ];
-      }
+          if (!results.length) {
+            return [
+              {
+                lang: post.value!.lang,
+                slug: post.value!.slug,
+                title: post.value!.title,
+              },
+            ];
+          }
 
-      return results as BlogPostTranslation[];
-    },
-    { watch: [locale, slugRef] },
+          return results as BlogPostTranslation[];
+        },
+        { watch: [locale, slugRef] },
+      ),
   );
 
   if (import.meta.client && translationKey.value && translationItems.value == null) {
@@ -128,7 +132,7 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   });
 
   // Reusar el cache de useBlogPosts — misma key dinámica, sin doble fetch
-  const { posts: allPosts } = useBlogPosts();
+  const { posts: allPosts } = await nuxtApp.runWithContext(() => useBlogPosts());
 
   const currentIndex = computed(() => allPosts.value.findIndex((p) => p.slug === post.value?.slug));
 
