@@ -13,7 +13,7 @@
 
 import { computed, toRef, type ComputedRef, type Ref } from 'vue';
 import { createError } from '#app';
-import { useI18n, useNuxtApp } from '#imports';
+import { useI18n } from '#imports';
 import { type BlogPost, type BlogPostTranslation } from '~/types/blog';
 import { useBlogPosts } from '~/composables/useBlogPosts';
 
@@ -25,9 +25,8 @@ type UseBlogPostResult = {
   translations: ComputedRef<BlogPostTranslation[]>;
 };
 
-export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
+export function useBlogPost(slug: string): UseBlogPostResult {
   const { locale } = useI18n();
-  const nuxtApp = useNuxtApp();
   const slugRef = toRef(() => slug);
 
   const {
@@ -35,7 +34,7 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
     status,
     error,
     refresh,
-  } = await useAsyncData(
+  } = useAsyncData(
     () => `blog-post-${locale.value}-${slugRef.value}`,
     async () => {
       const result = await queryCollection('blog')
@@ -54,7 +53,7 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   // [FIX] En entornos serverless, queryCollection puede fallar server-side (SSR).
   // Si el cliente monta con post null, reintentamos client-side donde la query sí funciona.
   if (import.meta.client && !post.value) {
-    await refresh();
+    void refresh();
   }
 
   if (error.value) {
@@ -65,51 +64,40 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
     if (statusCode === 404) {
       throw createError({ statusCode: 404, statusMessage: 'Post not found' });
     }
-
-    throw error.value;
   }
 
-  if (!post.value) {
+  if (!post.value && status.value !== 'pending' && !error.value) {
     throw createError({ statusCode: 404, statusMessage: 'Post not found' });
   }
 
   const translationKey = computed(() => post.value?.translationKey ?? '');
 
-  const { data: translationItems, refresh: refreshTranslations } = await nuxtApp.runWithContext(
-    () =>
-      useAsyncData(
-        () => `blog-post-translations-${locale.value}-${slugRef.value}`,
-        async () => {
-          if (!translationKey.value) {
-            return [
-              {
-                lang: post.value!.lang,
-                slug: post.value!.slug,
-                title: post.value!.title,
-              },
-            ];
-          }
+  const { data: translationItems, refresh: refreshTranslations } = useAsyncData(
+    () => `blog-post-translations-${locale.value}-${slugRef.value}`,
+    async () => {
+      if (!translationKey.value || !post.value) {
+        return [];
+      }
 
-          const results = await queryCollection('blog')
-            .where('translationKey', '=', translationKey.value)
-            .where('published', '=', true)
-            .select('lang', 'slug', 'title')
-            .all();
+      const results = await queryCollection('blog')
+        .where('translationKey', '=', translationKey.value)
+        .where('published', '=', true)
+        .select('lang', 'slug', 'title')
+        .all();
 
-          if (!results.length) {
-            return [
-              {
-                lang: post.value!.lang,
-                slug: post.value!.slug,
-                title: post.value!.title,
-              },
-            ];
-          }
+      if (!results.length) {
+        return [
+          {
+            lang: post.value.lang,
+            slug: post.value.slug,
+            title: post.value.title,
+          },
+        ];
+      }
 
-          return results as BlogPostTranslation[];
-        },
-        { watch: [locale, slugRef] },
-      ),
+      return results as BlogPostTranslation[];
+    },
+    { watch: [locale, slugRef] },
   );
 
   if (import.meta.client && translationKey.value && translationItems.value == null) {
@@ -132,7 +120,7 @@ export async function useBlogPost(slug: string): Promise<UseBlogPostResult> {
   });
 
   // Reusar el cache de useBlogPosts — misma key dinámica, sin doble fetch
-  const { posts: allPosts } = await nuxtApp.runWithContext(() => useBlogPosts());
+  const { posts: allPosts } = useBlogPosts();
 
   const currentIndex = computed(() => allPosts.value.findIndex((p) => p.slug === post.value?.slug));
 

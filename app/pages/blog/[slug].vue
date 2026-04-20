@@ -34,7 +34,7 @@ const setI18nParams = useSetI18nParams();
 const route = useRoute();
 const slugValue = route.params.slug as string;
 
-const { post, prevPost, nextPost, translations } = await useBlogPost(slugValue);
+const { post, prevPost, nextPost, translations } = useBlogPost(slugValue);
 
 useBlogSeo({ post });
 
@@ -312,5 +312,9 @@ onUnmounted(() => {
         <BlogPostNavigation :prev-post="prevPost" :next-post="nextPost" />
       </template>
     </BlogPostLayout>
+
+    <div v-else class="mx-auto max-w-3xl px-6 pt-20 text-sm text-zinc-500 md:pt-28">
+      Cargando articulo...
+    </div>
   </div>
 </template>
