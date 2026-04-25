@@ -250,12 +250,12 @@ export const usePhysicsLetters = () => {
     if (paused) resume();
 
     for (const { body } of letterBodies) {
-      const upForce = -(15 + Math.random() * 10);
+      const upForce = -(18 + Math.random() * 12);
       Body.setVelocity(body, {
-        x: (Math.random() - 0.5) * 8,
+        x: (Math.random() - 0.5) * 10,
         y: upForce,
       });
-      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.3);
+      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.35);
     }
   };
 
