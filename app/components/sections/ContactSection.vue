@@ -12,6 +12,7 @@ import { ref, onMounted, onUnmounted, nextTick } from 'vue';
 import { usePhysicsLetters } from '~/composables/usePhysicsLetters';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
+import { useLenis } from '~/composables/useLenis';
 import { SITE, BREAKPOINTS, COLORS } from '~/config/site';
 
 const TEXT = 'Contact';
@@ -27,6 +28,12 @@ const { preparePaths, addDrawAnimation } = useDoodleDraw();
 let observer: IntersectionObserver | null = null;
 let triggered = false;
 let circleAnimation: gsap.core.Timeline | null = null;
+
+const END_THRESHOLD = 5;
+const COOLDOWN_MS = 600;
+let lastBounceTime = 0;
+let lenisBounceCleanup: (() => void) | null = null;
+let bounceTween: gsap.core.Tween | null = null;
 
 // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
 // threshold 0.6 → dispara la caída inicial de letras cuando el 60% es visible.
@@ -143,6 +150,72 @@ onMounted(async () => {
   }
 
   window.addEventListener('resize', handleResize);
+
+  // DESKTOP BOUNCE -> Impulso de letras al hacer scroll-down en el borde inferior
+  const setupDesktopBounce = () => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth < BREAKPOINTS.mobile) return;
+
+    const lenis = useLenis();
+    if (!lenis) return;
+
+    const handler = ({ deltaY, scroll, limit }: { deltaY: number; scroll: number; limit: number }) => {
+      if (!triggered) return;
+      if (deltaY <= 0) return;
+      if (scroll < limit - END_THRESHOLD) return;
+
+      const now = Date.now();
+      if (now - lastBounceTime < COOLDOWN_MS) return;
+      lastBounceTime = now;
+
+      // BOUNCE VISUAL
+      if (sectionRef.value && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        bounceTween?.kill();
+        bounceTween = gsap.fromTo(
+          sectionRef.value,
+          { y: 0 },
+          { y: -20, duration: 0.1, yoyo: true, repeat: 1, ease: 'power2.out', overwrite: 'auto' }
+        );
+      }
+
+      // IMPULSE
+      slam();
+    };
+
+    lenis.on('virtual-scroll', handler);
+    lenisBounceCleanup = () => lenis.off('virtual-scroll', handler);
+  };
+  setupDesktopBounce();
+
+  // MOBILE BOUNCE -> touchend en rubber-band. Lenis no tracking overscroll,
+  // asi que escuchamos el evento nativo. Solo impulso, sin bounce visual.
+  let mobileCleanup: (() => void) | null = null;
+  const setupMobileBounce = () => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth >= BREAKPOINTS.mobile) return;
+
+    let lastBounceTime = 0;
+
+    const handler = () => {
+      if (!triggered) return;
+
+      const atBottom = window.scrollY + window.innerHeight >= document.body.scrollHeight - END_THRESHOLD;
+      if (!atBottom) return;
+
+      const now = Date.now();
+      if (now - lastBounceTime < COOLDOWN_MS) return;
+      lastBounceTime = now;
+
+      // BLINDAJE -> Respetar preferencia de movimiento reducido
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+      slam();
+    };
+
+    window.addEventListener('touchend', handler, { passive: true });
+    mobileCleanup = () => window.removeEventListener('touchend', handler);
+  };
+  setupMobileBounce();
 });
 
 onUnmounted(() => {
@@ -152,6 +225,16 @@ onUnmounted(() => {
   if (resizeTimer) clearTimeout(resizeTimer);
   circleAnimation?.kill();
   circleAnimation = null;
+  bounceTween?.kill();
+  bounceTween = null;
+  if (lenisBounceCleanup) {
+    lenisBounceCleanup();
+    lenisBounceCleanup = null;
+  }
+  if (mobileCleanup) {
+    mobileCleanup();
+    mobileCleanup = null;
+  }
   destroy();
 });
 
