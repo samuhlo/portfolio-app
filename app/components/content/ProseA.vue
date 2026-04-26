@@ -33,6 +33,8 @@ const iconRef = ref<SVGSVGElement | null>(null);
 let paths: SVGPathElement[] = [];
 let isAnimating = false;
 
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : false;
+
 onMounted(() => {
   // [NOTE] iconRef solo existe en el branch externo — null en links internos
   paths = preparePaths(iconRef.value);
@@ -44,6 +46,7 @@ onUnmounted(() => {
 });
 
 function draw() {
+  if (!hasHover) return;
   if (!iconRef.value || !paths.length || isAnimating) return;
   isAnimating = true;
   const tl = gsap.timeline({
@@ -62,6 +65,7 @@ function draw() {
 }
 
 function erase() {
+  if (!hasHover) return;
   if (!iconRef.value || !paths.length) return;
   erasePaths(iconRef.value, paths, { duration: 0.15 });
   isAnimating = false;

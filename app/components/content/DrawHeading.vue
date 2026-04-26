@@ -121,6 +121,8 @@ let preparedPaths: SVGPathElement[] = [];
 let svgEl: SVGSVGElement | null = null;
 let isAnimating = false;
 
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
+
 // =============================================================================
 // █ LIFECYCLE
 // =============================================================================
@@ -178,6 +180,7 @@ onMounted(async () => {
 // █ HOVER HANDLERS
 // =============================================================================
 function handleHoverEnter() {
+  if (!hasHover) return;
   if (props.trigger !== 'hover' || !svgEl || isAnimating) return;
   isAnimating = true;
   const tl = gsap.timeline({
@@ -195,6 +198,7 @@ function handleHoverEnter() {
 }
 
 function handleHoverLeave() {
+  if (!hasHover) return;
   if (props.trigger !== 'hover' || !svgEl) return;
   erasePaths(svgEl, preparedPaths);
   isAnimating = false;

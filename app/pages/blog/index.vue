@@ -67,7 +67,16 @@ function runAnimation() {
 
     if (!containerRef.value) return;
 
-    const categoryEls = containerRef.value.querySelectorAll('.category-item-anim');
+    const allCategoryEls = containerRef.value.querySelectorAll('.category-item-anim');
+    const categoryEls = Array.from(allCategoryEls).filter(
+      (el) => {
+        const navEl = el.closest('nav');
+        return (
+          window.getComputedStyle(el).display !== 'none' &&
+          (!navEl || window.getComputedStyle(navEl).display !== 'none')
+        );
+      },
+    );
     const postEls = containerRef.value.querySelectorAll('.post-item-anim');
     const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
 
@@ -203,7 +212,7 @@ watch(locale, async (newLocale, oldLocale) => {
 <template>
   <div ref="containerRef" class="blog-page pb-24 md:pb-32">
     <PageLoader :visible="isLoading" />
-    <BlogHeader :locale-switch="isLocaleSwitchNavigation" />
+    <BlogHeader :locale-switch="isLocaleSwitchNavigation" class="mb-4 md:mb-12" />
 
     <div class="blog-content grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
       <div class="md:col-span-3">

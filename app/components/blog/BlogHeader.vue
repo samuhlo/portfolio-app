@@ -67,7 +67,7 @@ const DOODLE_TIMING = {
 const DOODLE_STYLE = {
   top: '-0.2em',
   left: '0',
-  width: '1.1em',
+  width: '1.3em',
   transform: 'rotate(3deg)',
 };
 
@@ -285,12 +285,12 @@ watch(locale, (newLocale, oldLocale) => {
 </script>
 
 <template>
-  <header ref="headerRef" class="blog-header max-w-3xl mb-8 md:mb-12">
+  <header ref="headerRef" class="blog-header max-w-3xl mb-4 md:mb-12">
     <!-- [NOTE]: overflow-hidden es crítico para el clip-path reveal de GSAP -->
     <!-- Se libera a visible tras el reveal vía onComplete -->
     <div class="blog-header-title overflow-hidden relative">
       <h1
-        class="text-[clamp(3.5rem,18vw,11rem)] font-black uppercase tracking-tighter leading-[0.85] relative"
+        class="text-[clamp(4.25rem,24vw,11rem)] font-black uppercase tracking-tighter leading-[0.85] relative"
       >
         <!-- [NOTE]: Split para animación cartoon. "logs" empuja "B" fuera de pantalla -->
         <span class="blog-letter-b inline-block">B</span
@@ -313,10 +313,10 @@ watch(locale, (newLocale, oldLocale) => {
     </div>
 
     <!-- Línea decorativa que se anima con scaleX (transform-origin: left) -->
-    <div class="blog-header-line mt-6 h-px bg-foreground/10 origin-left" />
+    <div class="blog-header-line mt-3 md:mt-6 h-px bg-foreground/10 origin-left" />
 
     <p
-      class="blog-header-desc mt-8 text-base font-mono md:text-lg tracking-wide opacity-50 max-w-lg leading-relaxed"
+      class="blog-header-desc mt-4 md:mt-8 text-xs md:text-base font-mono tracking-wide opacity-50 max-w-lg leading-relaxed"
     >
       {{ $t('blog.header_desc') }}
     </p>
