@@ -70,6 +70,8 @@ const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
       >
         {{ post.description }}
       </p>
+
+      <slot name="post-info" />
     </header>
 
     <!-- Divider: animado con scaleX desde [slug].vue -->

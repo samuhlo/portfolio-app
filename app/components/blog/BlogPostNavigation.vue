@@ -114,8 +114,11 @@ function setupDrawTimeline(
 // =============================================================================
 // █ LIFECYCLE
 // =============================================================================
+const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : false;
+
 onMounted(() => {
   initGSAP(() => {
+    if (!hasHover) return;
     if (nextLinkRef.value && nextArrowRef.value) {
       nextTimeline = setupDrawTimeline(nextLinkRef.value, nextArrowRef.value);
     }
@@ -129,15 +132,19 @@ onMounted(() => {
 // █ INTERACTION: HANDLERS
 // =============================================================================
 function handleNextEnter() {
+  if (!hasHover) return;
   nextTimeline?.play();
 }
 function handleNextLeave() {
+  if (!hasHover) return;
   nextTimeline?.reverse();
 }
 function handlePrevEnter() {
+  if (!hasHover) return;
   prevTimeline?.play();
 }
 function handlePrevLeave() {
+  if (!hasHover) return;
   prevTimeline?.reverse();
 }
 </script>
@@ -178,7 +185,7 @@ function handlePrevLeave() {
                 :stroke-color="getCategoryColor(prevPost.category)"
               />
             </div>
-            <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
+            <h3 class="text-base font-bold md:group-hover:opacity-60 transition-opacity">
               {{ prevPost.title }}
             </h3>
           </NuxtLink>
@@ -216,7 +223,7 @@ function handlePrevLeave() {
                 :stroke-color="getCategoryColor(nextPost.category)"
               />
             </div>
-            <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
+            <h3 class="text-base font-bold md:group-hover:opacity-60 transition-opacity">
               {{ nextPost.title }}
             </h3>
           </NuxtLink>
