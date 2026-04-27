@@ -122,7 +122,6 @@ function parsePostDate(dateStr: string): Date | null {
 }
 
 const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
-
 </script>
 
 <template>
@@ -195,12 +194,16 @@ const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
       v-if="compact"
       class="info-section-anim text-[0.65rem] font-mono uppercase tracking-widest opacity-60 leading-relaxed mt-9"
     >
-      <span :style="{ color: categoryColor }" class="font-bold">{{
-        CATEGORY_LABELS[post.category]
-      }}</span>
-      <span> · {{ formatShortDate(post.date) }}</span>
-      <span> · {{ post.time_to_read }} min</span>
-      <span v-if="post.topics.length > 0"> · {{ post.topics.slice(0, 3).join(', ') }}</span>
+      <div>
+        <span :style="{ color: categoryColor }" class="font-bold">{{
+          CATEGORY_LABELS[post.category]
+        }}</span>
+        <span> · {{ formatShortDate(post.date) }}</span>
+        <span> · {{ post.time_to_read }} min</span>
+      </div>
+      <span v-if="post.topics.length > 0">
+        {{ post.topics.slice(0, 3).join(', ') }}{{ post.topics.length > 3 ? ' …' : '' }}</span
+      >
 
       <BlogCopyLink :color="categoryColor" compact />
     </div>

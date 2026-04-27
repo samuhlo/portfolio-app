@@ -43,44 +43,45 @@ const labelClasses = computed(() =>
 );
 
 async function copyLink() {
-  // Feedback inmediato, sin esperar al clipboard
   const svg = checkSvgRef.value;
   if (!svg) return;
 
-  const path = svg.querySelector('path');
-  if (!path) return;
-
-  const length = path.getTotalLength();
-
-  gsap.killTweensOf(svg);
-  gsap.killTweensOf(path);
-  gsap.set(svg, { opacity: 0 });
-  gsap.set(path, {
-    visibility: 'visible',
-    strokeDasharray: length,
-    strokeDashoffset: length,
-  });
-
-  await nextTick();
-
-  gsap
-    .timeline()
-    .to(svg, { opacity: 1, duration: 0.1 })
-    .to(path, { strokeDashoffset: 0, duration: 0.2, ease: 'power2.out' }, '<')
-    .to(svg, { opacity: 0, duration: 0.2, delay: 1.2 });
-
-  // Clipboard después, no bloquea el feedback
   if (!import.meta.client) return;
 
   try {
+    // FAIL CLOSED -> Clipboard requiere activacion de usuario activa en Safari/iOS.
+    // BLINDAJE -> Mantener la escritura dentro del gesto conserva el permiso.
     await navigator.clipboard.writeText(window.location.href);
+
+    const path = svg.querySelector('path');
+    if (!path) return;
+
+    const length = path.getTotalLength();
+
+    gsap.killTweensOf(svg);
+    gsap.killTweensOf(path);
+    gsap.set(svg, { opacity: 0 });
+    gsap.set(path, {
+      visibility: 'visible',
+      strokeDasharray: length,
+      strokeDashoffset: length,
+    });
+
+    await nextTick();
+
+    gsap
+      .timeline()
+      .to(svg, { opacity: 1, duration: 0.1 })
+      .to(path, { strokeDashoffset: 0, duration: 0.2, ease: 'power2.out' }, '<')
+      .to(svg, { opacity: 0, duration: 0.2, delay: 1.2 });
+
     copied.value = true;
     if (copyTimer) clearTimeout(copyTimer);
     copyTimer = setTimeout(() => {
       copied.value = false;
     }, 2500);
   } catch {
-    // NOISE KILL -> Clipboard puede fallar en algunos contextos
+    // NOISE KILL -> Clipboard puede fallar silenciosamente en algunos contextos.
   }
 }
 

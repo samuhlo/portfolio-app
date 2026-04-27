@@ -64,6 +64,10 @@ function drawMobileUnderline(id: string) {
 
   if (!doodle?.svg || !paths?.length) return;
 
+  // BLINDAJE -> Evitar animaciones huerfanas en taps rapidos.
+  gsap.killTweensOf(doodle.svg);
+  paths.forEach((p) => gsap.killTweensOf(p));
+
   resetPaths(doodle.svg, paths);
 
   const tl = gsap.timeline();

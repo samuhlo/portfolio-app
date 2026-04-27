@@ -313,8 +313,6 @@ onUnmounted(() => {
             <div class="md:hidden">
               <BlogPostInfo
                 :post="post"
-                :revealed-headings="revealedHeadings"
-                :active-heading-id="activeHeadingId"
                 :translations="translations"
                 compact
               />

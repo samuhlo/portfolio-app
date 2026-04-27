@@ -195,7 +195,7 @@ let svgEls: (SVGSVGElement | null)[] = [];
 let allPreparedPaths: SVGPathElement[][] = [];
 let isAnimating = false;
 
-const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : true;
+const { hasHover } = useHasHover();
 
 function setContainerRef(i: number) {
   return (el: Element | ComponentPublicInstance | null) => {
@@ -271,7 +271,7 @@ onMounted(async () => {
 // █ HOVER HANDLERS
 // =============================================================================
 function handleHoverEnter() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   if (props.trigger !== 'hover' || isAnimating) return;
   isAnimating = true;
 
@@ -293,7 +293,7 @@ function handleHoverEnter() {
 }
 
 function handleHoverLeave() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   if (props.trigger !== 'hover') return;
   svgEls.forEach((svgEl, i) => {
     if (svgEl) erasePaths(svgEl, allPreparedPaths[i] ?? []);

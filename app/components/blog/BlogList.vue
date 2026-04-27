@@ -81,7 +81,7 @@ const postRefs = ref<Record<string, HTMLElement | null>>({});
 const arrowRefs = ref<Record<string, { svg: SVGSVGElement | null } | null>>({});
 const arrowPaths = ref<Record<string, SVGPathElement[]>>({});
 
-const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : false;
+const { hasHover } = useHasHover();
 
 // Se ejecuta cada vez que el componente del doodle se monta o actualiza en la lista
 const setArrowRef = (slug: string) => (el: any) => {
@@ -97,7 +97,7 @@ const setArrowRef = (slug: string) => (el: any) => {
 };
 
 function onMouseEnter(slug: string) {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   const postEl = postRefs.value[slug];
   if (postEl) {
     gsap.to(postEl, {
@@ -126,7 +126,7 @@ function onMouseEnter(slug: string) {
 }
 
 function onMouseLeave(slug: string) {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   const postEl = postRefs.value[slug];
   if (postEl) {
     gsap.to(postEl, {

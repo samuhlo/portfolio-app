@@ -114,11 +114,11 @@ function setupDrawTimeline(
 // =============================================================================
 // █ LIFECYCLE
 // =============================================================================
-const hasHover = import.meta.client ? window.matchMedia('(hover: hover)').matches : false;
+const { hasHover } = useHasHover();
 
 onMounted(() => {
   initGSAP(() => {
-    if (!hasHover) return;
+    if (!hasHover.value) return;
     if (nextLinkRef.value && nextArrowRef.value) {
       nextTimeline = setupDrawTimeline(nextLinkRef.value, nextArrowRef.value);
     }
@@ -132,19 +132,19 @@ onMounted(() => {
 // █ INTERACTION: HANDLERS
 // =============================================================================
 function handleNextEnter() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   nextTimeline?.play();
 }
 function handleNextLeave() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   nextTimeline?.reverse();
 }
 function handlePrevEnter() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   prevTimeline?.play();
 }
 function handlePrevLeave() {
-  if (!hasHover) return;
+  if (!hasHover.value) return;
   prevTimeline?.reverse();
 }
 </script>
@@ -156,7 +156,7 @@ function handlePrevLeave() {
     class="blog-post-nav mt-16 pt-8 border-t border-foreground/10"
     style="opacity: 0"
   >
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="flex flex-col md:flex-row md:justify-between">
       <!-- ================================================================= -->
       <!-- █ PREV POST (más antiguo) -> IZQUIERDA -->
       <!-- ================================================================= -->
@@ -185,7 +185,7 @@ function handlePrevLeave() {
                 :stroke-color="getCategoryColor(prevPost.category)"
               />
             </div>
-            <h3 class="text-base font-bold md:group-hover:opacity-60 transition-opacity">
+            <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
               {{ prevPost.title }}
             </h3>
           </NuxtLink>
@@ -197,10 +197,10 @@ function handlePrevLeave() {
       <!-- ================================================================= -->
       <!-- █ NEXT POST (más reciente) -> DERECHA -->
       <!-- ================================================================= -->
-      <div v-if="nextPost" class="md:text-right md:ml-auto">
+      <div v-if="nextPost" class="mt-8 md:mt-0 md:text-right">
         <div
           ref="nextLinkRef"
-          class="block w-fit md:ml-auto"
+          class="block w-fit"
           @mouseenter="handleNextEnter"
           @mouseleave="handleNextLeave"
         >
@@ -209,7 +209,7 @@ function handlePrevLeave() {
             :aria-label="`${$t('blog.nav_next')}: ${nextPost.title}`"
             class="block group"
           >
-            <div class="nav-arrow-wrapper justify-end md:justify-end mb-1 h-5">
+            <div class="nav-arrow-wrapper justify-start md:justify-end mb-1 h-5">
               <!-- LABEL -> Se oculta al hover, la flecha se dibuja encima -->
               <span
                 class="nav-label text-xs font-mono uppercase tracking-[0.15em] opacity-30 whitespace-nowrap"
@@ -223,7 +223,7 @@ function handlePrevLeave() {
                 :stroke-color="getCategoryColor(nextPost.category)"
               />
             </div>
-            <h3 class="text-base font-bold md:group-hover:opacity-60 transition-opacity">
+            <h3 class="text-base font-bold group-hover:opacity-60 transition-opacity">
               {{ nextPost.title }}
             </h3>
           </NuxtLink>
