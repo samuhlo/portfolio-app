@@ -115,7 +115,9 @@ function setupGSAP() {
       }
       window.scrollTo({ top: parseInt(savedScroll, 10), behavior: 'instant' });
     } else {
-      // [NOTE] Animación normal de entrada.
+      // [NOTE] Animación normal de entrada — scroll desde arriba
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
       const tl = gsap.timeline({ defaults: { ease: ANIM.defaultEase } });
 
       const sidebarEls = containerRef.value.querySelectorAll('.info-section-anim');
