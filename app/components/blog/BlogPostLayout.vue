@@ -12,12 +12,10 @@
 
 <template>
   <article class="blog-post-layout grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16">
-    <!-- Sidebar: Info/Meta -->
-    <aside class="md:col-span-3">
+    <aside class="hidden md:block md:col-span-3">
       <slot name="info" />
     </aside>
 
-    <!-- Main Content -->
     <div class="md:col-span-9 md:pl-8">
       <slot name="body" />
     </div>

@@ -10,7 +10,7 @@
  * ========================================================================
  */
 
-import { ref, watch, onUnmounted } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n, useLocalePath } from '#imports';
 import type { BlogPost, TocHeading, BlogPostTranslation } from '~/types/blog';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '~/types/blog';
@@ -18,13 +18,23 @@ import { useGSAP } from '~/composables/useGSAP';
 import { useLenis } from '~/composables/useLenis';
 import RandomDoodleHover from '~/components/ui/RandomDoodleHover.vue';
 
-const props = defineProps<{
-  post: BlogPost;
-  showTitle?: boolean;
-  revealedHeadings?: TocHeading[];
-  activeHeadingId?: string;
-  translations?: BlogPostTranslation[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    post: BlogPost;
+    showTitle?: boolean;
+    revealedHeadings?: TocHeading[];
+    activeHeadingId?: string;
+    translations?: BlogPostTranslation[];
+    compact?: boolean;
+  }>(),
+  {
+    showTitle: false,
+    revealedHeadings: () => [],
+    activeHeadingId: '',
+    translations: () => [],
+    compact: false,
+  },
+);
 
 const lenis = useLenis();
 const localePath = useLocalePath();
@@ -76,14 +86,9 @@ watch(
 );
 
 function formatDate(dateStr: string): string {
-  let date: Date;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
-    const [year, month, day] = dateStr.split('-').map(Number);
-    date = new Date(year as number, (month as number) - 1, day as number);
-  } else {
-    date = new Date(dateStr);
-  }
-  if (isNaN(date.getTime())) return '—';
+  const date = parsePostDate(dateStr);
+  if (!date) return '—';
+
   return date.toLocaleDateString(dateLocale.value, {
     month: 'long',
     day: 'numeric',
@@ -91,31 +96,38 @@ function formatDate(dateStr: string): string {
   });
 }
 
-const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
+function formatShortDate(dateStr: string): string {
+  const date = parsePostDate(dateStr);
+  if (!date) return '—';
 
-const copied = ref(false);
-let copyTimer: ReturnType<typeof setTimeout> | null = null;
-
-async function copyLink() {
-  if (import.meta.client) {
-    await navigator.clipboard.writeText(window.location.href);
-    copied.value = true;
-    if (copyTimer) clearTimeout(copyTimer);
-    copyTimer = setTimeout(() => {
-      copied.value = false;
-    }, 2000);
-  }
+  return date.toLocaleDateString(dateLocale.value, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }
 
-onUnmounted(() => {
-  if (copyTimer) clearTimeout(copyTimer);
-});
+function parsePostDate(dateStr: string): Date | null {
+  let date: Date;
+
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    date = new Date(year as number, (month as number) - 1, day as number);
+  } else {
+    date = new Date(dateStr);
+  }
+
+  if (isNaN(date.getTime())) return null;
+  return date;
+}
+
+const categoryColor = computed(() => CATEGORY_COLORS[props.post.category]);
 </script>
 
 <template>
-  <div class="blog-post-info sticky top-32">
+  <div class="blog-post-info" :class="{ 'sticky top-32': !compact }">
     <!-- Back link -->
-    <div class="info-section-anim mb-10">
+    <div v-if="!compact" class="info-section-anim mb-10">
       <RandomDoodleHover :stroke-width="3" :stroke-color="categoryColor">
         <NuxtLink
           :to="localePath('/blog')"
@@ -130,6 +142,7 @@ onUnmounted(() => {
 
     <!-- Sidebar title (scroll reveal) -->
     <div
+      v-if="!compact"
       ref="sidebarTitleRef"
       class="overflow-hidden mb-8"
       style="display: none; height: 0; opacity: 0"
@@ -142,7 +155,7 @@ onUnmounted(() => {
 
     <!-- TOC: headings revelados progresivamente al hacer scroll -->
     <TransitionGroup
-      v-if="revealedHeadings && revealedHeadings.length > 0"
+      v-if="!compact && revealedHeadings && revealedHeadings.length > 0"
       name="toc"
       tag="div"
       class="toc-list mb-8"
@@ -177,13 +190,28 @@ onUnmounted(() => {
       </button>
     </TransitionGroup>
 
-    <!-- Metadata -->
-    <div class="flex flex-col">
-      <!-- Category — el elemento de color del sidebar -->
+    <div
+      v-if="compact"
+      class="info-section-anim text-[0.65rem] font-mono uppercase tracking-widest opacity-60 leading-relaxed mt-9"
+    >
+      <div>
+        <span :style="{ color: categoryColor }" class="font-bold">{{
+          CATEGORY_LABELS[post.category]
+        }}</span>
+        <span> · {{ formatShortDate(post.date) }}</span>
+        <span> · {{ post.time_to_read }} min</span>
+      </div>
+      <span v-if="post.topics.length > 0">
+        {{ post.topics.slice(0, 3).join(', ') }}{{ post.topics.length > 3 ? ' …' : '' }}</span
+      >
+
+      <BlogCopyLink :color="categoryColor" compact />
+    </div>
+
+    <div v-else class="flex flex-col">
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-2">{{ $t('blog.label_category') }}</p>
         <div class="flex items-center gap-2">
-          <!-- Dot en color de categoría -->
           <span
             class="inline-block w-1.5 h-1.5 rounded-full shrink-0"
             :style="{ backgroundColor: categoryColor }"
@@ -197,13 +225,11 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Published -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-2">{{ $t('blog.label_published') }}</p>
         <p class="text-xs font-mono opacity-75">{{ formatDate(post.date) }}</p>
       </div>
 
-      <!-- Read time -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-2">{{ $t('blog.label_read_time') }}</p>
         <p class="text-xs font-mono opacity-60">
@@ -212,7 +238,6 @@ onUnmounted(() => {
         </p>
       </div>
 
-      <!-- Topics -->
       <div class="info-section-anim py-4 border-b border-foreground/8">
         <p class="meta-label mb-3">{{ $t('blog.label_topics') }}</p>
         <div class="flex flex-col gap-1.5">
@@ -226,25 +251,10 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <!-- Language switcher -->
       <BlogLanguageSwitcher :translations="translations ?? []" />
 
-      <!-- Share -->
       <div class="info-section-anim pt-4">
-        <button
-          :aria-label="$t('blog.label_copy_link')"
-          class="group flex items-center gap-2 cursor-pointer"
-          @click="copyLink"
-        >
-          <span
-            class="text-[0.6rem] font-mono uppercase tracking-[0.2em] opacity-45 group-hover:opacity-85 transition-opacity duration-200"
-          >
-            {{ $t('blog.label_copy_link') }}
-          </span>
-        </button>
-        <span aria-live="polite" class="sr-only">{{
-          copied ? $t('blog.label_link_copied') : ''
-        }}</span>
+        <BlogCopyLink :color="categoryColor" />
       </div>
     </div>
   </div>

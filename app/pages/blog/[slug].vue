@@ -308,7 +308,17 @@ onUnmounted(() => {
       </template>
 
       <template #body>
-        <BlogPostBody :post="post" />
+        <BlogPostBody :post="post">
+          <template #post-info>
+            <div class="md:hidden">
+              <BlogPostInfo
+                :post="post"
+                :translations="translations"
+                compact
+              />
+            </div>
+          </template>
+        </BlogPostBody>
         <BlogPostNavigation :prev-post="prevPost" :next-post="nextPost" />
       </template>
     </BlogPostLayout>

@@ -34,6 +34,7 @@ const COOLDOWN_MS = 600;
 let lastBounceTime = 0;
 let lenisBounceCleanup: (() => void) | null = null;
 let bounceTween: gsap.core.Tween | null = null;
+let mobileCleanup: (() => void) | null = null;
 
 // [NOTE] threshold 0 → detecta salida del viewport para pausar la física.
 // threshold 0.6 → dispara la caída inicial de letras cuando el 60% es visible.
@@ -189,7 +190,6 @@ onMounted(async () => {
 
   // MOBILE BOUNCE -> touchend en rubber-band. Lenis no tracking overscroll,
   // asi que escuchamos el evento nativo. Solo impulso, sin bounce visual.
-  let mobileCleanup: (() => void) | null = null;
   const setupMobileBounce = () => {
     if (typeof window === 'undefined') return;
     if (window.innerWidth >= BREAKPOINTS.mobile) return;
