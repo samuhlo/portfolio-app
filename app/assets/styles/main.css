@@ -327,3 +327,13 @@ html.lenis body {
 .prose a:not(.prose-link):not(.anchor-link):hover {
   text-decoration-color: var(--color-accent);
 }
+
+/* Reading progress bar — mobile only, fixed top, full width */
+.reading-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 9999;
+}

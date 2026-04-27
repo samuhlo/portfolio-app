@@ -24,6 +24,7 @@ import { useBlogPost } from '~/composables/useBlogPost';
 import { useGSAP } from '~/composables/useGSAP';
 import { useBlogSeo } from '~/composables/useBlogSeo';
 import type { TocHeading } from '~/types/blog';
+import { CATEGORY_COLORS } from '~/types/blog';
 import BlogPostLayout from '~/components/blog/BlogPostLayout.vue';
 import BlogPostInfo from '~/components/blog/BlogPostInfo.vue';
 import BlogPostBody from '~/components/blog/BlogPostBody.vue';
@@ -64,6 +65,7 @@ const containerRef = ref<HTMLElement | null>(null);
 const showTitleInSidebar = ref(false);
 const revealedHeadings = ref<TocHeading[]>([]);
 const activeHeadingId = ref('');
+const readProgress = ref(0);
 
 // =============================================================================
 // █ SCROLL PERSISTENCE
@@ -271,6 +273,15 @@ function setupHeadingTriggers(attempt = 0) {
   ScrollTrigger.refresh();
 }
 
+// =============================================================================
+// █ READING PROGRESS
+// =============================================================================
+function updateReadProgress() {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  readProgress.value = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+}
+
 onMounted(() => {
   if (post.value) {
     nextTick(() => requestAnimationFrame(setupGSAP));
@@ -286,10 +297,12 @@ onMounted(() => {
   }
 
   window.addEventListener('scroll', saveScrollPosition, { passive: true });
+  window.addEventListener('scroll', updateReadProgress, { passive: true });
 });
 
 onUnmounted(() => {
   window.removeEventListener('scroll', saveScrollPosition);
+  window.removeEventListener('scroll', updateReadProgress);
   if (scrollSaveTimer) clearTimeout(scrollSaveTimer);
   headingTriggers.forEach((t) => t.kill());
   headingTriggers = [];
@@ -298,6 +311,14 @@ onUnmounted(() => {
 
 <template>
   <div ref="containerRef" class="blog-post-page pb-24 md:pb-32">
+    <div
+      v-if="post"
+      class="reading-progress-bar md:hidden"
+      :style="{
+        width: `${readProgress}%`,
+        backgroundColor: CATEGORY_COLORS[post.category],
+      }"
+    />
     <BlogPostLayout v-if="post">
       <template #info>
         <BlogPostInfo
