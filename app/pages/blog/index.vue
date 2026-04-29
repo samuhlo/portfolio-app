@@ -50,6 +50,7 @@ const { posts, status, filterByCategory } = useBlogPosts();
 const { categories } = useBlogCategories();
 
 const { gsap, initGSAP } = useGSAP();
+const { isPending } = useMobileMenuNavigationGate();
 const containerRef = ref<HTMLElement | null>(null);
 
 const selectedCategory = ref<BlogCategory | 'all'>('all');
@@ -61,94 +62,134 @@ function handleCategorySelect(category: BlogCategory | 'all') {
 }
 
 function runAnimation() {
-  initGSAP(() => {
-    // Al iniciar GSAP, ya podemos ocultar el loader para que no haya FOUC
-    isLoading.value = false;
+  // [CORE] BLINDAJE: no re-ejecutar si ya se ejecutó
+  let hasAnimated = false;
 
-    if (!containerRef.value) return;
+  const doAnim = () => {
+    if (hasAnimated) return;
+    hasAnimated = true;
 
-    const allCategoryEls = containerRef.value.querySelectorAll('.category-item-anim');
-    const categoryEls = Array.from(allCategoryEls).filter(
-      (el) => {
-        const navEl = el.closest('nav');
-        return (
-          window.getComputedStyle(el).display !== 'none' &&
-          (!navEl || window.getComputedStyle(navEl).display !== 'none')
-        );
-      },
-    );
-    const postEls = containerRef.value.querySelectorAll('.post-item-anim');
-    const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
+    initGSAP(() => {
+      // [FLOW] Loader fuera justo antes del primer frame animado; cero parpadeo.
+      isLoading.value = false;
 
-    if (categoryEls.length === 0 && postEls.length === 0) return;
+      if (!containerRef.value) return;
 
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-
-    if (categoryEls.length > 0) {
-      tl.from(categoryEls, { x: -20, opacity: 0, duration: 0.35, stagger: 0.05 }, '+=0.3');
-    }
-
-    if (postEls.length > 0) {
-      tl.from(postEls, { y: 20, opacity: 0, duration: 0.4, stagger: 0.06 }, '-=0.15');
-    }
-
-    if (dividerEls.length > 0) {
-      tl.from(
-        dividerEls,
-        { scaleX: 0, duration: 0.35, stagger: 0.06, ease: 'power2.inOut' },
-        '<0.03',
+      const allCategoryEls = containerRef.value.querySelectorAll('.category-item-anim');
+      const categoryEls = Array.from(allCategoryEls).filter(
+        (el) => {
+          const navEl = el.closest('nav');
+          return (
+            window.getComputedStyle(el).display !== 'none' &&
+            (!navEl || window.getComputedStyle(navEl).display !== 'none')
+          );
+        },
       );
-    }
-  }, containerRef.value);
+      const postEls = containerRef.value.querySelectorAll('.post-item-anim');
+      const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
+
+      if (categoryEls.length === 0 && postEls.length === 0) return;
+
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      if (categoryEls.length > 0) {
+        tl.from(categoryEls, { x: -20, opacity: 0, duration: 0.35, stagger: 0.05 }, '+=0.3');
+      }
+
+      if (postEls.length > 0) {
+        tl.from(postEls, { y: 20, opacity: 0, duration: 0.4, stagger: 0.06 }, '-=0.15');
+      }
+
+      if (dividerEls.length > 0) {
+        tl.from(
+          dividerEls,
+          { scaleX: 0, duration: 0.35, stagger: 0.06, ease: 'power2.inOut' },
+          '<0.03',
+        );
+      }
+    }, containerRef.value);
+  };
+
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending) {
+        nextTick(doAnim);
+        stop();
+      }
+    });
+    return;
+  }
+
+  nextTick(doAnim);
 }
 
 function runSoftLocaleSwitchAnimation() {
-  initGSAP(() => {
-    isLoading.value = false;
+  // [CORE] BLINDAJE: no re-ejecutar si ya se ejecutó
+  let hasAnimated = false;
 
-    if (!containerRef.value) return;
+  const doAnim = () => {
+    if (hasAnimated) return;
+    hasAnimated = true;
 
-    // [NOTE] Solo animamos lista de posts y divisores.
-    // Las categorías se mantienen estáticas en locale switch.
-    const listEl = containerRef.value.querySelector('.blog-list');
-    if (!listEl) return;
+    initGSAP(() => {
+      isLoading.value = false;
 
-    const postEls = containerRef.value.querySelectorAll('.post-item-anim');
-    const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
+      if (!containerRef.value) return;
 
-    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+      // [NOTE] Solo animamos lista de posts y divisores.
+      // Las categorías se mantienen estáticas en locale switch.
+      const listEl = containerRef.value.querySelector('.blog-list');
+      if (!listEl) return;
 
-    tl.fromTo(
-      listEl,
-      { opacity: 0.8, y: 14 },
-      { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out', clearProps: 'transform' },
-    );
+      const postEls = containerRef.value.querySelectorAll('.post-item-anim');
+      const dividerEls = containerRef.value.querySelectorAll('.blog-divider');
 
-    if (postEls.length > 0) {
+      const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
+
       tl.fromTo(
-        postEls,
-        { opacity: 0.6, y: 18 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.78,
-          stagger: 0.065,
-          ease: 'power2.out',
-          clearProps: 'transform',
-        },
-        '<0.02',
+        listEl,
+        { opacity: 0.8, y: 14 },
+        { opacity: 1, y: 0, duration: 0.62, ease: 'power2.out', clearProps: 'transform' },
       );
-    }
 
-    if (dividerEls.length > 0) {
-      tl.fromTo(
-        dividerEls,
-        { opacity: 0.58, scaleX: 0.93 },
-        { opacity: 1, scaleX: 1, duration: 0.7, stagger: 0.055, ease: 'power2.out' },
-        '<0.04',
-      );
-    }
-  }, containerRef.value);
+      if (postEls.length > 0) {
+        tl.fromTo(
+          postEls,
+          { opacity: 0.6, y: 18 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.78,
+            stagger: 0.065,
+            ease: 'power2.out',
+            clearProps: 'transform',
+          },
+          '<0.02',
+        );
+      }
+
+      if (dividerEls.length > 0) {
+        tl.fromTo(
+          dividerEls,
+          { opacity: 0.58, scaleX: 0.93 },
+          { opacity: 1, scaleX: 1, duration: 0.7, stagger: 0.055, ease: 'power2.out' },
+          '<0.04',
+        );
+      }
+    }, containerRef.value);
+  };
+
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending) {
+        nextTick(doAnim);
+        stop();
+      }
+    });
+    return;
+  }
+
+  nextTick(doAnim);
 }
 
 onMounted(() => {

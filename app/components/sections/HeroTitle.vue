@@ -8,13 +8,14 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import type { DoodleExposed } from '~/types/doodle';
 
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths } = useDoodleDraw();
+const { isPending } = useMobileMenuNavigationGate();
 
 // =============================================================================
 // █ CONFIGURACIÓN VISUAL Y DE ANIMACIÓN
@@ -145,20 +146,44 @@ const buildTimeline = (): gsap.core.Timeline => {
 
 // El timeline se almacena y expone para que HeroSection pueda controlarlo
 let titleTimeline: gsap.core.Timeline | null = null;
+let entryAnimated = false;
+
+const runEntryAnimation = (): void => {
+  if (entryAnimated) return;
+
+  const doAnimation = () => {
+    if (!containerRef.value || entryAnimated) return;
+    entryAnimated = true;
+
+    // [CORE] El elemento ya está oculto por CSS (opacity:0, translate3d).
+    // Solo necesitamos revelarlo suavemente con un gsap.to.
+    gsap.to(containerRef.value, {
+      opacity: 1,
+      y: 0,
+      duration: 1.2,
+      ease: 'power3.inOut',
+      clearProps: 'opacity,transform',
+    });
+  };
+
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending) {
+        nextTick(doAnimation);
+        stop();
+      }
+    });
+    return;
+  }
+
+  nextTick(doAnimation);
+};
 
 onMounted(() => {
   initGSAP(() => {
     titleTimeline = buildTimeline();
-
-    // Animación de entrada: el título aparece al cargar la página
-    // El scroll timeline arranca desde este estado final
-    gsap.from(containerRef.value, {
-      opacity: 0,
-      y: 80,
-      duration: 1.2,
-      ease: 'power3.inOut',
-    });
   });
+  runEntryAnimation();
 });
 
 // HeroSection accede al timeline para controlarlo con un único ScrollTrigger
@@ -178,7 +203,7 @@ defineExpose({
   <div
     ref="containerRef"
     class="relative inline-flex items-baseline leading-none select-none"
-    style="overflow: visible; gap: 0"
+    style="overflow: visible; gap: 0; opacity: 0; transform: translate3d(0, 80px, 0)"
   >
     <!-- Punto oculto (revelado después) -->
     <span

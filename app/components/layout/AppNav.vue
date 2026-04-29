@@ -59,7 +59,7 @@ onUnmounted(() => {
     aria-label="Main navigation"
     class="fixed top-0 left-0 right-0 z-50 flex justify-between items-center p-6 md:px-12 w-full"
   >
-    <div class="flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
+    <div class="hidden md:flex gap-8 text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
         <NuxtLink :to="localePath('/')" class="hover:font-bold transition-opacity">Home</NuxtLink>
       </RandomDoodleHover>
@@ -71,7 +71,7 @@ onUnmounted(() => {
     </div>
     <slot />
 
-    <div class="text-xs md:text-sm uppercase tracking-widest font-medium">
+    <div class="hidden md:block text-xs md:text-sm uppercase tracking-widest font-medium">
       <RandomDoodleHover :stroke-width="3">
         <NuxtLink :to="`mailto:${SITE.email}`" class="hover:font-bold transition-opacity"
           >Contact</NuxtLink
