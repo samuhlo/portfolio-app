@@ -8,7 +8,7 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, nextTick } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import type { DoodleExposed } from '~/types/doodle';
@@ -16,6 +16,7 @@ import { BREAKPOINTS } from '~/config/site';
 
 const { gsap, initGSAP } = useGSAP();
 const { preparePaths, addDrawAnimation } = useDoodleDraw();
+const { isPending } = useMobileMenuNavigationGate();
 
 const containerRef = ref<HTMLElement | null>(null);
 
@@ -120,18 +121,45 @@ const buildTimeline = (): gsap.core.Timeline => {
 };
 
 let subtitleTimeline: gsap.core.Timeline | null = null;
+let entryAnimated = false;
+
+const runEntryAnimation = (): void => {
+  if (entryAnimated) return;
+
+  const doAnimation = () => {
+    if (!containerRef.value || entryAnimated) return;
+    entryAnimated = true;
+
+    // [CORE] El elemento ya está oculto por CSS (opacity:0, translate3d).
+    // Solo necesitamos revelarlo.
+    gsap.to(containerRef.value, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      delay: 0.45,
+      ease: 'power3.inOut',
+      clearProps: 'opacity,transform',
+    });
+  };
+
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending) {
+        nextTick(doAnimation);
+        stop();
+      }
+    });
+    return;
+  }
+
+  nextTick(doAnimation);
+};
 
 onMounted(() => {
   initGSAP(() => {
     subtitleTimeline = buildTimeline();
-
-    // Animación de entrada: el subtítulo aparece justo después del título
-    gsap.fromTo(
-      containerRef.value,
-      { opacity: 0, y: 45 },
-      { opacity: 1, y: 0, duration: 0.8, delay: 0.45, ease: 'power3.inOut' },
-    );
   });
+  runEntryAnimation();
 });
 
 // HeroSection accede a este timeline para controlarlo con su ScrollTrigger unificado
@@ -142,8 +170,9 @@ defineExpose({
 
 <template>
   <div
-    class="relative inline-flex flex-col items-center select-none text-[clamp(1.25rem,3vw,3.5rem)]"
     ref="containerRef"
+    class="relative inline-flex flex-col items-center select-none text-[clamp(1.25rem,3vw,3.5rem)]"
+    style="opacity: 0; transform: translate3d(0, 45px, 0)"
   >
     <!-- Texto base -->
     <h2 ref="textRef" class="font-bold text-center md:text-left tracking-tight relative">

@@ -37,6 +37,7 @@ onMounted(async () => {
     <ClientOnly>
       <NoiseBackground />
     </ClientOnly>
+    <AppMobileMenu />
     <ConsoleMessage />
     <NuxtLayout>
       <NuxtPage />
