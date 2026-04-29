@@ -57,6 +57,20 @@ const selectedCategory = ref<BlogCategory | 'all'>('all');
 
 const filteredPosts = computed(() => filterByCategory(selectedCategory.value));
 
+function runAfterGate(fn: () => void): void {
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending) {
+        nextTick(fn);
+        stop();
+      }
+    });
+    return;
+  }
+
+  nextTick(fn);
+}
+
 function handleCategorySelect(category: BlogCategory | 'all') {
   selectedCategory.value = category;
 }
@@ -110,17 +124,7 @@ function runAnimation() {
     }, containerRef.value);
   };
 
-  if (isPending.value) {
-    const stop = watch(isPending, (pending) => {
-      if (!pending) {
-        nextTick(doAnim);
-        stop();
-      }
-    });
-    return;
-  }
-
-  nextTick(doAnim);
+  runAfterGate(doAnim);
 }
 
 function runSoftLocaleSwitchAnimation() {
@@ -179,17 +183,7 @@ function runSoftLocaleSwitchAnimation() {
     }, containerRef.value);
   };
 
-  if (isPending.value) {
-    const stop = watch(isPending, (pending) => {
-      if (!pending) {
-        nextTick(doAnim);
-        stop();
-      }
-    });
-    return;
-  }
-
-  nextTick(doAnim);
+  runAfterGate(doAnim);
 }
 
 onMounted(() => {

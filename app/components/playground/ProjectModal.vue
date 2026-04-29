@@ -15,11 +15,13 @@ import Lenis from 'lenis';
 import { useWindowSize, onKeyStroke } from '@vueuse/core';
 import { BREAKPOINTS } from '~/config/site';
 import { storeToRefs } from 'pinia';
+import { useNoisePause } from '~/composables/useNoisePause';
 
 const route = useRoute();
 const router = useRouter();
 const projectsStore = useProjectsStore();
 const { selectedProject, isLoading: projectLoading } = storeToRefs(projectsStore);
+const { pause: pauseNoise, resume: resumeNoise } = useNoisePause();
 
 const isOpen = computed(() => !!route.query.project);
 const currentProjectSlug = computed(() => route.query.project as string);
@@ -39,6 +41,9 @@ watch(currentProjectSlug, async (newSlug) => {
 watch(isOpen, async (open) => {
   if (!open) {
     projectsStore.clearSelectedProject();
+    resumeNoise();
+  } else {
+    pauseNoise();
   }
 });
 

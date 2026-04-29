@@ -98,4 +98,10 @@ const noiseUrl = computed(() => {
     transform: translate3d(-7rem, 0, 0);
   }
 }
+
+/* FRICTION CUT -> Pausa zero-cost durante estados críticos (drawer, modal, loader) */
+html.noise-paused .noise-overlay,
+body.noise-paused .noise-overlay {
+  animation-play-state: paused;
+}
 </style>

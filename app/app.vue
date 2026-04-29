@@ -14,6 +14,9 @@ useHead(() => {
     },
     link: [...(localeHead.value.link ?? [])],
     meta: [...(localeHead.value.meta ?? [])],
+    bodyAttrs: {
+      class: isLoading.value ? 'noise-paused' : '',
+    },
   };
 });
 

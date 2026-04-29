@@ -179,16 +179,28 @@ const runEntryAnimation = (): void => {
   nextTick(doAnimation);
 };
 
-onMounted(() => {
+const ensureTitleTimeline = (): gsap.core.Timeline | null => {
+  if (titleTimeline) return titleTimeline;
+
   initGSAP(() => {
     titleTimeline = buildTimeline();
   });
-  runEntryAnimation();
+
+  return titleTimeline;
+};
+
+onMounted(() => {
+  nextTick(() => {
+    requestAnimationFrame(() => {
+      ensureTitleTimeline();
+      runEntryAnimation();
+    });
+  });
 });
 
 // HeroSection accede al timeline para controlarlo con un único ScrollTrigger
 defineExpose({
-  getTimeline: () => titleTimeline,
+  getTimeline: ensureTitleTimeline,
 });
 </script>
 
