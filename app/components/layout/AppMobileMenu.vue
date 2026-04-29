@@ -11,6 +11,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { SITE } from '~/config/site';
 import { useGSAP } from '~/composables/useGSAP';
 import { useLenis } from '~/composables/useLenis';
+import { useNoisePause } from '~/composables/useNoisePause';
 
 type LenisScrollEvent = {
   scroll: number;
@@ -30,6 +31,7 @@ const { $lenis } = useNuxtApp() as { $lenis?: { on: Function; off: Function } };
 const { gsap, initGSAP } = useGSAP();
 const lenis = useLenis();
 const { openGate, closeGate } = useMobileMenuNavigationGate();
+const { pause: pauseNoise, resume: resumeNoise } = useNoisePause();
 
 const isOpen = ref(false);
 const isAnimating = ref(false);
@@ -52,9 +54,11 @@ const navItems = computed<NavItem[]>(() => [
 let openTimeline: ReturnType<typeof gsap.timeline> | null = null;
 let closeTimeline: ReturnType<typeof gsap.timeline> | null = null;
 let showButtonTween: ReturnType<typeof gsap.fromTo> | null = null;
+let isButtonVisible = true; // button starts visible (progress=1 means shown)
 let mediaQueryList: MediaQueryList | null = null;
 let cleanupLenis: (() => void) | null = null;
 let previousBodyOverflow = '';
+let closeResolve: (() => void) | null = null;
 
 // =============================================================================
 // [ACCESS] FOCO SIN FUGAS
@@ -80,7 +84,7 @@ const handleKeydown = (event: KeyboardEvent): void => {
 
   if (event.key === 'Escape') {
     event.preventDefault();
-    closeMenu();
+    void closeMenu();
     return;
   }
 
@@ -120,11 +124,14 @@ const unlockScroll = (): void => {
 };
 
 const finishClose = (): void => {
+  resumeNoise();
   isOpen.value = false;
   isAnimating.value = false;
   unlockScroll();
   closeGate();
   menuButtonRef.value?.focus();
+  closeResolve?.();
+  closeResolve = null;
 };
 
 const openMenu = async (): Promise<void> => {
@@ -135,6 +142,8 @@ const openMenu = async (): Promise<void> => {
   isAnimating.value = true;
   lockScroll();
   showButtonTween?.play();
+  pauseNoise();
+  isButtonVisible = false;
 
   await nextTick();
 
@@ -149,17 +158,20 @@ const openMenu = async (): Promise<void> => {
   openTimeline?.restart();
 };
 
-const closeMenu = (): void => {
-  if (!isOpen.value || isAnimating.value) return;
+const closeMenu = (): Promise<void> => {
+  if (!isOpen.value || isAnimating.value) return Promise.resolve();
 
   isAnimating.value = true;
 
-  if (prefersReducedMotion.value) {
+  if (prefersReducedMotion.value || !closeTimeline) {
     finishClose();
-    return;
+    return Promise.resolve();
   }
 
-  closeTimeline?.restart();
+  return new Promise((resolve) => {
+    closeResolve = resolve;
+    closeTimeline.restart();
+  });
 };
 
 const toggleMenu = (): void => {
@@ -167,25 +179,26 @@ const toggleMenu = (): void => {
   if (isProjectModalOpen.value) return;
 
   if (isOpen.value) {
-    closeMenu();
+    void closeMenu();
     return;
   }
 
   void openMenu();
 };
 
-const handleNavClick = (to: string): void => {
+const handleNavClick = async (to: string): Promise<void> => {
   if (!isOpen.value || isAnimating.value) return;
 
   openGate();
+  await closeMenu();
   void router.push(to);
-  closeMenu();
 };
 
 const handleExternalNavClick = (): void => {
   if (!isOpen.value || isAnimating.value) return;
 
-  closeMenu();
+  resumeNoise();
+  void closeMenu();
 };
 
 const syncReducedMotion = (): void => {
@@ -194,7 +207,8 @@ const syncReducedMotion = (): void => {
 
 watch(isProjectModalOpen, (open) => {
   if (!open) return;
-  if (isOpen.value && !isAnimating.value) closeMenu();
+  if (isOpen.value && !isAnimating.value) void closeMenu();
+  isButtonVisible = false;
   showButtonTween?.reverse();
 });
 
@@ -252,12 +266,18 @@ const bindLenisVisibility = (): void => {
     if (isOpen.value || isProjectModalOpen.value) return;
 
     if (direction === 1 && scroll > 80) {
-      showButtonTween?.reverse();
+      if (isButtonVisible) {
+        showButtonTween?.reverse();
+        isButtonVisible = false;
+      }
       return;
     }
 
     if (direction === -1) {
-      showButtonTween?.play();
+      if (!isButtonVisible) {
+        showButtonTween?.play();
+        isButtonVisible = true;
+      }
     }
   };
 
