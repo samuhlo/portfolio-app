@@ -9,7 +9,7 @@
  */
 
 import { ref, onMounted, onUnmounted } from 'vue';
-import { SITE } from '~/config/site';
+import { SITE, BREAKPOINTS } from '~/config/site';
 
 const { gsap, initGSAP } = useGSAP();
 const localePath = useLocalePath();
@@ -20,6 +20,10 @@ let cleanupLenis: (() => void) | null = null;
 
 onMounted(() => {
   if (!navRef.value) return;
+  // [OPT] Solo escuchar Lenis en desktop — en móvil el scroll visibility
+  // lo gestiona AppMobileMenu (hamburguesa).
+  if (typeof window === 'undefined') return;
+  if (window.innerWidth < BREAKPOINTS.mobile) return;
 
   initGSAP(() => {
     const showAnim = gsap

@@ -9,7 +9,7 @@
  * STATUS: STABLE
  * =====================================================================
  */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useGSAP } from '~/composables/useGSAP';
 import { useDoodleDraw } from '~/composables/useDoodleDraw';
 import { usePinnedScroll } from '~/composables/usePinnedScroll';
@@ -48,9 +48,14 @@ type DoodleConfig = {
 };
 
 const HEARTBEAT_DELAY_MS = 600;
+let bioObserver: IntersectionObserver | null = null;
+let bioInitialized = false;
 
-onMounted(async () => {
-  // Esperar a que las fuentes se carguen para evitar errores con SplitText en producción
+const initBioAnimations = async (): Promise<void> => {
+  if (bioInitialized) return;
+  bioInitialized = true;
+
+  // [NOTE] SplitText necesita fuentes listas; ahora esperamos solo cuando Bio se acerca.
   await document.fonts.ready;
 
   initGSAP(() => {
@@ -183,6 +188,34 @@ onMounted(async () => {
       });
     }
   });
+};
+
+onMounted(() => {
+  const section = sectionRef.value;
+  if (!section) return;
+
+  if (!('IntersectionObserver' in window)) {
+    void initBioAnimations();
+    return;
+  }
+
+  bioObserver = new IntersectionObserver(
+    (entries) => {
+      if (!entries[0]?.isIntersecting) return;
+
+      void initBioAnimations();
+      bioObserver?.disconnect();
+      bioObserver = null;
+    },
+    { threshold: 0.1, rootMargin: '200px' },
+  );
+
+  bioObserver.observe(section);
+});
+
+onUnmounted(() => {
+  bioObserver?.disconnect();
+  bioObserver = null;
 });
 </script>
 

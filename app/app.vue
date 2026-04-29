@@ -3,6 +3,8 @@ import { ref, onMounted, nextTick } from 'vue';
 
 const localeHead = useLocaleHead({ seo: true });
 
+const isLoading = ref(true);
+
 useHead(() => {
   const dir = localeHead.value.htmlAttrs?.dir;
   const normalizedDir = dir === 'ltr' || dir === 'rtl' || dir === 'auto' ? dir : undefined;
@@ -14,10 +16,11 @@ useHead(() => {
     },
     link: [...(localeHead.value.link ?? [])],
     meta: [...(localeHead.value.meta ?? [])],
+    bodyAttrs: {
+      class: isLoading.value ? 'noise-paused' : '',
+    },
   };
 });
-
-const isLoading = ref(true);
 
 const TRANSITION_BUFFER_MS = 100;
 
