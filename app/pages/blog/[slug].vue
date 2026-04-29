@@ -13,7 +13,7 @@
 
 definePageMeta({ layout: 'blog' });
 
-import { ref, watch, onMounted, onUnmounted } from 'vue';
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRoute } from '#app';
 
 import { useSetI18nParams } from '#imports';
@@ -61,6 +61,7 @@ watch(
 );
 
 const { gsap, ScrollTrigger, initGSAP } = useGSAP();
+const { isPending } = useMobileMenuNavigationGate();
 const containerRef = ref<HTMLElement | null>(null);
 const showTitleInSidebar = ref(false);
 const revealedHeadings = ref<TocHeading[]>([]);
@@ -99,6 +100,17 @@ let gsapInitialized = false;
 
 function setupGSAP() {
   if (gsapInitialized || !containerRef.value) return;
+
+  if (isPending.value) {
+    const stop = watch(isPending, (pending) => {
+      if (!pending && containerRef.value) {
+        nextTick(() => setupGSAP());
+        stop();
+      }
+    });
+    return;
+  }
+
   gsapInitialized = true;
 
   initGSAP(() => {
